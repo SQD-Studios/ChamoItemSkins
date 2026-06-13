@@ -1,0 +1,74 @@
+// --- plugin/src/main/java/net/chamosmp/chamoitemskins/placeholder/ChamoItemSkinsExpansion.java ---
+package net.chamosmp.chamoitemskins.placeholder;
+
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.service.GrantService;
+import net.chamosmp.chamoitemskins.api.service.SkinService;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * PlaceholderAPI expansion for ChamoItemSkins.
+ */
+public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
+    private final SkinService skinService;
+    private final GrantService grantService;
+
+    public ChamoItemSkinsExpansion(SkinService skinService, GrantService grantService) {
+        this.skinService = skinService;
+        this.grantService = grantService;
+    }
+
+    @Override
+    public @NotNull String getIdentifier() {
+        return "chamoitemskins";
+    }
+
+    @Override
+    public @NotNull String getAuthor() {
+        return "ChamoSMP";
+    }
+
+    @Override
+    public @NotNull String getVersion() {
+        return "1.0.0";
+    }
+
+    @Override
+    public boolean persist() {
+        return true;
+    }
+
+    @Override
+    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
+        if (player == null) return null;
+
+        if (params.startsWith("active_")) {
+            String matName = params.substring(7);
+            Material material = Material.matchMaterial(matName);
+            if (material == null) return "";
+            
+            return grantService.getActiveSkin(player.getUniqueId(), material)
+                    .thenApply(id -> id.flatMap(skinService::getSkin).map(Skin::name).orElse(""))
+                    .join(); // join() is okay here as PAPI is usually called async or we are on VT
+        }
+
+        if (params.startsWith("owns_")) {
+            String skinId = params.substring(5);
+            return String.valueOf(grantService.hasSkin(player.getUniqueId(), skinId).join());
+        }
+
+        if (params.equals("total_owned")) {
+            return String.valueOf(grantService.getGrants(player.getUniqueId()).join().size());
+        }
+
+        if (params.equals("total_skins")) {
+            return String.valueOf(skinService.getSkins().stream().filter(Skin::enabled).count());
+        }
+
+        return null;
+    }
+}
