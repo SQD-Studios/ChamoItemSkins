@@ -1,0 +1,18 @@
+# --- plugin/src/main/resources/admin-gui.yml ---
+title: "<red>ChamoItemSkins Admin"
+size: 54
+slots:
+  reload:
+    slot: 4
+    type: ActionSlot
+    action: RELOAD
+    material: BARRIER
+    name: "<red>Reload Plugin"
+    lore: ["<gray>Click to reload all configurations."]
+  editor:
+    slot: 22
+    type: ActionSlot
+    action: EDITOR
+    material: WRITABLE_BOOK
+    name: "<gold>Skin Editor"
+    lore: ["<gray>Click to open the live skin editor."]
