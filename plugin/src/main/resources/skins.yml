@@ -1,0 +1,14 @@
+# --- plugin/src/main/resources/skins.yml ---
+skins:
+  infernal_blade:
+    id: "infernal_blade"
+    name: "<gradient:red:dark_red>Infernal Blade"
+    model-id: "chamoitemskins:infernal_blade"
+    item-type: DIAMOND_SWORD
+    enabled: true
+    note-material: PAPER
+    display-item:
+      id: DIAMOND_SWORD
+      name: "<gradient:red:dark_red>Infernal Blade"
+      lore: ["<gray>A blade forged in hellfire."]
+      glow: true
