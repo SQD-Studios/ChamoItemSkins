@@ -1,0 +1,13 @@
+# --- .gitignore ---
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.idea/
+*.iml
+*.iws
+.DS_Store
+out/
+run/
+logs/
+*.log
+*.db
