@@ -1,4 +1,3 @@
-# --- plugin/src/main/resources/skin-editor-gui.yml ---
 title: "<gold>Skin Editor"
 allowed-item-types:
   - DIAMOND_SWORD

@@ -4,6 +4,7 @@ package net.chamosmp.chamoitemskins.listener;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -53,13 +54,24 @@ public final class NoteListener implements Listener {
                 }
 
                 grantService.grantSkin(player.getUniqueId(), skinId, "NOTE").thenRun(() -> {
-                    item.setAmount(item.getAmount() - 1);
-                    MessageUtil.sendMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
-                            Map.of("skin_name", skin.name()));
+                    // Re-check amount in sync to avoid race conditions as much as possible with item reduction
+                    SchedulerUtil.runSync(plugin, () -> {
+                        item.setAmount(item.getAmount() - 1);
+                        MessageUtil.sendMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
+                                Map.of("skin_name", skin.name()));
+                    });
                 }).exceptionally(ex -> {
                     player.sendMessage("Failed to grant skin: " + ex.getMessage());
                     return null;
                 });
+            }).exceptionally(ex -> {
+                // If it fails with " HikariDataSource has been closed", it might be during reload.
+                if (ex.getMessage().contains("closed")) {
+                    MessageUtil.sendMessage(player, "<red>Database is currently busy or reloading. Please try again in a moment.");
+                } else {
+                    player.sendMessage("Failed to check skin ownership: " + ex.getMessage());
+                }
+                return null;
             });
         });
     }

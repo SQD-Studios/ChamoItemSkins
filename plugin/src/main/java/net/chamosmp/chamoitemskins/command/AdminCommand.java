@@ -1,10 +1,10 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/AdminCommand.java ---
 package net.chamosmp.chamoitemskins.command;
-
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.AdminGui;
+import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 @Command("skinsadmin")
+@Aliases("sa")
+@Description("Admin command for ChamoItemSkins")
 public final class AdminCommand {
     private final Plugin plugin;
     private final SkinService skinService;
@@ -45,17 +47,31 @@ public final class AdminCommand {
     }
 
     @Permission("chamoitemskins.admin")
+    @Executes
+    public void onBase(@Executor Player player) {
+        onGui(player);
+    }
+
+    @Permission("chamoitemskins.admin")
     @Executes("gui")
-    public void onGui(Player player) {
+    public void onGui(@Executor Player player) {
         new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots).open();
     }
 
     @Permission("chamoitemskins.admin")
     @Executes("reload")
     public void onReload(CommandSender sender) {
-        plugin.onDisable();
-        plugin.onEnable();
-        MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
+        if (plugin instanceof ChamoItemSkinsPlugin chamoPlugin) {
+            chamoPlugin.reloadPlugin();
+            // Force reload of other config files used by the plugin
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "gui.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "admin-gui.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "skins.yml");
+            
+            MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
+        } else {
+            MessageUtil.sendMessage(sender, "<red>Failed to reload plugin: Unexpected plugin instance.");
+        }
     }
 
     @Permission("chamoitemskins.admin")
@@ -68,6 +84,38 @@ public final class AdminCommand {
             
             target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
             MessageUtil.sendMessage(sender, "<green>Gave " + skin.id() + " note to " + target.getName());
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin")
+    @Executes("access give")
+    public void onAccessGive(CommandSender sender, Player target, String skinId) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
+                if (has) {
+                    MessageUtil.sendMessage(sender, "<red>" + target.getName() + " already has access to " + skinId);
+                    return;
+                }
+                grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND").thenRun(() -> {
+                    MessageUtil.sendMessage(sender, "<green>Granted access to " + skinId + " for " + target.getName());
+                });
+            });
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin")
+    @Executes("access revoke")
+    public void onAccessRevoke(CommandSender sender, Player target, String skinId) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
+                if (!has) {
+                    MessageUtil.sendMessage(sender, "<red>" + target.getName() + " does not have access to " + skinId);
+                    return;
+                }
+                grantService.revokeSkin(target.getUniqueId(), skinId).thenRun(() -> {
+                    MessageUtil.sendMessage(sender, "<green>Revoked access to " + skinId + " from " + target.getName());
+                });
+            });
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 }

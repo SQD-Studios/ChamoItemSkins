@@ -7,6 +7,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,8 +16,13 @@ import java.util.concurrent.TimeUnit;
  */
 public final class SchedulerUtil {
     private static final boolean IS_FOLIA = Bukkit.getServer().getClass().getSimpleName().contains("Folia");
+    private static final Executor VIRTUAL_THREAD_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private SchedulerUtil() {}
+
+    public static Executor getVirtualThreadExecutor() {
+        return VIRTUAL_THREAD_EXECUTOR;
+    }
 
     public static void runAsync(@NotNull Plugin plugin, @NotNull Runnable task) {
         if (IS_FOLIA) {

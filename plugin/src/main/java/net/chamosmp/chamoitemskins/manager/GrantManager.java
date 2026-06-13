@@ -6,10 +6,14 @@ import net.chamosmp.chamoitemskins.api.event.SkinGrantEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinRevokeEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinUnequipEvent;
 import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
+import net.chamosmp.chamoitemskins.api.service.LogService;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,7 +21,9 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -30,12 +36,16 @@ public final class GrantManager implements GrantService {
     private final DatabaseManager db;
     private final CacheManager cache;
     private final SkinManager skinManager;
+    private final LogService logService;
+    private final BetterModelService betterModelService;
 
-    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager) {
+    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelService betterModelService) {
         this.plugin = plugin;
         this.db = db;
         this.cache = cache;
         this.skinManager = skinManager;
+        this.logService = logService;
+        this.betterModelService = betterModelService;
     }
 
     @Override
@@ -70,6 +80,7 @@ public final class GrantManager implements GrantService {
                 if (!event.isCancelled()) {
                     db.grantSkin(playerUuid, skinId, source).thenRun(() -> {
                         cache.invalidate(playerUuid);
+                        logService.log(playerUuid, "GRANT", skinId, source);
                         future.complete(null);
                     });
                 } else {
@@ -96,6 +107,7 @@ public final class GrantManager implements GrantService {
                 if (!event.isCancelled()) {
                     db.revokeSkin(playerUuid, skinId).thenRun(() -> {
                         cache.invalidate(playerUuid);
+                        logService.log(playerUuid, "REVOKE", skinId, null);
                         future.complete(null);
                     });
                 } else {
@@ -142,7 +154,11 @@ public final class GrantManager implements GrantService {
                                         future.completeExceptionally(new RuntimeException("Unequip cancelled"));
                                         return;
                                     }
-                                    db.setActiveSkin(playerUuid, material, null).thenRun(() -> future.complete(null));
+                                    db.setActiveSkin(playerUuid, material, null).thenRun(() -> {
+                                        logService.log(playerUuid, "UNEQUIP", activeId.get(), material.name());
+                                        betterModelService.removeModels(player);
+                                        future.complete(null);
+                                    });
                                 });
                             });
                         } else {
@@ -152,11 +168,48 @@ public final class GrantManager implements GrantService {
                     return;
                 }
                 
-                db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> future.complete(null));
+                db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> {
+                    logService.log(playerUuid, "EQUIP", skinId, material.name());
+                    betterModelService.applyModel(player, skin.modelId());
+                    for (String animation : skin.animations()) {
+                        betterModelService.playAnimation(player, animation);
+                    }
+                    future.complete(null);
+                });
             });
             return future;
         }
 
         return db.setActiveSkin(playerUuid, material, skinId);
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> grantBundle(@NotNull UUID playerUuid, @NotNull String bundleId, @NotNull String source) {
+        Optional<SkinBundle> bundleOpt = skinManager.getBundle(bundleId);
+        if (bundleOpt.isEmpty()) return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
+        SkinBundle bundle = bundleOpt.get();
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (String skinId : bundle.skinIds()) {
+            futures.add(grantSkin(playerUuid, skinId, source + " (Bundle: " + bundleId + ")"));
+        }
+        
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenRun(() -> logService.log(playerUuid, "GRANT_BUNDLE", bundleId, source));
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> revokeBundle(@NotNull UUID playerUuid, @NotNull String bundleId) {
+        Optional<SkinBundle> bundleOpt = skinManager.getBundle(bundleId);
+        if (bundleOpt.isEmpty()) return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
+        SkinBundle bundle = bundleOpt.get();
+
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+        for (String skinId : bundle.skinIds()) {
+            futures.add(revokeSkin(playerUuid, skinId));
+        }
+        
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenRun(() -> logService.log(playerUuid, "REVOKE_BUNDLE", bundleId, null));
     }
 }

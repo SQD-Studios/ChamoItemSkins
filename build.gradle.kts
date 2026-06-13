@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "net.chamosmp.chamoitemskins"
-    version = "1.0.0-SNAPSHOT"
+    version = "1.0.0"
 
     repositories {
         mavenCentral()

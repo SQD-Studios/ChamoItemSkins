@@ -69,6 +69,25 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
             return String.valueOf(skinService.getSkins().stream().filter(Skin::enabled).count());
         }
 
+        if (params.startsWith("rarity_")) {
+            String skinId = params.substring(7);
+            return skinService.getSkin(skinId).map(s -> s.rarity().getDisplayName()).orElse("");
+        }
+
+        if (params.equals("total_bundles")) {
+            return String.valueOf(skinService.getBundles().size());
+        }
+
+        if (params.startsWith("owns_bundle_")) {
+             String bundleId = params.substring(12);
+             return skinService.getBundle(bundleId).map(bundle -> {
+                 for (String id : bundle.skinIds()) {
+                     if (!grantService.hasSkin(player.getUniqueId(), id).join()) return "false";
+                 }
+                 return "true";
+             }).orElse("false");
+        }
+
         return null;
     }
 }

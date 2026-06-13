@@ -1,15 +1,10 @@
 name: ChamoItemSkins
-version: 1.0.0
+version: ${version}
 main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
 api-version: '1.21'
-author: ChamoSMP
+authors: ["SQD Studios", Chamogelastos]
 depend: [BetterModel]
 softdepend: [PlaceholderAPI]
-commands:
-  skins:
-    description: Main skins command
-  skinsadmin:
-    description: Admin skins command
 permissions:
   chamoitemskins.use:
     description: Allows using the /skins command
@@ -17,3 +12,5 @@ permissions:
   chamoitemskins.admin:
     description: Allows using admin features
     default: op
+libraries:
+  - "com.zaxxer:HikariCP:6.2.1"

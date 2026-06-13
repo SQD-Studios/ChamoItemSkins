@@ -49,4 +49,9 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
      * Sets the active skin for a specific item type.
      */
     @NotNull CompletableFuture<Void> setActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId);
+
+    /**
+     * Logs an action to the database.
+     */
+    void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata);
 }

@@ -10,7 +10,7 @@ import java.util.List;
  * @param id           Unique skin identifier.
  * @param name         MiniMessage display name.
  * @param modelId      BetterModel model ID.
- * @param itemType     The material this skin can be applied to.
+ * @param categories   The categories this skin belongs to.
  * @param enabled      Whether the skin is currently active in the plugin.
  * @param noteMaterial Optional override for the physical note item material.
  * @param displayItem  Configuration for the item shown in GUIs.
@@ -19,10 +19,12 @@ public record Skin(
         String id,
         String name,
         String modelId,
-        Material itemType,
+        Rarity rarity,
+        List<String> categories,
         boolean enabled,
         Material noteMaterial,
-        DisplayItem displayItem
+        DisplayItem displayItem,
+        List<String> animations
 ) {
     public record DisplayItem(
             Material material,

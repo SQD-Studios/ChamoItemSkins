@@ -2,6 +2,7 @@
 package net.chamosmp.chamoitemskins.api;
 
 import net.chamosmp.chamoitemskins.api.service.GrantService;
+import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -31,4 +32,9 @@ public interface ChamoItemSkinsApi {
      * @return The grant service.
      */
     @NotNull GrantService getGrantService();
+
+    /**
+     * @return The log service.
+     */
+    @NotNull LogService getLogService();
 }

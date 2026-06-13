@@ -60,4 +60,21 @@ public interface GrantService {
      * @return A future that completes when the active skin is updated.
      */
     @NotNull CompletableFuture<Void> setActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId);
+
+    /**
+     * Grants a bundle to a player.
+     * @param playerUuid The player's UUID.
+     * @param bundleId   The bundle ID.
+     * @param source     The source of the grant.
+     * @return A future that completes when the bundle is granted.
+     */
+    @NotNull CompletableFuture<Void> grantBundle(@NotNull UUID playerUuid, @NotNull String bundleId, @NotNull String source);
+
+    /**
+     * Revokes a bundle from a player.
+     * @param playerUuid The player's UUID.
+     * @param bundleId   The bundle ID.
+     * @return A future that completes when the bundle is revoked.
+     */
+    @NotNull CompletableFuture<Void> revokeBundle(@NotNull UUID playerUuid, @NotNull String bundleId);
 }

@@ -4,6 +4,7 @@ package net.chamosmp.chamoitemskins.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
+import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +65,16 @@ public final class MySQLDatabase implements DatabaseManager {
                     skin_id     VARCHAR(64) NOT NULL,
                     PRIMARY KEY (player_uuid, item_type)
                 )""");
+            conn.createStatement().execute("""
+                CREATE TABLE IF NOT EXISTS player_skin_logs (
+                    log_id      VARCHAR(36) PRIMARY KEY,
+                    player_uuid VARCHAR(36) NOT NULL,
+                    action      VARCHAR(32) NOT NULL,
+                    target      VARCHAR(64) NOT NULL,
+                    metadata    TEXT,
+                    timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    INDEX (player_uuid)
+                )""");
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to initialize MySQL: " + e.getMessage());
         }
@@ -90,7 +101,7 @@ public final class MySQLDatabase implements DatabaseManager {
             } catch (SQLException e) {
                 plugin.getLogger().severe("Failed to grant skin: " + e.getMessage());
             }
-        }, java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
@@ -106,7 +117,7 @@ public final class MySQLDatabase implements DatabaseManager {
             } catch (SQLException e) {
                 plugin.getLogger().severe("Failed to revoke skin: " + e.getMessage());
             }
-        }, java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
@@ -131,7 +142,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 plugin.getLogger().severe("Failed to get grants: " + e.getMessage());
             }
             return grants;
-        }, java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
@@ -148,7 +159,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 plugin.getLogger().severe("Failed to get active skin: " + e.getMessage());
             }
             return Optional.empty();
-        }, java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
@@ -176,6 +187,24 @@ public final class MySQLDatabase implements DatabaseManager {
             } catch (SQLException e) {
                 plugin.getLogger().severe("Failed to set active skin: " + e.getMessage());
             }
-        }, java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata) {
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement("""
+                 INSERT INTO player_skin_logs (log_id, player_uuid, action, target, metadata)
+                 VALUES (?, ?, ?, ?, ?)
+             """)) {
+            ps.setString(1, UUID.randomUUID().toString());
+            ps.setString(2, playerUuid.toString());
+            ps.setString(3, action);
+            ps.setString(4, target);
+            ps.setString(5, metadata);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to log action: " + e.getMessage());
+        }
     }
 }
