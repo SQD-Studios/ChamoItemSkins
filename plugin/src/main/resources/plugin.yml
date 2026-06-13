@@ -1,0 +1,19 @@
+name: ChamoItemSkins
+version: 1.0.0
+main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
+api-version: '1.21'
+author: ChamoSMP
+depend: [BetterModel]
+softdepend: [PlaceholderAPI]
+commands:
+  skins:
+    description: Main skins command
+  skinsadmin:
+    description: Admin skins command
+permissions:
+  chamoitemskins.use:
+    description: Allows using the /skins command
+    default: true
+  chamoitemskins.admin:
+    description: Allows using admin features
+    default: op
