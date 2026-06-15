@@ -374,10 +374,8 @@ All public types in `:api` must have Javadoc.
 HikariCP relocated: `com.zaxxer.hikari` → `net.chamosmp.chamoitemskins.libs.hikari`
 
 --- 
-## Refactoring the AGENTS.md
+## Agent Files
 Instead of changing this file directly create a new one in the
-./AGENTS/AGENT_PREF
-
----
-## Getting Stuck
-If you believe you became stuck, ask me about it AND NOT THINK IT YOURSELF, YOU'RE GOING TO BE WRONG
+./AGENTS/AGENT_PREF. Every time you use this file ask the user about future plans
+and If they accept it, create a md file in AGENTS/FUTURE/ACC and if they reject it in
+AGENT/FUTURE/REJECTED

@@ -3,6 +3,7 @@ package net.chamosmp.chamoitemskins.gui.admin;
 
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.gui.editor.SkinEditorGui;
@@ -49,6 +50,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
             }
             inventory.setItem(def.slot(), item);
         }
+        GuiFillerUtil.apply(plugin, inventory, player);
     }
 
     public void open() {
@@ -81,7 +83,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 if (service == null) {
                     service = net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi.get().getSkinService();
                 }
-                new SkinEditorGui(plugin, player, service).open();
+                new SkinEditorGui(plugin, player, service, ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getBetterModelService()).open();
             }
             case "GIVE" -> {
                 ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, "<yellow>Enter skin ID to GIVE note:", skinId -> {

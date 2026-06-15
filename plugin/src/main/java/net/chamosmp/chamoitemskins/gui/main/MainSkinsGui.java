@@ -1,9 +1,11 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/MainSkinsGui.java ---
 package net.chamosmp.chamoitemskins.gui.main;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
@@ -18,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -81,6 +85,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             }
             inventory.setItem(def.slot(), item);
         }
+        GuiFillerUtil.apply(plugin, inventory, player);
     }
 
     public void open() {
@@ -92,13 +97,19 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = ConfigUtil.loadOrAdapt(plugin, "gui.yml");
+            YamlConfiguration selectionConfig = ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
             List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
             
-            new SkinSelectionGui(plugin, player, category, skinService, grantService, selectionTitle, selectionSize, selectionSlots).open();
+            RarityManager rarityManager = plugin instanceof ChamoItemSkinsPlugin chamo
+                    ? chamo.getRarityManager()
+                    : new RarityManager(plugin);
+            BetterModelServiceo betterModelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
+                    ? chamoPlugin.getBetterModelService()
+                    : new BetterModelServiceo();
+            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, betterModelService, selectionTitle, selectionSize, selectionSlots).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot action) {
@@ -133,7 +144,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
             case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot();
+            case "FILTERSLOT" -> new SlotType.FilterSlot(section.getString("category", "ALL"));
             case "BACKSLOT" -> new SlotType.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
             default -> new SlotType.Decorative();

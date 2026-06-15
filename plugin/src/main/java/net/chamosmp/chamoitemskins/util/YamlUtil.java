@@ -4,6 +4,7 @@ package net.chamosmp.chamoitemskins.util;
 import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinBundle;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -24,7 +25,7 @@ public final class YamlUtil {
 
     private YamlUtil() {}
 
-    public static @NotNull List<Skin> loadSkins(@NotNull YamlConfiguration config) {
+    public static @NotNull List<Skin> loadSkins(@NotNull YamlConfiguration config, @NotNull RarityManager rarityManager) {
         List<Skin> skins = new ArrayList<>();
         ConfigurationSection section = config.getConfigurationSection("skins");
         if (section == null) return skins;
@@ -38,10 +39,8 @@ public final class YamlUtil {
 
             String name = skinSection.getString("name", "Unknown");
             String modelId = skinSection.getString("model-id", "");
-            Rarity rarity = Optional.ofNullable(skinSection.getString("rarity"))
-                    .map(String::toUpperCase)
-                    .map(Rarity::valueOf)
-                    .orElse(Rarity.COMMON);
+            String rarityId = skinSection.getString("rarity", rarityManager.getDefaultRarity().id());
+            Rarity rarity = rarityManager.resolve(rarityId);
             List<String> categories = skinSection.getStringList("categories");
             boolean enabled = skinSection.getBoolean("enabled", true);
             Material noteMaterial = Optional.ofNullable(skinSection.getString("note-material"))
@@ -88,15 +87,15 @@ public final class YamlUtil {
         SchedulerUtil.runAsync(plugin, () -> {
             File file = new File(plugin.getDataFolder(), "skins.yml");
             File tempFile = new File(plugin.getDataFolder(), "skins.yml.tmp");
-            
+
             synchronized (YamlUtil.class) {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-                
+
                 String path = "skins." + skin.id();
                 config.set(path + ".id", skin.id());
                 config.set(path + ".name", skin.name());
                 config.set(path + ".model-id", skin.modelId());
-                config.set(path + ".rarity", skin.rarity().name());
+                config.set(path + ".rarity", skin.rarity().id());
                 config.set(path + ".categories", skin.categories());
                 config.set(path + ".enabled", skin.enabled());
                 config.set(path + ".note-material", skin.noteMaterial() != null ? skin.noteMaterial().name() : null);
@@ -128,7 +127,7 @@ public final class YamlUtil {
         SchedulerUtil.runAsync(plugin, () -> {
             File file = new File(plugin.getDataFolder(), "skins.yml");
             File tempFile = new File(plugin.getDataFolder(), "skins.yml.tmp");
-            
+
             synchronized (YamlUtil.class) {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                 config.set("skins." + id, null);
@@ -152,10 +151,10 @@ public final class YamlUtil {
         SchedulerUtil.runAsync(plugin, () -> {
             File file = new File(plugin.getDataFolder(), "skins.yml");
             File tempFile = new File(plugin.getDataFolder(), "skins.yml.tmp");
-            
+
             synchronized (YamlUtil.class) {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-                
+
                 String path = "bundles." + bundle.id();
                 config.set(path + ".id", bundle.id());
                 config.set(path + ".name", bundle.name());
@@ -176,7 +175,7 @@ public final class YamlUtil {
         SchedulerUtil.runAsync(plugin, () -> {
             File file = new File(plugin.getDataFolder(), "skins.yml");
             File tempFile = new File(plugin.getDataFolder(), "skins.yml.tmp");
-            
+
             synchronized (YamlUtil.class) {
                 YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
                 config.set("bundles." + id, null);

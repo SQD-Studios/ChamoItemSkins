@@ -10,10 +10,9 @@ import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
-import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,7 +22,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -37,9 +38,9 @@ public final class GrantManager implements GrantService {
     private final CacheManager cache;
     private final SkinManager skinManager;
     private final LogService logService;
-    private final BetterModelService betterModelService;
+    private final BetterModelServiceo betterModelService;
 
-    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelService betterModelService) {
+    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelServiceo betterModelService) {
         this.plugin = plugin;
         this.db = db;
         this.cache = cache;
@@ -128,59 +129,72 @@ public final class GrantManager implements GrantService {
     @Override
     public @NotNull CompletableFuture<Void> setActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId) {
         Player player = Bukkit.getPlayer(playerUuid);
-        Skin skin = skinId != null ? skinManager.getSkin(skinId).orElse(null) : null;
+        Skin newSkin = skinId != null ? skinManager.getSkin(skinId).orElse(null) : null;
 
         if (player != null) {
             CompletableFuture<Void> future = new CompletableFuture<>();
-            SchedulerUtil.runSync(plugin, () -> {
-                if (skin != null) {
-                    SkinEquipEvent event = new SkinEquipEvent(player, skin);
-                    Bukkit.getPluginManager().callEvent(event);
-                    if (event.isCancelled()) {
-                        future.completeExceptionally(new RuntimeException("Equip cancelled"));
-                        return;
-                    }
-                } else {
-                    // Unequipping
-                    // We might need to know WHICH skin is being unequipped to fire the event correctly
-                    // For now, let's just proceed or fetch active skin first
-                    getActiveSkin(playerUuid, material).thenAccept(activeId -> {
-                        if (activeId.isPresent()) {
-                            skinManager.getSkin(activeId.get()).ifPresent(s -> {
-                                SchedulerUtil.runSync(plugin, () -> {
-                                    SkinUnequipEvent unequipEvent = new SkinUnequipEvent(player, s);
-                                    Bukkit.getPluginManager().callEvent(unequipEvent);
-                                    if (unequipEvent.isCancelled()) {
-                                        future.completeExceptionally(new RuntimeException("Unequip cancelled"));
-                                        return;
-                                    }
-                                    db.setActiveSkin(playerUuid, material, null).thenRun(() -> {
-                                        logService.log(playerUuid, "UNEQUIP", activeId.get(), material.name());
-                                        betterModelService.removeModels(player);
-                                        future.complete(null);
-                                    });
-                                });
-                            });
-                        } else {
-                            db.setActiveSkin(playerUuid, material, null).thenRun(() -> future.complete(null));
+
+            db.getActiveSkin(playerUuid, material).thenAccept(previousSkinId -> {
+                Skin previousSkin = previousSkinId.flatMap(skinManager::getSkin).orElse(null);
+
+                Runnable equipLogic = () -> {
+                    if (newSkin != null) {
+                        SkinEquipEvent event = new SkinEquipEvent(player, newSkin);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            future.completeExceptionally(new RuntimeException("Equip cancelled"));
+                            return;
                         }
-                    });
-                    return;
-                }
-                
-                db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> {
-                    logService.log(playerUuid, "EQUIP", skinId, material.name());
-                    betterModelService.applyModel(player, skin.modelId());
-                    for (String animation : skin.animations()) {
-                        betterModelService.playAnimation(player, animation);
+                    } else if (previousSkin != null) {
+                        SkinUnequipEvent event = new SkinUnequipEvent(player, previousSkin);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            future.completeExceptionally(new RuntimeException("Unequip cancelled"));
+                            return;
+                        }
                     }
-                    future.complete(null);
-                });
+
+                    db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> {
+                        logService.log(playerUuid, newSkin != null ? "EQUIP" : "UNEQUIP", skinId, material.name());
+                        SchedulerUtil.runForEntity(plugin, player, () -> {
+                            betterModelService.refreshMaterial(player, material, newSkin);
+                            future.complete(null);
+                        }, () -> future.complete(null));
+                    });
+                };
+
+                if (Bukkit.isPrimaryThread()) {
+                    equipLogic.run();
+                } else {
+                    SchedulerUtil.runSync(plugin, equipLogic);
+                }
             });
+
             return future;
         }
 
         return db.setActiveSkin(playerUuid, material, skinId);
+    }
+
+    /**
+     * Re-applies all active skin models to the player's inventory.
+     */
+    public void refreshPlayerSkins(@NotNull Player player) {
+        CompletableFuture.runAsync(() -> {
+            Map<Material, Skin> activeSkins = new HashMap<>();
+            for (Material material : Material.values()) {
+                if (material.isAir() || !material.isItem()) {
+                    continue;
+                }
+                db.getActiveSkin(player.getUniqueId(), material).join()
+                        .flatMap(skinManager::getSkin)
+                        .ifPresent(skin -> activeSkins.put(material, skin));
+            }
+
+            Map<Material, Skin> loaded = Map.copyOf(activeSkins);
+            SchedulerUtil.runForEntity(plugin, player, () ->
+                    betterModelService.refreshInventory(player, loaded), () -> {});
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override

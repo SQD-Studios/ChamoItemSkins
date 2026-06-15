@@ -1,19 +1,8 @@
-// --- plugin/build.gradle.kts ---
 plugins {
     id("com.gradleup.shadow") version "9.4.2"
     id("java")
     id("xyz.jpenilla.run-paper") version "3.0.2"
 }
-
-/*repositories {
-    mavenCentral()
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven {
-        name = "eldonexus"
-        url = uri("https://eldonexus.de/repository/maven-public/")
-    }
-}
- */
 
 dependencies {
     implementation(project(":api"))
@@ -53,9 +42,14 @@ tasks {
     runServer {
         downloadPlugins {
             github("toxicity188", "BetterModel", "3.1.0", "bettermodel-3.1.0-paper.jar")
+            modrinth("lKEzGugV", "2.12.2")
         }
 
         minecraftVersion("26.1.2")
     }
     runPaper.folia.registerTask()
+}
+
+tasks.compileJava {
+    options.compilerArgs.addAll(listOf("-Xlint:-unchecked", "-Xlint:-rawtypes", "-proc:full"))
 }

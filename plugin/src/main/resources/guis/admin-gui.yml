@@ -1,15 +1,15 @@
 title: "<red>ChamoItemSkins Admin"
-size: 54
+size: 27
 slots:
   reload:
-    slot: 4
+    slot: 11
     type: ActionSlot
     action: RELOAD
     material: BARRIER
     name: "<red>Reload Plugin"
     lore: ["<gray>Click to reload all configurations."]
   editor:
-    slot: 22
+    slot: 15
     type: ActionSlot
     action: EDITOR
     material: WRITABLE_BOOK

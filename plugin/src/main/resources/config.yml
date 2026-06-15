@@ -1,5 +1,24 @@
 default-language: en
 
+rarities:
+  enabled: true
+  common:
+    name: Common
+    color: "<gray>"
+    priority: 0
+  rare:
+    name: Rare
+    color: "<blue>"
+    priority: 1
+  epic:
+    name: Epic
+    color: "<light_purple>"
+    priority: 2
+  legendary:
+    name: Legendary
+    color: "<gold>"
+    priority: 3
+
 database:
   type: sqlite # sqlite or mysql
   host: localhost
@@ -11,6 +30,14 @@ database:
 
 cache:
   ttl-seconds: 300
+
+filler:
+  filler-item: true
+  item:
+    material: GRAY_STAINED_GLASS_PANE
+    name: " "
+    lore: []
+    glow: false
 
 note:
   default-material: PAPER

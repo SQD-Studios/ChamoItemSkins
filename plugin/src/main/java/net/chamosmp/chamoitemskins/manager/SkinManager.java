@@ -21,11 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class SkinManager implements SkinService {
     private final Plugin plugin;
+    private final RarityManager rarityManager;
     private final Map<String, Skin> skins = new ConcurrentHashMap<>();
     private final Map<String, SkinBundle> bundles = new ConcurrentHashMap<>();
 
-    public SkinManager(Plugin plugin) {
+    public SkinManager(@NotNull Plugin plugin, @NotNull RarityManager rarityManager) {
         this.plugin = plugin;
+        this.rarityManager = rarityManager;
     }
 
     @Override
@@ -79,10 +81,10 @@ public final class SkinManager implements SkinService {
             case "CHESTPLATE", "CHESTPLATES" -> materialName.contains("CHESTPLATE");
             case "LEGGINGS" -> materialName.contains("LEGGINGS");
             case "BOOTS" -> materialName.contains("BOOTS");
-            case "TOOLS" -> materialName.contains("SWORD") || materialName.contains("_AXE") || 
-                             materialName.contains("PICKAXE") || materialName.contains("SHOVEL") || 
+            case "TOOLS" -> materialName.contains("SWORD") || materialName.contains("_AXE") ||
+                             materialName.contains("PICKAXE") || materialName.contains("SHOVEL") ||
                              materialName.contains("_HOE");
-            case "ARMOR" -> materialName.contains("HELMET") || materialName.contains("CHESTPLATE") || 
+            case "ARMOR" -> materialName.contains("HELMET") || materialName.contains("CHESTPLATE") ||
                              materialName.contains("LEGGINGS") || materialName.contains("BOOTS");
             case "ALL", "GENERAL" -> true;
             default -> false;
@@ -118,7 +120,7 @@ public final class SkinManager implements SkinService {
         skins.clear();
         bundles.clear();
         var config = ConfigUtil.loadOrAdapt(plugin, "skins.yml");
-        YamlUtil.loadSkins(config).forEach(skin -> skins.put(skin.id(), skin));
+        YamlUtil.loadSkins(config, rarityManager).forEach(skin -> skins.put(skin.id(), skin));
         YamlUtil.loadBundles(config).forEach(bundle -> bundles.put(bundle.id(), bundle));
     }
 }

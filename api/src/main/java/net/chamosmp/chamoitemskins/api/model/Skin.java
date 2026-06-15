@@ -9,7 +9,8 @@ import java.util.List;
  *
  * @param id           Unique skin identifier.
  * @param name         MiniMessage display name.
- * @param modelId      BetterModel model ID.
+ * @param modelId      BetterModel model id — bare renderer name (e.g. {@code demon_knight})
+ *                     or explicit item model key ({@code namespace:path}).
  * @param categories   The categories this skin belongs to.
  * @param enabled      Whether the skin is currently active in the plugin.
  * @param noteMaterial Optional override for the physical note item material.

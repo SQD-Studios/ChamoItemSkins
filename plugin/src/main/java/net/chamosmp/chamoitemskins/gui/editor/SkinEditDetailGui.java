@@ -1,9 +1,13 @@
+// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/editor/SkinEditDetailGui.java ---
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import org.bukkit.Bukkit;
@@ -17,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * GUI for editing an existing skin.
@@ -26,6 +29,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
     private final Player player;
     private final SkinService skinService;
+    private final RarityManager rarityManager;
     private Skin skin;
     private final Inventory inventory;
 
@@ -37,41 +41,38 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
+        this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
         this.skin = skin;
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<gold>Edit Skin: " + skin.id()));
-        
+
         refresh();
     }
 
     public void refresh() {
         inventory.clear();
-        
+
         inventory.setItem(10, createInfoItem(Material.NAME_TAG, "<yellow>Name: <white>" + skin.name(), "<gray>Click to set Name"));
         inventory.setItem(11, createInfoItem(Material.LEVER, "<yellow>Enabled: " + (skin.enabled() ? "<green>Yes" : "<red>No"), "<gray>Click to toggle"));
-        
-        // Model ID
         inventory.setItem(12, createInfoItem(Material.ARMOR_STAND, "<yellow>Model ID: <white>" + skin.modelId(), "<gray>Click to set Model ID"));
-
-        // Skin ID
         inventory.setItem(13, createInfoItem(Material.OAK_SIGN, "<yellow>ID: <white>" + skin.id(), "<gray>Click to change Skin ID"));
 
-        // Category Cycle Item
         List<String> lore = new ArrayList<>();
-        lore.add("<gray>Selected Categories:");
-        if (skin.categories().isEmpty()) lore.add(" <red>None");
-        else skin.categories().forEach(c -> lore.add(" <green>• " + c));
-        lore.add("");
+        //lore.add("<gray>Selected Categories:");
+        //if (skin.categories().isEmpty()) lore.add(" <red>None");
+        //else skin.categories().forEach(c -> lore.add(" <green>• " + c));
+        //lore.add("");
         lore.add("<yellow>Click to toggle categories in order:");
         for (String cat : ALL_CATEGORIES) {
-            String prefix = skin.categories().contains(cat) ? "<green>[✔] " : "<red>[✘] ";
-            lore.add(prefix + "<gray>" + cat);
+            String prefix = skin.categories().contains(cat) ? "<green>" : "<dark_gray>";
+            lore.add("  " + prefix + cat);
         }
+
         inventory.setItem(14, createInfoItem(Material.BOOK, "<gold><bold>Categories", lore));
 
-        // Rarity
-        inventory.setItem(15, createInfoItem(Material.EMERALD, "<yellow>Rarity: " + skin.rarity().getDisplayName(), "<gray>Click to cycle rarity"));
+        if (rarityManager.isEnabled()) {
+            inventory.setItem(15, createInfoItem(Material.EMERALD, "<yellow>Rarity: " + skin.rarity().getDisplayName(), "<gray>Click to cycle rarity"));
+        }
 
-        // Back Button
         ItemStack back = new ItemStack(Material.ARROW);
         var meta = back.getItemMeta();
         if (meta != null) {
@@ -79,6 +80,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             back.setItemMeta(meta);
         }
         inventory.setItem(26, back);
+        GuiFillerUtil.apply(plugin, inventory, player);
     }
 
     private int categoryCycleIndex = 0;
@@ -98,6 +100,19 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         return item;
     }
 
+    private Rarity nextRarity(Rarity current) {
+        var rarities = rarityManager.getRarities();
+        if (rarities.isEmpty()) return current;
+        int idx = 0;
+        for (int i = 0; i < rarities.size(); i++) {
+            if (rarities.get(i).id().equals(current.id())) {
+                idx = i;
+                break;
+            }
+        }
+        return rarities.get((idx + 1) % rarities.size());
+    }
+
     public void open() {
         SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
     }
@@ -115,7 +130,13 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(), skin.categories(), !skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 12) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, "<yellow>Enter Model ID:", input -> {
+            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, "<yellow>Enter Model ID:", () -> {
+                try {
+                    return kr.toxicity.model.api.BetterModel.modelKeys();
+                } catch (Exception e) {
+                    return java.util.Collections.emptyList();
+                }
+            }, input -> {
                 skin = new Skin(skin.id(), skin.name(), input, skin.rarity(), skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
                 saveAndRefresh();
                 open();
@@ -128,7 +149,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                     open();
                     return;
                 }
-                
+
                 if (skinService.getSkin(newId).isPresent()) {
                     MessageUtil.sendMessage(player, "<red>A skin with ID " + newId + " already exists!");
                     open();
@@ -153,12 +174,12 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(), cats, skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
             saveAndRefresh();
-        } else if (slot == 15) {
-            net.chamosmp.chamoitemskins.api.model.Rarity nextRarity = net.chamosmp.chamoitemskins.api.model.Rarity.values()[(skin.rarity().ordinal() + 1) % net.chamosmp.chamoitemskins.api.model.Rarity.values().length];
+        } else if (slot == 15 && rarityManager.isEnabled()) {
+            Rarity nextRarity = nextRarity(skin.rarity());
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), nextRarity, skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 26) {
-            new SkinEditorGui(plugin, player, skinService).open();
+            new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getBetterModelService()).open();
         }
     }
 

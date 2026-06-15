@@ -11,3 +11,4 @@ run/
 logs/
 *.log
 *.db
+.aider*

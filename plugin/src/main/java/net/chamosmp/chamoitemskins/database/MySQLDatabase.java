@@ -167,16 +167,15 @@ public final class MySQLDatabase implements DatabaseManager {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection()) {
                 if (skinId == null) {
-                    try (PreparedStatement ps = conn.prepareStatement("DELETE FROM player_active_skins WHERE player_uuid = ? AND item_type = ?")) {
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "DELETE FROM player_active_skins WHERE player_uuid = ? AND item_type = ?")) {
                         ps.setString(1, playerUuid.toString());
                         ps.setString(2, material.name());
                         ps.executeUpdate();
                     }
                 } else {
-                    try (PreparedStatement ps = conn.prepareStatement("""
-                        INSERT INTO player_active_skins (player_uuid, item_type, skin_id)
-                        VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE skin_id = ?
-                    """)) {
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "INSERT INTO player_active_skins (player_uuid, item_type, skin_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE skin_id = ?")) {
                         ps.setString(1, playerUuid.toString());
                         ps.setString(2, material.name());
                         ps.setString(3, skinId);

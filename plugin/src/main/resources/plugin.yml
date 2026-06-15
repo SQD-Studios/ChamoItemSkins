@@ -4,6 +4,7 @@ main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
 api-version: '1.21'
 authors: ["SQD Studios", Chamogelastos]
 depend: [BetterModel]
+
 softdepend: [PlaceholderAPI]
 permissions:
   chamoitemskins.use:

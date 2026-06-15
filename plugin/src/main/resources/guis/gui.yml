@@ -1,0 +1,138 @@
+# Choose a category gui
+title: <gradient:gold:yellow>Skins
+size: 36
+slots:
+  sword:
+    slot: 10
+    type: ActionSlot
+    action: CATEGORY_SWORD
+    material: DIAMOND_SWORD
+    name: <red>Sword Skins
+    lore:
+      - <gray>Click to browse skins for swords.
+    glow: true
+  pickaxe:
+    slot: 11
+    type: ActionSlot
+    action: CATEGORY_PICKAXE
+    material: DIAMOND_PICKAXE
+    name: <aqua>Pickaxe Skins
+    lore:
+      - <gray>Click to browse skins for pickaxes.
+  axe:
+    slot: 12
+    type: ActionSlot
+    action: CATEGORY_AXE
+    material: DIAMOND_AXE
+    name: <aqua>Axe Skins
+    lore:
+      - <gray>Click to browse skins for axes.
+  shield:
+    slot: 13
+    type: ActionSlot
+    action: CATEGORY_SHIELD
+    material: SHIELD
+    name: <aqua>Shield Skins
+    lore:
+      - <gray>Click to browse skins for shields.
+  bow:
+    slot: 14
+    type: ActionSlot
+    action: CATEGORY_BOW
+    material: BOW
+    name: <aqua>Bow Skins
+    lore:
+      - <gray>Click to browse skins for bows.
+  crossbow:
+    slot: 15
+    type: ActionSlot
+    action: CATEGORY_CROSSBOW
+    material: CROSSBOW
+    name: <aqua>Crossbow Skins
+    lore:
+      - <gray>Click to browse skins for crossbows.
+  shovel:
+    slot: 15
+    type: ActionSlot
+    action: CATEGORY_SHOVEL
+    material: DIAMOND_SHOVEL
+    name: <aqua>Shovel Skins
+    lore:
+      - <gray>Click to browse skins for shovels.
+  spear:
+    slot: 16
+    type: ActionSlot
+    action: CATEGORY_SPEAR
+    material: DIAMOND_SPEAR
+    name: <aqua>Spear Skins
+    lore:
+      - <gray>Click to browse skins for spears.
+  mace:
+    slot: 19
+    type: ActionSlot
+    action: CATEGORY_MACE
+    material: MACE
+    name: <aqua>Mace Skins
+    lore:
+      - <gray>Click to browse skins for maces.
+  hoe:
+    slot: 20
+    type: ActionSlot
+    action: CATEGORY_HOE
+    material: DIAMOND_HOE
+    name: <aqua>Hoe Skins
+    lore:
+      - <gray>Click to browse skins for hoes.
+  admin:
+    slot: 35
+    type: ActionSlot
+    action: ADMIN_GUI
+    material: COMMAND_BLOCK
+    name: <red>Admin Panel
+    lore:
+      - <gray>Click to open administration.
+  swords:
+    slot: 10
+    type: ActionSlot
+    action: CATEGORY_SWORD
+    material: DIAMOND_SWORD
+    name: <red>Sword Skins
+    lore:
+      - <gray>Click to browse skins for swords.
+    glow: true
+  pickaxes:
+    slot: 11
+    type: ActionSlot
+    action: CATEGORY_PICKAXE
+    material: DIAMOND_PICKAXE
+    name: <aqua>Pickaxe Skins
+    lore:
+      - <gray>Click to browse skins for pickaxes.
+
+# Selection GUI
+selection-title: Select <white>{material}<gray> Skins
+selection-size: 54
+selection-slots:
+  filter_all:
+    slot: 47
+    type: FilterSlot
+    category: ALL
+    material: CHEST
+    name: <yellow>All Skins
+    lore:
+      - <gray>Show every skin in this category.
+  filter_owned:
+    slot: 46
+    type: FilterSlot
+    category: OWNED
+    material: EMERALD
+    name: <green>Owned
+    lore:
+      - <gray>Show only skins you own.
+  back:
+    slot: 45
+    type: BackSlot
+    material: ARROW
+    name: <red>Back
+    lore:
+      - <gray>Return to categories.

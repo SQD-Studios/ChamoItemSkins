@@ -1,9 +1,12 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/AdminCommand.java ---
 package net.chamosmp.chamoitemskins.command;
+
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.command.suggestions.betterModelIdSuggestions;
+import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
@@ -19,12 +22,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
 import java.util.List;
-import java.util.Map;
 
 @Command("skinsadmin")
-@Aliases("sa")
+@Aliases({"sa", "skinadmin"})
 @Description("Admin command for ChamoItemSkins")
 public final class AdminCommand {
     private final Plugin plugin;
@@ -63,9 +64,9 @@ public final class AdminCommand {
     public void onReload(CommandSender sender) {
         if (plugin instanceof ChamoItemSkinsPlugin chamoPlugin) {
             chamoPlugin.reloadPlugin();
-            // Force reload of other config files used by the plugin
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "gui.yml");
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "admin-gui.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "config.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/admin-gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "skins.yml");
             
             MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
@@ -76,7 +77,7 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, String skinId) {
+    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
             String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
@@ -89,7 +90,7 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin")
     @Executes("access give")
-    public void onAccessGive(CommandSender sender, Player target, String skinId) {
+    public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
@@ -105,7 +106,7 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin")
     @Executes("access revoke")
-    public void onAccessRevoke(CommandSender sender, Player target, String skinId) {
+    public void onAccessRevoke(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (!has) {
@@ -116,6 +117,16 @@ public final class AdminCommand {
                     MessageUtil.sendMessage(sender, "<green>Revoked access to " + skinId + " from " + target.getName());
                 });
             });
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin")
+    @Executes("edit model")
+    public void onEditModel(CommandSender sender, @skinIdSuggestions String skinId, @betterModelIdSuggestions String modelId) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            Skin newSkin = new Skin(skin.id(), skin.name(), modelId, skin.rarity(), skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
+            skinService.saveSkin(newSkin);
+            MessageUtil.sendMessage(sender, "<green>Updated model ID for " + skin.id() + " to " + modelId);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 }

@@ -1,10 +1,10 @@
-# --- plugin/src/main/resources/skins.yml ---
 skins:
   infernal_blade:
     id: "infernal_blade"
     name: "<gradient:red:dark_red>Infernal Blade"
-    model-id: "chamoitemskins:infernal_blade"
+    model-id: "demon_knight"
     enabled: true
+    rarity: common
     categories: ["SWORD"]
     note-material: PAPER
     display-item:

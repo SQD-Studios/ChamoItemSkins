@@ -5,6 +5,7 @@ import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.main.MainSkinsGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.strokkur.commands.Aliases;
 import net.strokkur.commands.Command;
 import net.strokkur.commands.Executes;
 import net.strokkur.commands.paper.Description;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Command("skins")
+@Aliases("skin")
 @Description("Open the skins menu")
 public final class SkinsCommand {
     private final Plugin plugin;
