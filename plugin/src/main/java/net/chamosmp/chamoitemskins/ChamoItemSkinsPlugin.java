@@ -24,7 +24,6 @@ import net.chamosmp.chamoitemskins.manager.GrantManager;
 import net.chamosmp.chamoitemskins.manager.LogManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
@@ -50,7 +49,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private LogManager logManager;
     private RarityManager rarityManager;
     private GuiFillerUtil guiFillerUtil;
-    private BetterModelServiceo betterModelService;
+    private BetterModelService betterModelService;
     private ChatInputUtil chatInputUtil;
 
     @Override
@@ -90,7 +89,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public void onEnable() {
 
-        new BetterModelService(this);
+
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
@@ -122,7 +121,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
             this.skinManager = new SkinManager(this, rarityManager);
             this.skinManager.reloadSkins();
         }
-        if (this.betterModelService == null) this.betterModelService = new BetterModelServiceo();
+        if (this.betterModelService == null) this.betterModelService = new BetterModelService();
         if (this.cacheManager == null) this.cacheManager = new CacheManager(config.getLong("cache.ttl-seconds", 300));
         if (this.logManager == null) this.logManager = new LogManager(this, databaseManager);
         if (this.grantManager == null) {
@@ -228,7 +227,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         return chatInputUtil;
     }
 
-    public @NotNull BetterModelServiceo getBetterModelService() {
+    public @NotNull BetterModelService getBetterModelService() {
         return betterModelService;
     }
 }

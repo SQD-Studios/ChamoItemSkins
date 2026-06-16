@@ -10,7 +10,7 @@ import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Bukkit;
@@ -38,9 +38,9 @@ public final class GrantManager implements GrantService {
     private final CacheManager cache;
     private final SkinManager skinManager;
     private final LogService logService;
-    private final BetterModelServiceo betterModelService;
+    private final BetterModelService betterModelService;
 
-    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelServiceo betterModelService) {
+    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelService betterModelService) {
         this.plugin = plugin;
         this.db = db;
         this.cache = cache;

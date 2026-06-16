@@ -2,7 +2,7 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.api.model.Skin;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
@@ -31,13 +31,13 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
     private final Player player;
     private final SkinService skinService;
-    private final BetterModelServiceo betterModelService;
+    private final BetterModelService betterModelService;
     private final Inventory inventory;
     private final List<Skin> skins;
     private final List<Integer> skinSlots;
     private final Map<Integer, Skin> slotToSkin = new HashMap<>();
 
-    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, BetterModelServiceo betterModelService) {
+    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, BetterModelService betterModelService) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;

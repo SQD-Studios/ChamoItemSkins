@@ -5,6 +5,7 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
@@ -20,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
@@ -39,6 +39,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final GrantService grantService;
     private final Inventory inventory;
+    //private final BetterModelServiceo betterModelService;
     private final List<GuiSlotDef> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
 
@@ -106,9 +107,9 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             RarityManager rarityManager = plugin instanceof ChamoItemSkinsPlugin chamo
                     ? chamo.getRarityManager()
                     : new RarityManager(plugin);
-            BetterModelServiceo betterModelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
+            BetterModelService betterModelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
                     ? chamoPlugin.getBetterModelService()
-                    : new BetterModelServiceo();
+                    : new BetterModelService();
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, betterModelService, selectionTitle, selectionSize, selectionSlots).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {

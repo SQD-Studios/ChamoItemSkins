@@ -4,7 +4,7 @@ package net.chamosmp.chamoitemskins.gui.main;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelServiceo;
+import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
@@ -40,7 +40,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final GrantService grantService;
     private final RarityManager rarityManager;
-    private final BetterModelServiceo betterModelService;
+    private final BetterModelService betterModelService;
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
     private final List<Skin> pinnedSkins;
@@ -60,7 +60,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull SkinService skinService,
             @NotNull GrantService grantService,
             @NotNull RarityManager rarityManager,
-            @NotNull BetterModelServiceo betterModelService,
+            @NotNull BetterModelService betterModelService,
             @NotNull String title,
             int size,
             @NotNull List<GuiSlotDef> slots
