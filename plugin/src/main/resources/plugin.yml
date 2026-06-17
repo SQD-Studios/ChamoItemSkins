@@ -1,7 +1,7 @@
 name: ChamoItemSkins
 version: ${version}
 main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
-api-version: '1.21'
+api-version: '1.21.4'
 authors: ["SQD Studios", Chamogelastos]
 depend: [BetterModel]
 
