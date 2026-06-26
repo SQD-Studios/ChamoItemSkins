@@ -75,4 +75,13 @@ public interface SkinService {
      * Reloads all skins and bundles from configuration.
      */
     void reloadSkins();
+
+    /**
+     * This is meant for the gui, after changing the skinid, to change in the database too.
+     * It deletes the old skin, and you must define it again like this:
+     * {@code new Skin(id, name, modelId, rarity, categories, enabled, noteMaterial, displayItem, animations)}
+     * @param oldId The old id of the skin
+     * @param newSkin The new skin definition
+     */
+    void changeId(@NotNull String oldId, Skin newSkin);
 }

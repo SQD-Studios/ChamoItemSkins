@@ -10,7 +10,7 @@ import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Bukkit;
@@ -38,15 +38,15 @@ public final class GrantManager implements GrantService {
     private final CacheManager cache;
     private final SkinManager skinManager;
     private final LogService logService;
-    private final BetterModelService betterModelService;
+    private final ModelService modelService;
 
-    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, BetterModelService betterModelService) {
+    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, ModelService modelService) {
         this.plugin = plugin;
         this.db = db;
         this.cache = cache;
         this.skinManager = skinManager;
         this.logService = logService;
-        this.betterModelService = betterModelService;
+        this.modelService = modelService;
     }
 
     @Override
@@ -157,7 +157,7 @@ public final class GrantManager implements GrantService {
                     db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> {
                         logService.log(playerUuid, newSkin != null ? "EQUIP" : "UNEQUIP", skinId, material.name());
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            betterModelService.refreshMaterial(player, material, newSkin);
+                            modelService.refreshMaterial(player, material, newSkin);
                             future.complete(null);
                         }, () -> future.complete(null));
                     });
@@ -193,7 +193,7 @@ public final class GrantManager implements GrantService {
 
             Map<Material, Skin> loaded = Map.copyOf(activeSkins);
             SchedulerUtil.runForEntity(plugin, player, () ->
-                    betterModelService.refreshInventory(player, loaded), () -> {});
+                    modelService.refreshInventory(player, loaded), () -> {});
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
 

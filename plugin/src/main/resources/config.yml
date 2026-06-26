@@ -20,12 +20,20 @@ rarities:
     priority: 3
 
 database:
-  type: sqlite # sqlite or mysql
+
+  # Choose MySQL or SQLite
+  # MySQL (For multiserver support. Not tested)
+  # SQLite (Great lightweight solution)
+  type: sqlite
+
+  # MySQL Only
   host: localhost
   port: 3306
   database: chamoitemskins
   username: root
   password: ""
+
+  # SQLite Only
   sqlite-file: plugins/ChamoItemSkins/data.db
 
 cache:

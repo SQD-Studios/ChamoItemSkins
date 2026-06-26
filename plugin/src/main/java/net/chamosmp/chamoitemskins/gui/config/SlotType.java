@@ -12,4 +12,5 @@ public sealed interface SlotType {
     record FilterSlot(@NotNull String category) implements SlotType {}
     record BackSlot() implements SlotType {}
     record ActionSlot(String action) implements SlotType {}
+    record SearchSlot(@NotNull String category) implements SlotType {}
 }

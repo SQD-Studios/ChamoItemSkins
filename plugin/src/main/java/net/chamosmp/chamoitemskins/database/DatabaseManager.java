@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/database/DatabaseManager.java ---
 package net.chamosmp.chamoitemskins.database;
 
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -54,4 +55,6 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
      * Logs an action to the database.
      */
     void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata);
+
+    @NotNull CompletableFuture<Void> migrateSkinId(String oldSkinId, @NotNull String newSkinId);
 }

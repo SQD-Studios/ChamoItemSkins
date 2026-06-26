@@ -206,4 +206,32 @@ public final class MySQLDatabase implements DatabaseManager {
             plugin.getLogger().severe("Failed to log action: " + e.getMessage());
         }
     }
+
+    @Override
+    public @NotNull CompletableFuture<Void> migrateSkinId(String oldSkinId, @NotNull String newSkinId) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection()) {
+                conn.setAutoCommit(false);
+                try (PreparedStatement ps1 = conn.prepareStatement(
+                        "UPDATE player_skin_grants SET skin_id = ? WHERE skin_id = ?");
+                     PreparedStatement ps2 = conn.prepareStatement(
+                             "UPDATE player_active_skins SET skin_id = ? WHERE skin_id = ?")) {
+                    ps1.setString(1, newSkinId);
+                    ps1.setString(2, oldSkinId);
+                    ps1.executeUpdate();
+
+                    ps2.setString(1, newSkinId);
+                    ps2.setString(2, oldSkinId);
+                    ps2.executeUpdate();
+
+                    conn.commit();
+                } catch (SQLException e) {
+                    conn.rollback();
+                    throw new RuntimeException("Failed to migrate skin IDs", e);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Failed to obtain connection or rollback", e);
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
 }

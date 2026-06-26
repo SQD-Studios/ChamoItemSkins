@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/ChamoItemSkinsPlugin.java ---
 package net.chamosmp.chamoitemskins;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -6,7 +5,7 @@ import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestionsImpl;
@@ -27,6 +26,7 @@ import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemSkinsApi {
-    private static ChamoItemSkinsPlugin instance;
     private DatabaseManager databaseManager;
     private SkinManager skinManager;
     private GrantManager grantManager;
@@ -49,18 +48,42 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private LogManager logManager;
     private RarityManager rarityManager;
     private GuiFillerUtil guiFillerUtil;
-    private BetterModelService betterModelService;
+    private ModelService modelService;
     private ChatInputUtil chatInputUtil;
+    private DialogUtil dialogUtil;
 
+    /**
+     * When the plugins load, at the very start of your server
+     */
     @Override
     public void onLoad() {
-        instance = this;
 
-        // Register command handler in onLoad to ensure it's captured early by Paper
+    }
+
+    /**
+     * Do I need to say a lot? The event when the plugin gets enabled, after the dependencies
+     * declared in the {@code plugin.yml}.
+     */
+    @Override
+    public void onEnable() {
+        Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
+
+        reloadPlugin();
+
+        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig()), this);
+        Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new ChamoItemSkinsExpansion(skinManager, grantManager, rarityManager, this).register();
+        }
+
+        skinIdSuggestionsImpl.init(skinManager);
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
-                // Ensure managers are initialized before registering commands if they are null
-                // This can happen if onLoad's event fires before onEnable (though rare for this specific event)
                 if (skinManager == null || grantManager == null) {
                     initManagers();
                 }
@@ -76,36 +99,14 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 String adminTitle = adminGuiConfig.getString("title", "Admin");
                 int adminSize = adminGuiConfig.getInt("size", 54);
 
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots);
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil);
                 getLogger().info("Successfully registered commands.");
             } catch (Exception e) {
                 getLogger().severe("Failed to register commands: " + e.getMessage());
                 e.printStackTrace();
             }
         }));
-    }
-
-    @Override
-    public void onEnable() {
-
-
-        Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
-
-        reloadPlugin();
-
-        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig()), this);
-        Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
-        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
-
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            new ChamoItemSkinsExpansion(skinManager, grantManager, rarityManager).register();
-        }
-
-        skinIdSuggestionsImpl.init(skinManager);
 
         getLogger().info("ChamoItemSkins enabled successfully.");
     }
@@ -118,17 +119,20 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
             this.rarityManager.load(config);
         }
         if (this.skinManager == null) {
-            this.skinManager = new SkinManager(this, rarityManager);
+            this.skinManager = new SkinManager(this, rarityManager, databaseManager);
             this.skinManager.reloadSkins();
         }
-        if (this.betterModelService == null) this.betterModelService = new BetterModelService();
+        if (this.modelService == null) this.modelService = new ModelService(this, skinManager );
         if (this.cacheManager == null) this.cacheManager = new CacheManager(config.getLong("cache.ttl-seconds", 300));
         if (this.logManager == null) this.logManager = new LogManager(this, databaseManager);
         if (this.grantManager == null) {
-            this.grantManager = new GrantManager(this, databaseManager, cacheManager, skinManager, logManager, betterModelService);
+            this.grantManager = new GrantManager(this, databaseManager, cacheManager, skinManager, logManager, modelService);
         }
     }
 
+    /**
+     * The method to reload the plugin
+     */
     public void reloadPlugin() {
         ConfigUtil.loadOrAdapt(this, "config.yml");
         ConfigUtil.loadOrAdapt(this, "guis/gui.yml");
@@ -140,7 +144,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         initManagers();
         
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
-        this.chatInputUtil = new ChatInputUtil(this);
+        this.dialogUtil = new DialogUtil(this);
+        this.chatInputUtil = new ChatInputUtil(this, dialogUtil);
+
 
         Bukkit.getServicesManager().unregisterAll(this);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
@@ -149,6 +155,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
     }
 
+    /**
+     * When the plugin gets disabled
+     */
     @Override
     public void onDisable() {
         if (databaseManager != null) databaseManager.close();
@@ -227,7 +236,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         return chatInputUtil;
     }
 
-    public @NotNull BetterModelService getBetterModelService() {
-        return betterModelService;
+    public @NotNull ModelService getModelService() {
+        return modelService;
     }
 }

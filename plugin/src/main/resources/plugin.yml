@@ -3,15 +3,35 @@ version: ${version}
 main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
 api-version: '1.21.4'
 authors: ["SQD Studios", Chamogelastos]
-depend: [BetterModel]
 
 softdepend: [PlaceholderAPI]
 permissions:
   chamoitemskins.use:
     description: Allows using the /skins command
     default: true
+  chamoitemskins.use.others:
+    description: Allows using the /skins command on other people
+    default: op
   chamoitemskins.admin:
     description: Allows using admin features
     default: op
+  chamoitemskins.admin.editor:
+    description: Allows opening the admin editor
+    default: op
+  chamoitemskins.admin.reload:
+    description: Allows using /reload
+    default: op
+  chamoitemskins.admin.give:
+    description: Allows using /give
+    default: op
+  chamoitemskins.admin.access.revoke:
+    description: Allows using /access revoke
+    default: op
+  chamoitemskins.admin.access.give:
+    description: Allows using /access give
+    default: op
+
 libraries:
   - "com.zaxxer:HikariCP:6.2.1"
+  - "net.kyori:adventure-api:5.1.1"
+  - "net.kyori:adventure-text-minimessage:5.1.1"

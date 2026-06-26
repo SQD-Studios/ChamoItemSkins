@@ -4,6 +4,7 @@ package net.chamosmp.chamoitemskins.manager;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
 import org.bukkit.Material;
@@ -24,10 +25,12 @@ public final class SkinManager implements SkinService {
     private final RarityManager rarityManager;
     private final Map<String, Skin> skins = new ConcurrentHashMap<>();
     private final Map<String, SkinBundle> bundles = new ConcurrentHashMap<>();
+    private final DatabaseManager databaseManager;
 
-    public SkinManager(@NotNull Plugin plugin, @NotNull RarityManager rarityManager) {
+    public SkinManager(@NotNull Plugin plugin, @NotNull RarityManager rarityManager, DatabaseManager databaseManager) {
         this.plugin = plugin;
         this.rarityManager = rarityManager;
+        this.databaseManager = databaseManager;
     }
 
     @Override
@@ -107,6 +110,13 @@ public final class SkinManager implements SkinService {
     public void deleteSkin(@NotNull String id) {
         skins.remove(id);
         YamlUtil.deleteSkin(plugin, id);
+    }
+
+    @Override
+    public void changeId(@NotNull String oldId, Skin newSkin) {
+        databaseManager.migrateSkinId(oldId, newSkin.id());
+        deleteSkin(oldId);
+        saveSkin(newSkin);
     }
 
     @Override

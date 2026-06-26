@@ -4,14 +4,16 @@ package net.chamosmp.chamoitemskins.gui.main;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,16 +42,23 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final GrantService grantService;
     private final RarityManager rarityManager;
-    private final BetterModelService betterModelService;
+    private final ModelService modelService;
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
     private final List<Skin> pinnedSkins;
     private final Map<Integer, Skin> skinMap = new HashMap<>();
-    private final Map<Integer, String> filterSlotCategories = new HashMap<>();
+    private final ChatInputUtil chatInputUtil;
 
+    private final Map<Integer, String> filterSlotCategories = new HashMap<>();
     private final String baseCategory;
     private String activeFilterCategory;
     private int activeFilterSlot = -1;
+
+    private int activeSearchSlot = -1;
+    private Map<Integer, String> searchSlotCategories = new HashMap<>();
+    private String search;
+    private boolean isSearching = false;
+
     private Map<Material, String> activeSkins = new HashMap<>();
     private Set<String> ownedSkinIds = new HashSet<>();
 
@@ -60,28 +69,31 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull SkinService skinService,
             @NotNull GrantService grantService,
             @NotNull RarityManager rarityManager,
-            @NotNull BetterModelService betterModelService,
+            @NotNull ModelService modelService,
             @NotNull String title,
             int size,
-            @NotNull List<GuiSlotDef> slots
+            @NotNull List<GuiSlotDef> slots,
+            ChatInputUtil chatInputUtil
     ) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.grantService = grantService;
         this.rarityManager = rarityManager;
-        this.betterModelService = betterModelService;
+        this.modelService = modelService;
         this.slots = slots;
         this.baseCategory = category;
         this.activeFilterCategory = category;
+        this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
 
         for (GuiSlotDef def : slots) {
             if (def.type() instanceof SlotType.FilterSlot filter) {
                 filterSlotCategories.put(def.slot(), filter.category());
+            } else if (def.type() instanceof SlotType.SearchSlot) {
+                searchSlotCategories.put(def.slot(), "search"); // value doesn't matter, just needs to be present
             }
         }
-
         if (!filterSlotCategories.isEmpty()) {
             filterSlotCategories.entrySet().stream()
                     .filter(e -> e.getValue().equalsIgnoreCase(category))
@@ -112,6 +124,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             }
             if (def.type() instanceof SlotType.FilterSlot) {
                 inventory.setItem(def.slot(), createFilterItem(def, def.slot() == activeFilterSlot));
+            } else if (def.type() instanceof SlotType.SearchSlot) {
+                inventory.setItem(def.slot(), createSearchItem(def));
             } else {
                 inventory.setItem(def.slot(), createStaticItem(def));
             }
@@ -133,6 +147,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             inventory.setItem(currentSlot, createSkinItem(skin));
             currentSlot++;
         }
+
         GuiFillerUtil.apply(plugin, inventory, player);
     }
 
@@ -144,7 +159,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                         || skin.categories().stream().anyMatch(cat -> cat.equalsIgnoreCase(baseCategory)))
                 .filter(skin -> matchesCategoryFilter(skin, filter))
                 .filter(skin -> matchesOwnershipFilter(skin, filter))
+                .filter(skin -> matchesSearchFilter(skin))
                 .toList();
+    }
+
+    private boolean matchesSearchFilter(@NotNull Skin skin) {
+        if (search == null || search.isBlank() || !isSearching) return true;
+        String q = search.toLowerCase();
+        return skin.id().toLowerCase().contains(q) || skin.name().toLowerCase().contains(q);
     }
 
     private boolean matchesCategoryFilter(@NotNull Skin skin, @NotNull String filter) {
@@ -160,6 +182,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         }
         return true;
     }
+
+    private static final List<String> ALL_FILTERS = List.of ("OWNED", "ALL");
 
     private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def, boolean active) {
         ItemStack item = new ItemStack(def.material());
@@ -177,7 +201,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         boolean owned = ownedSkinIds.contains(skin.id());
         boolean active = activeSkins.values().stream().anyMatch(id -> id.equals(skin.id()));
 
-        ItemStack item = betterModelService.createPreviewItem(skin);
+        ItemStack item = modelService.createPreviewItem(skin);
         var meta = item.getItemMeta();
         if (meta != null) {
             String displayName = skin.name();
@@ -205,6 +229,23 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (active || (skin.displayItem() != null && skin.displayItem().glow())) {
                 meta.setEnchantmentGlintOverride(true);
             }
+
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private @NotNull ItemStack createSearchItem(@NotNull GuiSlotDef def) {
+        ItemStack item = new ItemStack(def.material());
+        var meta = item.getItemMeta();
+        if (meta != null) {
+            String displayName = "Search a skin";
+            List<String> lore = new ArrayList<>();
+
+            lore.add("");
+            lore.add("<dark_gray>Click to search for a skin");
+            meta.displayName(MessageUtil.parse(player, displayName, Map.of()));
+            meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
 
             item.setItemMeta(meta);
         }
@@ -291,6 +332,26 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 activeFilterSlot = slot;
                 activeFilterCategory = filterSlotCategories.get(slot);
                 refresh();
+            }
+            return;
+        }
+
+        if (searchSlotCategories.containsKey(slot)) {
+            if (slot != activeSearchSlot) {
+                activeSearchSlot = slot;
+                refresh();
+                if (!isSearching) {
+                    chatInputUtil.getInput(player, Component.text("Search:"), input -> {
+                        if (input == null) return; // discarded
+                        search = input;
+                        isSearching = true;
+                        refresh();
+                        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+                    }, "selectionsearch", Component.text("Search for a skin"));
+
+                } else {
+                    isSearching = false;
+                }
             }
             return;
         }

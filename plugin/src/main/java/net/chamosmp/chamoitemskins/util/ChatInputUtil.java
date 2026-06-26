@@ -1,12 +1,14 @@
 package net.chamosmp.chamoitemskins.util;
 
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -25,24 +28,52 @@ public final class ChatInputUtil implements Listener {
     private final Plugin plugin;
     private final Map<UUID, Consumer<String>> pendingInputs = new ConcurrentHashMap<>();
     private final Map<UUID, Supplier<Collection<String>>> pendingSuggestions = new ConcurrentHashMap<>();
+    private final DialogUtil dialogUtil;
 
-    public ChatInputUtil(Plugin plugin) {
+    public ChatInputUtil(Plugin plugin, DialogUtil dialogUtil) {
+        this.dialogUtil = dialogUtil;
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    public void getInput(Player player, String prompt, Consumer<String> callback) {
-        getInput(player, prompt, null, callback);
-    }
-
-    public void getInput(Player player, String prompt, Supplier<Collection<String>> suggestions, Consumer<String> callback) {
-        player.closeInventory();
-        MessageUtil.sendMessage(player, prompt + " Type <red>cancel<reset> to cancel.");
-        pendingInputs.put(player.getUniqueId(), callback);
-        if (suggestions != null) {
-            pendingSuggestions.put(player.getUniqueId(), suggestions);
+    /**
+     * "The util means, the dialog/chat thingy, not to be confused"
+     * @param player The player to open the util to
+     * @param prompt The prompt to give the player
+     * @param callback Callback is the piece of code to be executed
+     * @param key (Dialog Only) The key, the buttons/dialog should have
+     * @param title (Dialog Only) The title in the dialog
+     * @param defaultValue (Dialog Only) The value the text prompt should have, useful for editing already defined configs.
+     */
+    public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title, String defaultValue) {
+        if (!dialogUtil.canUseDialogs()) {
+            player.closeInventory();
+            MessageUtil.sendMessage(player, prompt + " <red>Type cancel to cancel.");
+            pendingInputs.put(player.getUniqueId(), callback);
+        } else {
+            dialogUtil.getInput(title, player, key, prompt, defaultValue, callback);
         }
     }
+
+    /**
+     * "The util means, the dialog/chat thingy, not to be confused"
+     * @param player The player to open the util to
+     * @param prompt The prompt to give the player
+     * @param callback Callback is the piece of code to be executed
+     * @param key (Dialog Only) The key, the buttons/dialog should have
+     * @param title (Dialog Only) The title in the dialog
+     */
+    public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title) {
+        if (!dialogUtil.canUseDialogs()) {
+            player.closeInventory();
+            MessageUtil.sendMessage(player, prompt + " <red>Type cancel to cancel.");
+            pendingInputs.put(player.getUniqueId(), callback);
+        } else {
+            dialogUtil.getInput(title, player, key, prompt, callback);
+        }
+    }
+
+
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
@@ -65,7 +96,7 @@ public final class ChatInputUtil implements Listener {
     }
 
     @EventHandler
-    public void onTabComplete(org.bukkit.event.server.TabCompleteEvent event) {
+    public void onTabComplete(TabCompleteEvent event) {
         if (!(event.getSender() instanceof Player player)) return;
         var suggestionsSupplier = pendingSuggestions.get(player.getUniqueId());
         if (suggestionsSupplier == null) return;

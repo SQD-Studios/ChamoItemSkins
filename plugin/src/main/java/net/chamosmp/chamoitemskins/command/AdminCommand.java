@@ -5,10 +5,10 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.command.suggestions.betterModelIdSuggestions;
 import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.strokkur.commands.Aliases;
@@ -35,9 +35,10 @@ public final class AdminCommand {
     private final String adminGuiTitle;
     private final int adminGuiSize;
     private final List<GuiSlotDef> adminGuiSlots;
+    private final DialogUtil dialogUtil;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -45,21 +46,28 @@ public final class AdminCommand {
         this.adminGuiTitle = adminGuiTitle;
         this.adminGuiSize = adminGuiSize;
         this.adminGuiSlots = adminGuiSlots;
+        this.dialogUtil = dialogUtil;
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.editor")
     @Executes
     public void onBase(@Executor Player player) {
         onGui(player);
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.editor")
     @Executes("gui")
     public void onGui(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots).open();
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil).open();
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.editor")
+    @Executes("editor")
+    public void onEditor(@Executor Player player) {
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil).open();
+    }
+
+    @Permission("chamoitemskins.admin.reload")
     @Executes("reload")
     public void onReload(CommandSender sender) {
         if (plugin instanceof ChamoItemSkinsPlugin chamoPlugin) {
@@ -75,7 +83,7 @@ public final class AdminCommand {
         }
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.give")
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
@@ -88,7 +96,7 @@ public final class AdminCommand {
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
     public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
@@ -104,7 +112,7 @@ public final class AdminCommand {
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 
-    @Permission("chamoitemskins.admin")
+    @Permission("chamoitemskins.admin.access.revoke")
     @Executes("access revoke")
     public void onAccessRevoke(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
@@ -117,16 +125,6 @@ public final class AdminCommand {
                     MessageUtil.sendMessage(sender, "<green>Revoked access to " + skinId + " from " + target.getName());
                 });
             });
-        }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
-    }
-
-    @Permission("chamoitemskins.admin")
-    @Executes("edit model")
-    public void onEditModel(CommandSender sender, @skinIdSuggestions String skinId, @betterModelIdSuggestions String modelId) {
-        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            Skin newSkin = new Skin(skin.id(), skin.name(), modelId, skin.rarity(), skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
-            skinService.saveSkin(newSkin);
-            MessageUtil.sendMessage(sender, "<green>Updated model ID for " + skin.id() + " to " + modelId);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 }

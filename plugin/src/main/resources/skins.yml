@@ -1,14 +1,86 @@
 skins:
   infernal_blade:
-    id: "infernal_blade"
-    name: "<gradient:red:dark_red>Infernal Blade"
-    model-id: "demon_knight"
+    id: infernal_blade
+    name: <gradient:blue:light_purple>Blue Wizard
+    model-id: blue_wizard
     enabled: true
-    rarity: common
-    categories: ["SWORD"]
-    note-material: PAPER
+    categories:
+      - SWORD
+      - AXE
+      - SHIELD
+      - PICKAXE
+      - BOW
+      - CROSSBOW
+      - SHOVEL
+      - SPEAR
+      - MACE
+      - HOE
     display-item:
       id: DIAMOND_SWORD
-      name: "<gradient:red:dark_red>Infernal Blade"
-      lore: ["<gray>A blade forged in hellfire."]
+      name: <gradient:blue:light_purple>Blue Wizard
+      lore:
+        - <gray>Wizardous, as always.
       glow: true
+    rarity: common
+    animations: []
+    note-material: PAPER
+  demon_knight:
+    id: demon_knight
+    name: <gradient:red:dark_red>Demon Knight
+    model-id: demon_knight
+    rarity: legendary
+    categories:
+      - SWORD
+      - AXE
+      - SHIELD
+      - PICKAXE
+      - BOW
+      - CROSSBOW
+      - SHOVEL
+      - SPEAR
+      - MACE
+      - HOE
+    enabled: true
+    animations: []
+    display-item:
+      id: DIAMOND_SWORD
+      name: <gradient:red:dark_red>Demon Knight
+      lore:
+        - <gray>A demon's dream.
+      glow: false
+  skymeteor:
+    id: sky_meteor
+    name: <gradient:blue:aqua>Sky Meteor
+    model-id: skymeteor
+    enabled: true
+    categories:
+      - SWORD
+      - AXE
+      - SHIELD
+      - PICKAXE
+      - BOW
+      - CROSSBOW
+      - SHOVEL
+      - SPEAR
+      - MACE
+      - HOE
+    animations: []
+    display-item:
+      id: NETHERITE_SWORD
+      name: <gradient:blue:aqua>Sky Meteor
+      lore:
+        - <i>To blend with the skies...
+  sky_meteor:
+    id: sky_meteor
+    name: <gradient:blue:aqua>Sky Meteor
+    model-id: skymeteor
+    rarity: common
+    categories: []
+    enabled: true
+    animations: []
+    display-item:
+      id: NETHERITE_SWORD
+      name: <gradient:blue:aqua>Sky Meteor
+      lore:
+        - <i>To blend with the skies...
+      glow: false

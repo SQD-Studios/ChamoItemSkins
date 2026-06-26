@@ -1,6 +1,6 @@
-# ChamoItemSkins
+![ChamoItemSkins](assets/ChamoItemSKins%20ad.png)
 
-ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugin built for **Spigot (Forks too!) 1.21.1** and **Folia**. It allows players to unlock and apply custom models to their items using a sleek GUI system. Skins are rendered via the **BetterModel** API, providing a seamless cosmetic experience for large-scale networks.
+ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugin built for **Spigot (Forks too!) 1.21.11** and **Folia**. It allows players to unlock and apply custom models to their items using a sleek GUI system. Primarily made for model support, providing a seamless cosmetic experience for large-scale networks.
 
 ##  Features
 
@@ -20,8 +20,8 @@ ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugi
 ##  Requirements
 
 - **Java 21** or higher.
-- **Paper 1.21.1** (or compatible Folia version).
-- **BetterModel** plugin installed.
+- **Paper/Folia/Spigot 1.21.11+**.
+- **BetterModel 3.1.0+** plugin installed.
 - (Optional) **PlaceholderAPI** for menu/chat integration.
 
 ##  Installation
@@ -33,6 +33,7 @@ ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugi
 5. Configure your database settings in `config.yml` (default is SQLite).
 
 ##  Configuration
+**Keep in mind that our wiki has a more detailed guide, so we recommend checking that instead :D**
 
 The plugin uses several YAML files for deep customization:
 
@@ -40,7 +41,6 @@ The plugin uses several YAML files for deep customization:
 - **`skins.yml`**: Define all available skins, their model IDs, and associated item types.
 - **`gui.yml`**: Layout and icons for the main `/skins` menu.
 - **`admin-gui.yml`**: Configuration for the administrative dashboard.
-- **`skin-editor-gui.yml`**: Settings for the in-game skin creator.
 
 ### Example Skin Definition (`skins.yml`)
 ```yaml
@@ -61,16 +61,16 @@ skins:
 ##  Commands & Permissions
 
 ### Player Commands
-| Command | Description | Permission |
-| :--- | :--- | :--- |
+| Command  | Description                        | Permission                     |
+|:---------|:-----------------------------------|:-------------------------------|
 | `/skins` | Opens the main skin selection GUI. | `chamoitemskins.use` (default) |
 
 ### Admin Commands
-| Command | Description | Permission |
-| :--- | :--- | :--- |
-| `/skinsadmin gui` | Opens the administrative management GUI. | `chamoitemskins.admin` |
-| `/skinsadmin give <player> <skinId>` | Gives a physical Skin Note to a player. | `chamoitemskins.admin` |
-| `/skinsadmin reload` | Reloads all configuration files and skins. | `chamoitemskins.admin` |
+| Command                              | Description                                | Permission             |
+|:-------------------------------------|:-------------------------------------------|:-----------------------|
+| `/skinsadmin gui`                    | Opens the administrative management GUI.   | `chamoitemskins.admin` |
+| `/skinsadmin give <player> <skinId>` | Gives a physical Skin Note to a player.    | `chamoitemskins.admin` |
+| `/skinsadmin reload`                 | Reloads all configuration files and skins. | `chamoitemskins.admin` |
 
 ##  Placeholders
 
@@ -85,6 +85,34 @@ Use these with **PlaceholderAPI**:
 
 Developers can hook into ChamoItemSkins using the `:api` submodule.
 
+### Repository
+The repository for the API can be accessed here:<br>
+Gradle (build.gradle.(kts))
+``` kotlin
+maven {
+    name = "chamosmpRepoReleases"
+    url = uri("https://maven.chamosmp.net/releases")
+}
+```
+``` kotlin
+compileOnly("net.chamosmp:ChamoParty:version")
+```
+Maven (pom.xml)
+``` xml
+<repository>
+  <id>chamosmp-repo-releases</id>
+  <name>ChamoSMP Maven Repository</name>
+  <url>https://maven.chamosmp.net/releases</url>
+</repository>
+```
+``` xml
+<dependency>
+  <groupId>net.chamosmp</groupId>
+  <artifactId>ChamoParty</artifactId>
+  <version>version</version>
+</dependency>
+```
+
 ### Events
 - `SkinEquipEvent`: Fired when a player equips a skin.
 - `SkinUnequipEvent`: Fired when a player unequips a skin.
@@ -96,9 +124,11 @@ Developers can hook into ChamoItemSkins using the `:api` submodule.
 ChamoItemSkinsApi api = Bukkit.getServicesManager().load(ChamoItemSkinsApi.class);
 if (api != null) {
     SkinService skinService = api.getSkinService();
-    // Your logic here
+            // Your logic here
 }
 ```
 
 ---
-*Brought to you by SQD Studios*
+*Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid excuse) it is. I've personally checked every file to
+maintain the quality. There aren't a lot of things (except unperfomant code) that could go wrong right? If I have time, I may 
+recode this as some people actually need it_

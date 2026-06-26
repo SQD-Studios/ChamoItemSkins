@@ -2,7 +2,7 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.api.model.Skin;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
@@ -31,17 +31,17 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
     private final Player player;
     private final SkinService skinService;
-    private final BetterModelService betterModelService;
+    private final ModelService modelService;
     private final Inventory inventory;
     private final List<Skin> skins;
     private final List<Integer> skinSlots;
     private final Map<Integer, Skin> slotToSkin = new HashMap<>();
 
-    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, BetterModelService betterModelService) {
+    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
-        this.betterModelService = betterModelService;
+        this.modelService = modelService;
         this.skins = new ArrayList<>(skinService.getSkins());
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<gold>Skin Editor"));
         this.skinSlots = computeSkinSlots(inventory.getSize());
@@ -88,7 +88,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     }
 
     private ItemStack createSkinIcon(Skin skin) {
-        ItemStack item = betterModelService.createPreviewItem(skin);
+        ItemStack item = modelService.createPreviewItem(skin);
         var meta = item.getItemMeta();
         if (meta != null) {
             meta.displayName(MessageUtil.parse(skin.name()));

@@ -1,11 +1,14 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/placeholder/ChamoItemSkinsExpansion.java ---
 package net.chamosmp.chamoitemskins.placeholder;
 
+import io.papermc.paper.plugin.configuration.PluginMeta;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +21,13 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
     private final SkinService skinService;
     private final GrantService grantService;
     private final RarityManager rarityManager;
+    private final ChamoItemSkinsPlugin plugin;
 
-    public ChamoItemSkinsExpansion(SkinService skinService, GrantService grantService, RarityManager rarityManager) {
+    public ChamoItemSkinsExpansion(SkinService skinService, GrantService grantService, RarityManager rarityManager, ChamoItemSkinsPlugin plugin) {
         this.skinService = skinService;
         this.grantService = grantService;
         this.rarityManager = rarityManager;
+        this.plugin = plugin;
     }
 
     @Override
@@ -32,13 +37,14 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return "ChamoSMP";
+        return "SQD Studios";
     }
 
     @Override
     public @NotNull String getVersion() {
-        return "1.0.0";
+        return plugin.getPluginMeta().getVersion();
     }
+
 
     @Override
     public boolean persist() {

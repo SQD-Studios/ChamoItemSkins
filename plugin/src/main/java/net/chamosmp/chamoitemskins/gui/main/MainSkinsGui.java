@@ -5,12 +5,14 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.bettermodel.BetterModelService;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -42,13 +44,18 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     //private final BetterModelServiceo betterModelService;
     private final List<GuiSlotDef> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
+    private final SkinManager skinManager;
+    private final ChatInputUtil chatInputUtil;
 
-    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots) {
+
+    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.grantService = grantService;
         this.slots = slots;
+        this.skinManager = skinManager;
+        this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
         
         setupInventory();
@@ -107,10 +114,10 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             RarityManager rarityManager = plugin instanceof ChamoItemSkinsPlugin chamo
                     ? chamo.getRarityManager()
                     : new RarityManager(plugin);
-            BetterModelService betterModelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
-                    ? chamoPlugin.getBetterModelService()
-                    : new BetterModelService();
-            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, betterModelService, selectionTitle, selectionSize, selectionSlots).open();
+            ModelService modelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
+                    ? chamoPlugin.getModelService()
+                    : new ModelService(plugin, skinManager);
+            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot action) {

@@ -1,20 +1,14 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/bettermodel/BetterModelService.java ---
-package net.chamosmp.chamoitemskins.bettermodel;
+package net.chamosmp.chamoitemskins.models;
 
-import kr.toxicity.model.api.BetterModel;
-import kr.toxicity.model.api.bukkit.BetterModelBukkit;
-import kr.toxicity.model.api.bukkit.platform.BukkitItemStack;
-import kr.toxicity.model.api.nms.NMS;
-import kr.toxicity.model.api.platform.PlatformEntity;
-import kr.toxicity.model.api.tracker.EntityTracker;
-import kr.toxicity.model.api.tracker.EntityTrackerRegistry;
 import net.chamosmp.chamoitemskins.api.model.Skin;
-import org.bukkit.Bukkit;
+import net.chamosmp.chamoitemskins.manager.SkinManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,37 +17,12 @@ import java.util.Map;
 /**
  * Service for applying BetterModel item models to {@link ItemStack}s.
  */
-public final class BetterModelService {
+public final class ModelService {
 
-    private static final String NAMESPACE = "bettermodel";
+    private static final String NAMESPACE = "chamoitemskins";
 
-    public BetterModelService() { }
+    public ModelService(Plugin plugin, SkinManager skinManager) {
 
-    /**
-     * Returns whether a BetterModel renderer exists for the given model id.
-     *
-     * @param modelId Skin model id (bare name or {@code namespace:path}).
-     */
-    public boolean hasRenderer(@NotNull String modelId) {
-        if (modelId.isBlank()) {
-            return false;
-        }
-        try {
-            return BetterModel.model(resolveRendererName(modelId)).isPresent();
-        } catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Returns whether BetterModel is initialized and ready to use.
-     */
-    public boolean isAvailable() {
-        try {
-            return BetterModel.platform() != null;
-        } catch (NullPointerException e) {
-            return false;
-        }
     }
 
     /**
@@ -78,11 +47,8 @@ public final class BetterModelService {
         }
 
         NamespacedKey key = resolveItemModelKey(modelId);
-        Bukkit.getLogger().info("[ChamoItemSkins] Applying item model: " + key);
-        //meta.setItemModel(key);
-        //item.setItemMeta(meta);
-        //BukkitItemStack item2 = valueOf(item);
-        //NMS.createSkinItem();
+        meta.setItemModel(key);
+        item.setItemMeta(meta);
     }
 
     /**
@@ -92,13 +58,12 @@ public final class BetterModelService {
         if (item.getType().isAir()) {
             return;
         }
-        //var meta = item.getItemMeta();
-        //if (meta == null || !meta.hasItemModel()) {
-        //    return;
-        //}
-        //meta.setItemModel(null);
-        //item.setItemMeta(meta);
-
+        var meta = item.getItemMeta();
+        if (meta == null || !meta.hasItemModel()) {
+            return;
+        }
+        meta.setItemModel(null);
+        item.setItemMeta(meta);
     }
 
     /**

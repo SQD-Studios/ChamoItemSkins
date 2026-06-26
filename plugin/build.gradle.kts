@@ -11,8 +11,6 @@ dependencies {
     compileOnly("net.strokkur.commands:annotations-paper:2.1.1")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.1")
     implementation("com.zaxxer:HikariCP:6.2.1")
-    implementation("io.github.toxicity188:bettermodel-api:3.1.0")
-    implementation("io.github.toxicity188:bettermodel-bukkit-api:3.1.0")
 }
 
 
@@ -22,7 +20,6 @@ tasks {
     shadowJar {
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
         archiveClassifier.set("")
-        relocate("com.zaxxer.hikari", "net.chamosmp.chamoitemskins.libs.hikari")
     }
 
     // We want all jars to produce shadowed ones
@@ -46,7 +43,6 @@ tasks {
     // runServer, by my boii JPenilla
     runServer {
         downloadPlugins {
-            github("toxicity188", "BetterModel", "3.1.0", "bettermodel-3.1.0-paper.jar")
             modrinth("lKEzGugV", "2.12.2")
         }
 
