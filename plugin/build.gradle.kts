@@ -10,7 +10,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("net.strokkur.commands:annotations-paper:2.1.1")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.1")
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:7.1.0")
 }
 
 
