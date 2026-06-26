@@ -43,10 +43,10 @@ public final class MessageUtil {
     }
 
     /**
-     * What are these weird things I do for YOU
-     * @apiNote It's not finished yet so write it in MiniMessage to begin with
-     * @param message The message to make the Legacy to minimessage
-     * @return The minimessage from legacy String
+     * Converts a legacy-formatted message string into a MiniMessage-compatible string.
+     *
+     * @param message the legacy-formatted message
+     * @return the converted MiniMessage string
      */
     public static String legacyToMiniMessage(String message) {
         String oneChar = message.replace("§", "&");
