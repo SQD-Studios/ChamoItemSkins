@@ -104,11 +104,19 @@ public final class MessageUtil {
     }
 
     public static void sendMessage(@NotNull Audience audience, @NotNull String message) {
-        audience.sendMessage(parse(audience instanceof Player p ? p : null, message, Map.of()));
+        Player player = null;
+        if (audience instanceof Player p) {
+            player = p;
+        }
+        audience.sendMessage(parse(player, message, Map.of()));
     }
 
     public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<String, String> placeholders) {
-        audience.sendMessage(parse(audience instanceof Player p ? p : null, message, placeholders));
+        Player player = null;
+        if (audience instanceof Player p) {
+            player = p;
+        }
+        audience.sendMessage(parse(player, message, placeholders));
     }
 
     public static @NotNull Component parse(@NotNull String message) {
