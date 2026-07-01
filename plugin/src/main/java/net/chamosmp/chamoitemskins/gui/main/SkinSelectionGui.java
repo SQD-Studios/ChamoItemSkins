@@ -183,8 +183,6 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return true;
     }
 
-    private static final List<String> ALL_FILTERS = List.of ("OWNED", "ALL");
-
     private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def, boolean active) {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
