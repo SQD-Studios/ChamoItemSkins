@@ -140,13 +140,17 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-            String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
-            List<String> loreTmpl = config.getStringList("note.lore");
-            for (int i = 0; i < amount; i++) {
-                target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
-            }
-            MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
+            giveSkinNotes(sender, target, skin, amount);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
+    }
+
+    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount) {
+        Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
+        String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
+        List<String> loreTmpl = config.getStringList("note.lore");
+        for (int i = 0; i < amount; i++) {
+            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
+        }
+        MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
     }
 }
