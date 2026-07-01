@@ -20,9 +20,5 @@ public interface MigrateService {
      * @param player The player to send notification to.
      */
     void migrateHMC(CommandSender player);
-
-    /**
-     * Does {@link MigrateService#migrateHMC(CommandSender)} without any player sender to reduce double messages
-     */
-    void migrateHMC();
+    
 }

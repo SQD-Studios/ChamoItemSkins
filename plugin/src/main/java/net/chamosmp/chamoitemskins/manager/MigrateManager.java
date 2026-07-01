@@ -23,18 +23,6 @@ public class MigrateManager implements MigrateService {
     private final SkinService skinService;
     private HMCWraps hmcWraps;
 
-    // HMC Warps Arrays
-    private String[] hmcIds;
-    private String[] hmcModels;
-    private String[] hmcNames;
-    private String[] hmcItems;
-
-    // ItemSkins Arrays
-    private String[] itemIds;
-    private String[] itemModels;
-    private String[] itemNames;
-    private String[] itemItems;
-
     public MigrateManager(Plugin plugin, SkinService skinService) {
         this.plugin = plugin;
         this.skinService = skinService;
@@ -43,12 +31,12 @@ public class MigrateManager implements MigrateService {
 
     @Override
     public void migrateItemSkins() {
-
+        throw new UnsupportedOperationException("migrateItemSkins() is not implemented yet in MigrateManager.");
     }
 
 
     // HMCWarps Section
-    public void migrateHMC() {
+    private void migrateHMC() {
         plugin.getLogger().info("Started migration process");
         if (!Bukkit.getPluginManager().isPluginEnabled("HMCWraps")) {
             plugin.getLogger().warning("HMCWraps is not enabled. Migration aborted.");
