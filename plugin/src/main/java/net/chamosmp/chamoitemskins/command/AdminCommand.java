@@ -73,7 +73,7 @@ public final class AdminCommand {
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/admin-gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
-            
+
             MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
         } else {
             MessageUtil.sendMessage(sender, "<red>Failed to reload plugin: Unexpected plugin instance.");
@@ -84,14 +84,11 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-            String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
-            List<String> loreTmpl = config.getStringList("note.lore");
-            
-            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
-            MessageUtil.sendMessage(sender, "<green>Gave " + skin.id() + " note to " + target.getName());
+            giveSkinNotes(sender, target, skin, 1);
+            MessageUtil.sendMessage(sender, "<green>Gave 1" + skin.id() + " note to " + target.getName());
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
+
 
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
@@ -143,14 +140,18 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-            String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
-            List<String> loreTmpl = config.getStringList("note.lore");
-            for (int i = 0; i < amount; i++) {
-                target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
-            }
-            MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
+            giveSkinNotes(sender, target, skin, amount);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
+    }
+
+    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount) {
+        Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
+        String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
+        List<String> loreTmpl = config.getStringList("note.lore");
+        for (int i = 0; i < amount; i++) {
+            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
+        }
+        MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
     }
 
     @Permission("chamoitemskins.admin.migrate")
