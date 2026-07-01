@@ -11,6 +11,12 @@ dependencies {
     compileOnly("net.strokkur.commands:annotations-paper:2.1.1")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.1")
     implementation("com.zaxxer:HikariCP:7.1.0")
+
+    // Convert Options
+    compileOnly("de.skyslycer.hmcwraps:api:1.8.2")
+
+    // More plugin support
+    compileOnly("com.nexomc:nexo:1.25.0")
 }
 
 

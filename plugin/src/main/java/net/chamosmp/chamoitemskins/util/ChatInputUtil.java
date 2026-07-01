@@ -73,7 +73,15 @@ public final class ChatInputUtil implements Listener {
         }
     }
 
-
+    public void getYesNo(Player player, Consumer<String> callback, String key, Component title) {
+        if (!dialogUtil.canUseDialogs()) {
+            player.closeInventory();
+            MessageUtil.sendMessage(player, title + " <yellow>(yes or no) <red>Type cancel to cancel.");
+            pendingInputs.put(player.getUniqueId(), callback);
+        } else {
+            dialogUtil.getYesNo(title, player, key, callback);
+        }
+    }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {

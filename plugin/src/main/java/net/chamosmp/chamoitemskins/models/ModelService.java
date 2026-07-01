@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/bettermodel/BetterModelService.java ---
 package net.chamosmp.chamoitemskins.models;
 
+import com.nexomc.nexo.api.NexoItems;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Service for applying BetterModel item models to {@link ItemStack}s.
@@ -21,7 +23,7 @@ public final class ModelService {
 
     private static final String NAMESPACE = "chamoitemskins";
 
-    public ModelService(Plugin plugin, SkinManager skinManager) {
+    public ModelService() {
 
     }
 
@@ -38,17 +40,18 @@ public final class ModelService {
     }
 
     public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
-        if (modelId.isBlank() || item.getType().isAir()) {
-            return;
-        }
-        var meta = item.getItemMeta();
-        if (meta == null) {
-            return;
-        }
 
-        NamespacedKey key = resolveItemModelKey(modelId);
-        meta.setItemModel(key);
-        item.setItemMeta(meta);
+            if (modelId.isBlank() || item.getType().isAir()) {
+                return;
+            }
+            var meta = item.getItemMeta();
+            if (meta == null) {
+                return;
+            }
+
+            NamespacedKey key = resolveItemModelKey(modelId);
+            meta.setItemModel(key);
+            item.setItemMeta(meta);
     }
 
     /**
@@ -118,15 +121,15 @@ public final class ModelService {
      * with the bare model name as the path — no subfolder prefix is added.
      */
     private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
-        int separator = modelId.indexOf(':');
-        if (separator >= 0 && separator < modelId.length() - 1) {
-            return new NamespacedKey(
-                    modelId.substring(0, separator).toLowerCase(),
-                    modelId.substring(separator + 1).toLowerCase()
-            );
-        }
-        // Use the fixed namespace; BetterModel registers models at bettermodel:<modelId>
-        return new NamespacedKey(NAMESPACE, modelId.toLowerCase());
+            int separator = modelId.indexOf(':');
+            if (separator >= 0 && separator < modelId.length() - 1) {
+                return new NamespacedKey(
+                        modelId.substring(0, separator).toLowerCase(),
+                        modelId.substring(separator + 1).toLowerCase()
+                );
+            }
+            // Use the fixed namespace; BetterModel registers models at bettermodel:<modelId>
+            return new NamespacedKey(NAMESPACE, modelId.toLowerCase());
     }
 
     private static @NotNull Iterable<ItemStack> collectItems(@NotNull Player player) {

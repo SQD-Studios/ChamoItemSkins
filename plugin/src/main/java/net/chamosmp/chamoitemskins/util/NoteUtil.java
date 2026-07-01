@@ -56,4 +56,5 @@ public final class NoteUtil {
         if (!isNote(item)) return null;
         return item.getItemMeta().getPersistentDataContainer().get(SKIN_ID_KEY, PersistentDataType.STRING);
     }
+
 }

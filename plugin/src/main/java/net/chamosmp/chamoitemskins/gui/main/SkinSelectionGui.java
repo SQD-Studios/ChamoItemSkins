@@ -254,7 +254,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
     private boolean isMaterialInCategory(String materialName, String category) {
         return switch (category.toUpperCase()) {
-            case "SWORD", "SWORDS" -> materialName.contains("SWORD") || materialName.equals("MACE");
+            case "SWORD", "SWORDS" -> materialName.contains("SWORD");
             case "AXE", "AXES" -> materialName.contains("_AXE");
             case "PICKAXE", "PICKAXES" -> materialName.contains("PICKAXE");
             case "SHOVEL", "SHOVELS" -> materialName.contains("SHOVEL");
@@ -263,11 +263,12 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             case "BOW" -> materialName.equals("BOW");
             case "CROSSBOW" -> materialName.equals("CROSSBOW");
             case "MACE" -> materialName.equals("MACE");
-            case "SPEAR", "TRIDENT" -> materialName.contains("TRIDENT");
+            case "TRIDENT", "TRIDENTS" -> materialName.contains("TRIDENT");
             case "HELMET", "HELMETS" -> materialName.contains("HELMET");
             case "CHESTPLATE", "CHESTPLATES" -> materialName.contains("CHESTPLATE");
             case "LEGGINGS" -> materialName.contains("LEGGINGS");
             case "BOOTS" -> materialName.contains("BOOTS");
+            case "SPEAR", "SPEARS" -> materialName.contains("SPEAR");
             default -> false;
         };
     }
@@ -336,14 +337,18 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             return;
         }
 
-        if (searchSlotCategories.containsKey(slot)) {
+        if (48 == slot) {
             if (slot != activeSearchSlot) {
                 activeSearchSlot = slot;
                 refresh();
                 if (!isSearching) {
                     chatInputUtil.getInput(player, Component.text("Search:"), input -> {
-                        if (input == null) return; // discarded
+                        if (input == null) {
+                            isSearching = false;
+                            return;
+                        }
                         search = input;
+
                         isSearching = true;
                         refresh();
                         SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
@@ -351,6 +356,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
                 } else {
                     isSearching = false;
+                    refresh();
                 }
             }
             return;

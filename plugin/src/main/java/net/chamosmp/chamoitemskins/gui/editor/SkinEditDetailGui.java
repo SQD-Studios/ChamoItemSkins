@@ -8,6 +8,8 @@ import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.manager.SkinManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
@@ -21,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import javax.naming.Name;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +60,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         inventory.setItem(11, createInfoItem(Material.LEVER, "<yellow>Enabled: " + (skin.enabled() ? "<green>Yes" : "<red>No"), "<gray>Click to toggle"));
         inventory.setItem(12, createInfoItem(Material.ARMOR_STAND, "<yellow>Model ID: <white>" + skin.modelId(), "<gray>Click to set Model ID"));
         inventory.setItem(13, createInfoItem(Material.OAK_SIGN, "<yellow>ID: <white>" + skin.id(), "<gray>Click to change Skin ID"));
+        inventory.setItem(25, createInfoItem(Material.RED_CONCRETE, "<dark_red>Delete", "<red>Click to delete the skin"));
 
         List<String> lore = new ArrayList<>();
         lore.add("<yellow>Click to toggle categories in order:");
@@ -155,20 +159,27 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                 open();
             }, "editoreditskinid", Component.text(skin.id(), NamedTextColor.LIGHT_PURPLE), skin.id());
         } else if (slot == 14) {
-            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
-            List<String> cats = new ArrayList<>(skin.categories());
-            if (cats.contains(cat)) {
-                cats.remove(cat);
-            } else {
-                cats.add(cat);
-            }
-            skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(), cats, skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
+            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
+            skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(),
+                    List.of(cat),  // always exactly one category
+                    skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 15 && rarityManager.isEnabled()) {
             Rarity nextRarity = nextRarity(skin.rarity());
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), nextRarity, skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
+        } else if (slot == 25) {
+            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getYesNo(player, input -> {
+                if (input.equalsIgnoreCase("true")) {
+                    skinService.deleteSkin(skin.id());
+                    ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
+                    new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
+
+                } else {
+                    return;
+                }
+            }, "editoreditdeleteconf", Component.text("Are you sure you want to delete this skin?"));
         } else if (slot == 26) {
             new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
         }

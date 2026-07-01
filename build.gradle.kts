@@ -27,6 +27,8 @@ allprojects {
             name = "PlaceholderAPI"
             url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
         }
+        maven("https://repo.hibiscusmc.com/releases/")
+        maven("https://repo.nexomc.com/releases")
     }
 }
 

@@ -70,17 +70,3 @@ skins:
       name: <gradient:blue:aqua>Sky Meteor
       lore:
         - <i>To blend with the skies...
-  sky_meteor:
-    id: sky_meteor
-    name: <gradient:blue:aqua>Sky Meteor
-    model-id: skymeteor
-    rarity: common
-    categories: []
-    enabled: true
-    animations: []
-    display-item:
-      id: NETHERITE_SWORD
-      name: <gradient:blue:aqua>Sky Meteor
-      lore:
-        - <i>To blend with the skies...
-      glow: false

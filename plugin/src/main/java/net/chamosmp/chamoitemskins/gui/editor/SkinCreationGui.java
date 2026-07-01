@@ -38,6 +38,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private String modelId = "model_id";
     private Material itemType = Material.DIAMOND_SWORD;
     private List<String> categories = new ArrayList<>();
+    private boolean enabled = true;
 
     private Rarity rarity;
     private final Inventory inventory;
@@ -78,6 +79,8 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         if (rarityManager.isEnabled()) {
             inventory.setItem(14, createInfoItem(Material.EMERALD, "<yellow>Rarity: " + rarity.getDisplayName(), "<gray>Click to cycle rarity"));
         }
+
+        inventory.setItem(15, createInfoItem(Material.LEVER, "<yellow>Enabled: " + (enabled ? "<green>Yes" : "<red>No"), "<gray>Click to toggle"));
 
         // Create Button (Bottom Right)
         ItemStack create = new ItemStack(Material.GREEN_CONCRETE);
@@ -159,18 +162,19 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 refresh();
             }, "editorcreatemodelid", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 13) {
-            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
-            if (categories.contains(cat)) {
-                categories.remove(cat);
-            } else {
-                categories.add(cat);
-            }
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
+            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
+            categories = new ArrayList<>(List.of(cat));
             refresh();
-        } else if (slot == 14 && rarityManager.isEnabled()) {
+        }
+        else if (slot == 14 && rarityManager.isEnabled()) {
             rarity = nextRarity(rarity);
             refresh();
-        } else if (slot == 25) {
+        } else if (slot == 15) {
+            enabled = !enabled;
+            refresh();
+        }
+        else if (slot == 25) {
             new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
         } else if (slot == 26) {
             Material displayMat = Material.PAPER;
@@ -189,7 +193,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                     default -> Material.PAPER;
                 };
             }
-            Skin skin = new Skin(id, name, modelId, rarity, categories, true, null, 
+            Skin skin = new Skin(id, name, modelId, rarity, categories, enabled, null,
                     new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
             skinService.saveSkin(skin);
             MessageUtil.sendMessage(player, "<green>Skin created!");

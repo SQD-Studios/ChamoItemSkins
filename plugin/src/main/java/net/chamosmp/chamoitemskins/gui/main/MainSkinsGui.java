@@ -37,11 +37,11 @@ import java.util.Map;
  */
 public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
+    private final ChamoItemSkinsPlugin pluginInstance;
     private final Player player;
     private final SkinService skinService;
     private final GrantService grantService;
     private final Inventory inventory;
-    //private final BetterModelServiceo betterModelService;
     private final List<GuiSlotDef> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
     private final SkinManager skinManager;
@@ -50,6 +50,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
 
     public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
+        this.pluginInstance = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -116,7 +117,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
                     : new RarityManager(plugin);
             ModelService modelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
                     ? chamoPlugin.getModelService()
-                    : new ModelService(plugin, skinManager);
+                    : new ModelService();
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {

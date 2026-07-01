@@ -1,10 +1,12 @@
 package net.chamosmp.chamoitemskins;
 
+import de.skyslycer.hmcwraps.HMCWraps;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.integration.nexo.NexoHandler;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
@@ -51,6 +53,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private ModelService modelService;
     private ChatInputUtil chatInputUtil;
     private DialogUtil dialogUtil;
+    private NexoHandler nexoHandler;
+
 
     /**
      * When the plugins load, at the very start of your server
@@ -66,6 +70,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
+        this.nexoHandler = new NexoHandler(this, logManager);
+
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
@@ -122,7 +128,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
             this.skinManager = new SkinManager(this, rarityManager, databaseManager);
             this.skinManager.reloadSkins();
         }
-        if (this.modelService == null) this.modelService = new ModelService(this, skinManager );
+        if (this.modelService == null) this.modelService = new ModelService();
         if (this.cacheManager == null) this.cacheManager = new CacheManager(config.getLong("cache.ttl-seconds", 300));
         if (this.logManager == null) this.logManager = new LogManager(this, databaseManager);
         if (this.grantManager == null) {

@@ -52,13 +52,7 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.editor")
     @Executes
     public void onBase(@Executor Player player) {
-        onGui(player);
-    }
-
-    @Permission("chamoitemskins.admin.editor")
-    @Executes("gui")
-    public void onGui(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil).open();
+        onEditor(player);
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -126,5 +120,33 @@ public final class AdminCommand {
                 });
             });
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin.help")
+    @Executes("help")
+    public void onHelp(CommandSender sender) {
+        sender.sendRichMessage("List of commands:");
+        sender.sendRichMessage("<red>Admin");
+        sender.sendRichMessage("access give <player> <skinid> - Gives direct access to a skin");
+        sender.sendRichMessage("access revoke <player> <skinid> - Revokes access to a skin");
+        sender.sendRichMessage("give <player> <skinid> [amount] - Gives a physical note, to get access to a skin");
+        sender.sendRichMessage("access editor - Opens the skin editor");
+        sender.sendRichMessage("skinsadmin/sa/skinadmin - Opens the skin editor");
+        sender.sendRichMessage("<gold>User");
+        sender.sendRichMessage("skins/skin - Opens the skin gui");
+    }
+
+    @Permission("chamoitemskins.admin.give")
+    @Executes("give")
+    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
+            String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
+            List<String> loreTmpl = config.getStringList("note.lore");
+            for (int i = 0; i <= amount; i++) {
+                target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
+            }
+            MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
     }
 }
