@@ -55,7 +55,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private int activeFilterSlot = -1;
 
     private int activeSearchSlot = -1;
-    private Map<Integer, String> searchSlotCategories = new HashMap<>();
+    private Set<Integer> searchSlotCategories = new HashSet<>();
     private String search;
     private boolean isSearching = false;
 
@@ -91,7 +91,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (def.type() instanceof SlotType.FilterSlot filter) {
                 filterSlotCategories.put(def.slot(), filter.category());
             } else if (def.type() instanceof SlotType.SearchSlot) {
-                searchSlotCategories.put(def.slot(), "search"); // value doesn't matter, just needs to be present
+                searchSlotCategories.add(def.slot());
             }
         }
         if (!filterSlotCategories.isEmpty()) {
