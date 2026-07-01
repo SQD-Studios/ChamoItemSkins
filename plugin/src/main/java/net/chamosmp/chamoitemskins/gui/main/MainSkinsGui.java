@@ -132,12 +132,16 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
             if (s == null) continue;
-            
+
             SlotType type = parseSlotType(s.getString("type", "Decorative"), s);
+            Material material = Material.matchMaterial(s.getString("material", "STONE"));
+            if (material == null) {
+                material = Material.STONE;
+            }
             slotsList.add(new GuiSlotDef(
                     type,
                     s.getInt("slot"),
-                    Material.matchMaterial(s.getString("material", "STONE")),
+                    material,
                     s.getString("name", ""),
                     s.getStringList("lore"),
                     s.getBoolean("glow", false)
