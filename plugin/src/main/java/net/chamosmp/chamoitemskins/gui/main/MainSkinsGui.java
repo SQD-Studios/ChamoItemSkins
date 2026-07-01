@@ -112,12 +112,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
             
-            RarityManager rarityManager = plugin instanceof ChamoItemSkinsPlugin chamo
-                    ? chamo.getRarityManager()
-                    : new RarityManager(plugin);
-            ModelService modelService = plugin instanceof ChamoItemSkinsPlugin chamoPlugin
-                    ? chamoPlugin.getModelService()
-                    : new ModelService();
+            RarityManager rarityManager = pluginInstance.getRarityManager();
+            ModelService modelService = pluginInstance.getModelService();
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
