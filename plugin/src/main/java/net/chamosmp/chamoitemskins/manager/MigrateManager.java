@@ -48,7 +48,7 @@ public class MigrateManager implements MigrateService {
 
 
     // HMCWarps Section
-    public void migrateHMC() {
+    private void migrateHMC() {
         plugin.getLogger().info("Started migration process");
         if (!Bukkit.getPluginManager().isPluginEnabled("HMCWraps")) {
             plugin.getLogger().warning("HMCWraps is not enabled. Migration aborted.");
