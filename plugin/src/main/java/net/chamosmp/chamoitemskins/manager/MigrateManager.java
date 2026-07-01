@@ -23,18 +23,6 @@ public class MigrateManager implements MigrateService {
     private final SkinService skinService;
     private HMCWraps hmcWraps;
 
-    // HMC Warps Arrays
-    private String[] hmcIds;
-    private String[] hmcModels;
-    private String[] hmcNames;
-    private String[] hmcItems;
-
-    // ItemSkins Arrays
-    private String[] itemIds;
-    private String[] itemModels;
-    private String[] itemNames;
-    private String[] itemItems;
-
     public MigrateManager(Plugin plugin, SkinService skinService) {
         this.plugin = plugin;
         this.skinService = skinService;
