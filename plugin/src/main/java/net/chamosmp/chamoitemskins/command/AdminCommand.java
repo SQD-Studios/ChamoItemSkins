@@ -156,7 +156,6 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.migrate")
     @Executes("migrate hmcwarps")
     public void onMigrate(CommandSender sender) {
-        migrateManager.migrateHMC();
-
+        migrateManager.migrateHMC(sender);
     }
 }

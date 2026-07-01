@@ -2,17 +2,16 @@ package net.chamosmp.chamoitemskins.manager;
 
 import de.skyslycer.hmcwraps.HMCWraps;
 import de.skyslycer.hmcwraps.serialization.wrap.Wrap;
-import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.eclipse.aether.util.ConfigUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +21,6 @@ public class MigrateManager implements MigrateService {
 
     private final Plugin plugin;
     private final SkinService skinService;
-    private final RarityManager rarityManager;
     private HMCWraps hmcWraps;
 
     // HMC Warps Arrays
@@ -37,21 +35,21 @@ public class MigrateManager implements MigrateService {
     private String[] itemNames;
     private String[] itemItems;
 
-    public MigrateManager(Plugin plugin, SkinService skinService, RarityManager rarityManager) {
+    public MigrateManager(Plugin plugin, SkinService skinService) {
         this.plugin = plugin;
         this.skinService = skinService;
-        this.rarityManager = rarityManager;
     }
 
 
     @Override
     public void migrateItemSkins() {
+
     }
 
 
     // HMCWarps Section
-    @Override
     public void migrateHMC() {
+        plugin.getLogger().info("Started migration process");
         if (!Bukkit.getPluginManager().isPluginEnabled("HMCWraps")) {
             plugin.getLogger().warning("HMCWraps is not enabled. Migration aborted.");
             return;
@@ -80,7 +78,6 @@ public class MigrateManager implements MigrateService {
             plugin.getLogger().info("No wraps found in HMCWraps to migrate.");
             return;
         }
-
         plugin.getLogger().info("Starting migration of " + wraps.size() + " wraps from HMCWraps...");
 
         int migrated = 0;
@@ -105,7 +102,77 @@ public class MigrateManager implements MigrateService {
                 plugin.getLogger().severe("Error migrating wrap " + wrapId + ": " + e.getMessage());
             }
         }
+        plugin.getLogger().info("Migration completed. Migrated: " + migrated + ", Failed: " + failed);
+    }
 
+
+    @Override
+    public void migrateHMC(CommandSender player) {
+        if (player instanceof ConsoleCommandSender) {
+            migrateHMC();
+            return;
+        }
+        player.sendRichMessage("<green>Started migration process");
+        plugin.getLogger().info("Started migration process");
+        if (!Bukkit.getPluginManager().isPluginEnabled("HMCWraps")) {
+            player.sendRichMessage("<red>HMCWraps not enabled. Migration aborted.");
+            plugin.getLogger().warning("HMCWraps is not enabled. Migration aborted.");
+            return;
+        }
+
+        // Get HMCWraps instance – using ServicesManager or plugin manager
+        hmcWraps = Bukkit.getServicesManager().load(HMCWraps.class);
+        if (hmcWraps == null) {
+            player.sendRichMessage("<red>Failed to load HMCWraps instance.");
+            plugin.getLogger().severe("Failed to get HMCWraps instance.");
+            return;
+        }
+
+        // Disable the rarities
+
+        YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml");
+        config.set("rarities.enabled", false);
+        try {
+            config.save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException e) {
+            player.sendRichMessage("<red>Could not save config. Please check the console and report!");
+            plugin.getLogger().severe("Could not save config: " + e.getMessage());
+        }
+
+        // Access wraps via WrapHandler (or WrapRepository)
+        Map<String, Wrap> wraps = hmcWraps.getWrapsLoader().getWraps();
+        if (wraps == null || wraps.isEmpty()) {
+            player.sendRichMessage("<red>No wraps found to migrate.");
+            plugin.getLogger().info("No wraps found in HMCWraps to migrate.");
+            return;
+        }
+
+        player.sendRichMessage("<green>Starting migration of " + wraps.size() + " wraps from HMCWraps...");
+        plugin.getLogger().info("Starting migration of " + wraps.size() + " wraps from HMCWraps...");
+
+        int migrated = 0;
+        int failed = 0;
+
+        for (Map.Entry<String, Wrap> entry : wraps.entrySet()) {
+            String wrapId = entry.getKey();
+            Wrap wrap = entry.getValue();
+
+            try {
+                Skin skin = convertWrapToSkin(wrapId, wrap);
+                if (skin != null) {
+                    skinService.saveSkin(skin);
+                    migrated++;
+                    plugin.getLogger().info("Successfully migrated wrap: " + wrapId);
+                } else {
+                    failed++;
+                    plugin.getLogger().warning("Failed to convert wrap: " + wrapId);
+                }
+            } catch (Exception e) {
+                failed++;
+                plugin.getLogger().severe("Error migrating wrap " + wrapId + ": " + e.getMessage());
+            }
+        }
+        player.sendRichMessage("<green>Migration completed. Migrated: " + migrated + ", <red>Failed: " + failed);
         plugin.getLogger().info("Migration completed. Migrated: " + migrated + ", Failed: " + failed);
     }
 
