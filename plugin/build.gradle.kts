@@ -1,6 +1,7 @@
 plugins {
     id("com.gradleup.shadow") version "9.4.2"
     id("xyz.jpenilla.run-paper") version "3.0.2"
+    id("maven-publish")
 }
 
 dependencies {
@@ -56,4 +57,30 @@ tasks {
     }
     // runFolia
     runPaper.folia.registerTask()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            name = "ChamoSMP-Releases"
+            url = uri("https://maven.chamosmp.net/releases")
+            credentials {
+                username = System.getenv("REPOSILITE_USER")
+                password = System.getenv("REPOSILITE_TOKEN")
+            }
+        }
+        maven {
+            name = "ChamoSMP-Snapshots"
+            url = uri("https://maven.chamosmp.net/snapshots")
+            credentials {
+                username = System.getenv("REPOSILITE_USER")
+                password = System.getenv("REPOSILITE_TOKEN")
+            }
+        }
+    }
 }
