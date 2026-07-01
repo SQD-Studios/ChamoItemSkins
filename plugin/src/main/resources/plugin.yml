@@ -30,6 +30,12 @@ permissions:
   chamoitemskins.admin.access.give:
     description: Allows using /access give
     default: op
+  chamoitemskins.admin.migrate:
+    description: Allows using /migrate (plugin)
+    default: op
+  chamoitemskins.admin.help:
+    description: Allows using /skinsadmin help
+    default: op
 
 libraries:
   - "com.zaxxer:HikariCP:7.1.0"

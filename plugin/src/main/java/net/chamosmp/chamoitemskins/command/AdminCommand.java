@@ -8,6 +8,7 @@ import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.manager.MigrateManager;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
@@ -36,9 +37,10 @@ public final class AdminCommand {
     private final int adminGuiSize;
     private final List<GuiSlotDef> adminGuiSlots;
     private final DialogUtil dialogUtil;
+    private final MigrateManager migrateManager;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil, MigrateManager migrateManager) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -47,6 +49,7 @@ public final class AdminCommand {
         this.adminGuiSize = adminGuiSize;
         this.adminGuiSlots = adminGuiSlots;
         this.dialogUtil = dialogUtil;
+        this.migrateManager = migrateManager;
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -148,5 +151,12 @@ public final class AdminCommand {
             }
             MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin.migrate")
+    @Executes("migrate hmcwarps")
+    public void onMigrate(CommandSender sender) {
+        migrateManager.migrateHMC();
+
     }
 }
