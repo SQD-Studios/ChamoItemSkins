@@ -2,6 +2,7 @@ plugins {
     id("com.gradleup.shadow") version "9.4.2"
     id("xyz.jpenilla.run-paper") version "3.0.2"
     id("maven-publish")
+    id("org.jetbrains.dokka")
 }
 
 dependencies {
@@ -18,6 +19,9 @@ dependencies {
 
     // More plugin support
     compileOnly("com.nexomc:nexo:1.25.0")
+
+    // Dokka (Better Javadocs)
+    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
 }
 
 
@@ -83,4 +87,11 @@ publishing {
             }
         }
     }
+}
+
+dokka {
+    pluginsConfiguration.html {
+        footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
+    }
+
 }

@@ -6,6 +6,7 @@ import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
@@ -19,11 +20,6 @@ import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.listener.NoteListener;
 import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
-import net.chamosmp.chamoitemskins.manager.CacheManager;
-import net.chamosmp.chamoitemskins.manager.GrantManager;
-import net.chamosmp.chamoitemskins.manager.LogManager;
-import net.chamosmp.chamoitemskins.manager.RarityManager;
-import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
@@ -52,6 +48,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private ModelService modelService;
     private ChatInputUtil chatInputUtil;
     private DialogUtil dialogUtil;
+    private MigrateManager migrateManager;
 
 
     /**
@@ -68,7 +65,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
-
+        migrateManager = new MigrateManager(this, skinManager);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
@@ -103,7 +100,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 int adminSize = adminGuiConfig.getInt("size", 54);
 
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager);
                 getLogger().info("Successfully registered commands.");
             } catch (Exception e) {
                 getLogger().severe("Failed to register commands: " + e.getMessage());

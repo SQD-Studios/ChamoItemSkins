@@ -14,36 +14,42 @@ import java.util.Optional;
  */
 public interface SkinService {
     /**
-     * @return All registered skins.
+     * Gets all registered skins.
+     * @return A collection of all skins.
      */
     @NotNull Collection<Skin> getSkins();
 
     /**
-     * @return All registered bundles.
+     * Gets all registered bundles.
+     * @return A collection of all bundles.
      */
     @NotNull Collection<net.chamosmp.chamoitemskins.api.model.SkinBundle> getBundles();
 
     /**
+     * Gets a skin by its ID.
      * @param id The skin ID.
-     * @return The skin if found.
+     * @return An optional containing the skin if found.
      */
     @NotNull Optional<Skin> getSkin(@NotNull String id);
 
     /**
+     * Gets a bundle by its ID.
      * @param id The bundle ID.
-     * @return The bundle if found.
+     * @return An optional containing the bundle if found.
      */
     @NotNull Optional<net.chamosmp.chamoitemskins.api.model.SkinBundle> getBundle(@NotNull String id);
 
     /**
+     * Gets all skins applicable to a specific material or its categories.
      * @param material The item material.
-     * @return All skins applicable to this material or its categories.
+     * @return A collection of applicable skins.
      */
     @NotNull Collection<Skin> getSkinsForMaterial(@NotNull Material material);
 
     /**
+     * Gets all skins belonging to a specific category.
      * @param category The category name.
-     * @return All skins in this category.
+     * @return A collection of skins in the category.
      */
     @NotNull Collection<Skin> getSkinsForCategory(@NotNull String category);
 

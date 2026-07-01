@@ -40,6 +40,15 @@ public final class GrantManager implements GrantService {
     private final LogService logService;
     private final ModelService modelService;
 
+    /**
+     * Constructs a new GrantManager.
+     * @param plugin       The plugin instance.
+     * @param db           The database manager.
+     * @param cache        The cache manager.
+     * @param skinManager  The skin manager.
+     * @param logService   The log service.
+     * @param modelService The model service.
+     */
     public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, ModelService modelService) {
         this.plugin = plugin;
         this.db = db;
@@ -177,7 +186,8 @@ public final class GrantManager implements GrantService {
     }
 
     /**
-     * Re-applies all active skin models to the player's inventory.
+     * Refreshes all skins in a player's inventory based on their active skins in the database.
+     * @param player The player to refresh.
      */
     public void refreshPlayerSkins(@NotNull Player player) {
         CompletableFuture.runAsync(() -> {

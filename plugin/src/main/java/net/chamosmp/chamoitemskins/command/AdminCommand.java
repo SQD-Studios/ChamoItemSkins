@@ -8,6 +8,7 @@ import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.manager.MigrateManager;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
@@ -36,9 +37,10 @@ public final class AdminCommand {
     private final int adminGuiSize;
     private final List<GuiSlotDef> adminGuiSlots;
     private final DialogUtil dialogUtil;
+    private final MigrateManager migrateManager;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil, MigrateManager migrateManager) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -47,6 +49,7 @@ public final class AdminCommand {
         this.adminGuiSize = adminGuiSize;
         this.adminGuiSlots = adminGuiSlots;
         this.dialogUtil = dialogUtil;
+        this.migrateManager = migrateManager;
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -70,7 +73,7 @@ public final class AdminCommand {
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/admin-gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
-            
+
             MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
         } else {
             MessageUtil.sendMessage(sender, "<red>Failed to reload plugin: Unexpected plugin instance.");
@@ -81,7 +84,7 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNote(target, skin, 1);
+            giveSkinNotes(sender, target, skin, 1);
             MessageUtil.sendMessage(sender, "<green>Gave 1" + skin.id() + " note to " + target.getName());
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
@@ -137,11 +140,11 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(target, skin, amount);
+            giveSkinNotes(sender, target, skin, amount);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
     }
 
-    private void giveSkinNotes(Player target, Skin skin, int amount) {
+    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount) {
         Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
         String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
         List<String> loreTmpl = config.getStringList("note.lore");
@@ -149,5 +152,11 @@ public final class AdminCommand {
             target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
         }
         MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
+    }
+
+    @Permission("chamoitemskins.admin.migrate")
+    @Executes("migrate hmcwarps")
+    public void onMigrate(CommandSender sender) {
+        migrateManager.migrateHMC(sender);
     }
 }
