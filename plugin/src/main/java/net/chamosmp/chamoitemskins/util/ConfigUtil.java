@@ -35,24 +35,26 @@ public final class ConfigUtil {
         
         var resourceStream = plugin.getResource(fileName);
         if (resourceStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(resourceStream, StandardCharsets.UTF_8)
-            );
-            
-            boolean changed = false;
-            for (String key : defaultConfig.getKeys(true)) {
-                if (!config.contains(key)) {
-                    config.set(key, defaultConfig.get(key));
-                    changed = true;
+            try (resourceStream; InputStreamReader reader = new InputStreamReader(resourceStream, StandardCharsets.UTF_8)) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(reader);
+
+                boolean changed = false;
+                for (String key : defaultConfig.getKeys(true)) {
+                    if (!config.contains(key)) {
+                        config.set(key, defaultConfig.get(key));
+                        changed = true;
+                    }
                 }
-            }
-            
-            if (changed) {
-                try {
-                    config.save(file);
-                } catch (IOException e) {
-                    plugin.getLogger().severe("Could not save adapted config " + fileName + ": " + e.getMessage());
+
+                if (changed) {
+                    try {
+                        config.save(file);
+                    } catch (IOException e) {
+                        plugin.getLogger().severe("Could not save adapted config " + fileName + ": " + e.getMessage());
+                    }
                 }
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not read default config resource " + fileName + ": " + e.getMessage());
             }
         }
         
