@@ -81,18 +81,11 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNote(target, skin);
-            MessageUtil.sendMessage(sender, "<green>Gave " + skin.id() + " note to " + target.getName());
+            giveSkinNote(target, skin, 1);
+            MessageUtil.sendMessage(sender, "<green>Gave 1" + skin.id() + " note to " + target.getName());
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 
-    private void giveSkinNote(Player target, Skin skin) {
-        Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-        String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
-        List<String> loreTmpl = config.getStringList("note.lore");
-
-        target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
-    }
 
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
@@ -144,11 +137,11 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, amount);
+            giveSkinNotes(target, skin, amount);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
     }
 
-    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount) {
+    private void giveSkinNotes(Player target, Skin skin, int amount) {
         Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
         String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
         List<String> loreTmpl = config.getStringList("note.lore");
