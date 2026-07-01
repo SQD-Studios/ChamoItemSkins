@@ -65,7 +65,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
-        migrateManager = new MigrateManager(this, skinManager, rarityManager);
+        migrateManager = new MigrateManager(this, skinManager);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
