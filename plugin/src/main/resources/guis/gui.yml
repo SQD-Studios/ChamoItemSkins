@@ -136,3 +136,10 @@ selection-slots:
     name: <red>Back
     lore:
       - <gray>Return to categories.
+  search:
+    slot: 48
+    type: SearchSlot
+    material: HOPPER
+    name: "<b><dark_red>Search skins"
+    lore:
+      - ""

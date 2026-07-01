@@ -239,15 +239,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
-            String displayName = "<b><dark_red>Search skins";
-            List<String> lore = new ArrayList<>();
+            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
 
-            lore.add("");
-            lore.add(!isSearching ? "<white>Searching for: <dark_red>Nothing" : "<white>Searching for: <dark_red>" + search);
+            List<String> lore = new ArrayList<>(def.lore());
 
-            meta.displayName(MessageUtil.parse(player, displayName, Map.of()));
+            String safeSearch = search == null ? "Nothing" : search;
+            lore.add("<white>Searching for: <dark_red>" + safeSearch);
+
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
-
             item.setItemMeta(meta);
         }
         return item;
