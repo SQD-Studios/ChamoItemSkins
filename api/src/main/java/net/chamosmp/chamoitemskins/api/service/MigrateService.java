@@ -1,16 +1,18 @@
 package net.chamosmp.chamoitemskins.api.service;
 
+/**
+ * Service to migrate skin data from other plugins.
+ * Currently supports HMCWarps and ItemSkins.
+ */
 public interface MigrateService {
 
     /**
-     * Migrate from HMCWarps
+     * Migrates data from HMCWarps.
      */
     void migrateHMC();
 
     /**
-     * Migrate from ItemSkins
+     * Migrates data from ItemSkins.
      */
     void migrateItemSkins();
-
-
 }

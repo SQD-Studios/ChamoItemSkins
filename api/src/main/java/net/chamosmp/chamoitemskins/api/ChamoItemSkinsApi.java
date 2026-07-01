@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ChamoItemSkinsApi {
     /**
+     * Get the ChamoItemSkins API
      * @return The singleton instance of the API.
      * @throws IllegalStateException if the plugin is not loaded.
      */
@@ -24,16 +25,19 @@ public interface ChamoItemSkinsApi {
     }
 
     /**
+     * Get the skin service
      * @return The skin service.
      */
     @NotNull SkinService getSkinService();
 
     /**
+     * Get the grant service
      * @return The grant service.
      */
     @NotNull GrantService getGrantService();
 
     /**
+     * Get the log service
      * @return The log service.
      */
     @NotNull LogService getLogService();

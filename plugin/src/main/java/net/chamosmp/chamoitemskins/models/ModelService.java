@@ -23,12 +23,16 @@ public final class ModelService {
 
     private static final String NAMESPACE = "chamoitemskins";
 
+    /**
+     * Constructs a new ModelService.
+     */
     public ModelService() {
 
     }
 
     /**
      * Builds a GUI preview item using the skin model when available, otherwise the display material.
+     * @param skin The model, of the skin to apply
      */
     public @NotNull ItemStack createPreviewItem(@NotNull Skin skin) {
         Material material = skin.displayItem() != null ? skin.displayItem().material() : Material.BARRIER;
@@ -39,6 +43,11 @@ public final class ModelService {
         return item;
     }
 
+    /**
+     * Applies a custom item model to an {@link ItemStack}.
+     * @param item    The item stack to apply the model to.
+     * @param modelId The ID of the model to apply.
+     */
     public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
 
             if (modelId.isBlank() || item.getType().isAir()) {

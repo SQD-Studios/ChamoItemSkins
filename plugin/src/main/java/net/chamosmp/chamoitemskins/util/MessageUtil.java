@@ -93,16 +93,11 @@ public final class MessageUtil {
         return config.getString(key, key);
     }
 
-    public static void sendLocalizedMessage(@NotNull Player player, @NotNull String key) {
-        sendLocalizedMessage(player, key, Map.of());
-    }
-
-    public static void sendLocalizedMessage(@NotNull Player player, @NotNull String key, @NotNull Map<String, String> placeholders) {
-        String lang = player.getLocale().split("_")[0].toLowerCase();
-        String message = getMessage(key, lang);
-        player.sendMessage(parse(player, message, placeholders));
-    }
-
+    /**
+     * Send a message to an audience, with no placeholders
+     * @param audience The audience to send this message to
+     * @param message The message to send
+     */
     public static void sendMessage(@NotNull Audience audience, @NotNull String message) {
         Player player = null;
         if (audience instanceof Player p) {
@@ -111,6 +106,12 @@ public final class MessageUtil {
         audience.sendMessage(parse(player, message, Map.of()));
     }
 
+    /**
+     * Send a message to a player
+     * @param audience The instance to send a message to (A player or console)
+     * @param message The message to send, with mini message formatting
+     * @param placeholders The placeholders, forward parameter for parse
+     */
     public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<String, String> placeholders) {
         Player player = null;
         if (audience instanceof Player p) {

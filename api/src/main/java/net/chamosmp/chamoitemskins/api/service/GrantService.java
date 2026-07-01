@@ -16,15 +16,17 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface GrantService {
     /**
+     * Gets all skin grants for a player.
      * @param playerUuid The player's UUID.
-     * @return All skin grants for this player.
+     * @return A future that completes with all skin grants for this player.
      */
     @NotNull CompletableFuture<Collection<SkinGrant>> getGrants(@NotNull UUID playerUuid);
 
     /**
+     * Checks if a player owns a specific skin.
      * @param playerUuid The player's UUID.
      * @param skinId     The skin ID.
-     * @return Whether the player owns the skin.
+     * @return A future that completes with whether the player owns the skin.
      */
     @NotNull CompletableFuture<Boolean> hasSkin(@NotNull UUID playerUuid, @NotNull String skinId);
 
@@ -46,9 +48,10 @@ public interface GrantService {
     @NotNull CompletableFuture<Void> revokeSkin(@NotNull UUID playerUuid, @NotNull String skinId);
 
     /**
+     * Gets the active skin ID for a player and material.
      * @param playerUuid The player's UUID.
      * @param material   The item material.
-     * @return The ID of the active skin for this material, if any.
+     * @return A future that completes with the ID of the active skin for this material, if any.
      */
     @NotNull CompletableFuture<Optional<String>> getActiveSkin(@NotNull UUID playerUuid, @NotNull Material material);
 

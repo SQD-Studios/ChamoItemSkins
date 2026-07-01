@@ -19,6 +19,7 @@ public record Rarity(
 ) {
     /**
      * Returns the combined MiniMessage display string for this rarity.
+     * @return Returns the colorized name of the rarity, configured from the config
      */
     public @NotNull String getDisplayName() {
         if (color.isBlank()) {

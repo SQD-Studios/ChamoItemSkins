@@ -27,6 +27,12 @@ public final class SkinManager implements SkinService {
     private final Map<String, SkinBundle> bundles = new ConcurrentHashMap<>();
     private final DatabaseManager databaseManager;
 
+    /**
+     * Constructs a new SkinManager.
+     * @param plugin         The plugin instance.
+     * @param rarityManager  The rarity manager.
+     * @param databaseManager The database manager.
+     */
     public SkinManager(@NotNull Plugin plugin, @NotNull RarityManager rarityManager, DatabaseManager databaseManager) {
         this.plugin = plugin;
         this.rarityManager = rarityManager;
@@ -68,6 +74,12 @@ public final class SkinManager implements SkinService {
                 .toList();
     }
 
+    /**
+     * Determines if a material belongs to a specific category.
+     * @param materialName The name of the material.
+     * @param category     The category to check.
+     * @return True if the material is in the category.
+     */
     private boolean isMaterialInCategory(String materialName, String category) {
         return switch (category.toUpperCase()) {
             case "SWORD", "SWORDS" -> materialName.contains("SWORD") || materialName.equals("MACE");

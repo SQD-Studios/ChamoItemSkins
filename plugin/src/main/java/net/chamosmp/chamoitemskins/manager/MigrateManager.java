@@ -5,6 +5,9 @@ import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import org.bukkit.Bukkit;
 
+/**
+ * A migrate manager for HMCWarps and ItemSkins
+ */
 public class MigrateManager implements MigrateService {
 
     // HMC Warps Arrays

@@ -15,6 +15,9 @@ import java.util.List;
  * @param enabled      Whether the skin is currently active in the plugin.
  * @param noteMaterial Optional override for the physical note item material.
  * @param displayItem  Configuration for the item shown in GUIs.
+ *
+ * @param rarity The rarity of the skin
+ * @param animations The animations to apply to the skin
  */
 public record Skin(
         String id,
@@ -27,6 +30,13 @@ public record Skin(
         DisplayItem displayItem,
         List<String> animations
 ) {
+    /**
+     * Represents an item to be displayed in the GUI.
+     * @param material    The item material to display.
+     * @param name        The name of the item to display.
+     * @param lore        The lore of the item to display.
+     * @param glow        Whether the item should glow.
+     */
     public record DisplayItem(
             Material material,
             String name,

@@ -23,10 +23,18 @@ public class SkinGrantEvent extends PlayerEvent implements Cancellable {
         this.source = source;
     }
 
+    /**
+     * Gets the skin being granted.
+     * @return The skin.
+     */
     public @NotNull Skin getSkin() {
         return skin;
     }
 
+    /**
+     * Gets the source of the grant.
+     * @return The source.
+     */
     public @NotNull String getSource() {
         return source;
     }
