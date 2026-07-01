@@ -95,20 +95,20 @@ maven {
 }
 ```
 ``` kotlin
-compileOnly("net.chamosmp:ChamoParty:version")
+compileOnly("net.chamosmp.chamoitemskins:api:version")
 ```
 Maven (pom.xml)
 ``` xml
 <repository>
-  <id>chamosmp-repo-releases</id>
+  <id>chamosmp-repo-snapshots</id>
   <name>ChamoSMP Maven Repository</name>
-  <url>https://maven.chamosmp.net/releases</url>
+  <url>https://maven.chamosmp.net/snapshots</url>
 </repository>
 ```
 ``` xml
 <dependency>
-  <groupId>net.chamosmp</groupId>
-  <artifactId>ChamoParty</artifactId>
+  <groupId>net.chamosmp.chamoitemskins</groupId>
+  <artifactId>api</artifactId>
   <version>version</version>
 </dependency>
 ```
