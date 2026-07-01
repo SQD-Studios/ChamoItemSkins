@@ -253,22 +253,23 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private boolean isMaterialInCategory(String materialName, String category) {
+        String normalizedMaterial = materialName.toUpperCase();
         return switch (category.toUpperCase()) {
-            case "SWORD", "SWORDS" -> materialName.contains("SWORD");
-            case "AXE", "AXES" -> materialName.contains("_AXE");
-            case "PICKAXE", "PICKAXES" -> materialName.contains("PICKAXE");
-            case "SHOVEL", "SHOVELS" -> materialName.contains("SHOVEL");
-            case "HOE", "HOES" -> materialName.contains("_HOE");
-            case "SHIELD" -> materialName.equals("SHIELD");
-            case "BOW" -> materialName.equals("BOW");
-            case "CROSSBOW" -> materialName.equals("CROSSBOW");
-            case "MACE" -> materialName.equals("MACE");
-            case "TRIDENT", "TRIDENTS" -> materialName.contains("TRIDENT");
-            case "HELMET", "HELMETS" -> materialName.contains("HELMET");
-            case "CHESTPLATE", "CHESTPLATES" -> materialName.contains("CHESTPLATE");
-            case "LEGGINGS" -> materialName.contains("LEGGINGS");
-            case "BOOTS" -> materialName.contains("BOOTS");
-            case "SPEAR", "SPEARS" -> materialName.contains("SPEAR");
+            case "SWORD", "SWORDS" -> normalizedMaterial.endsWith("_SWORD");
+            case "AXE", "AXES" -> normalizedMaterial.endsWith("_AXE");
+            case "PICKAXE", "PICKAXES" -> normalizedMaterial.endsWith("_PICKAXE");
+            case "SHOVEL", "SHOVELS" -> normalizedMaterial.endsWith("_SHOVEL");
+            case "HOE", "HOES" -> normalizedMaterial.endsWith("_HOE");
+            case "SHIELD" -> normalizedMaterial.equals("SHIELD");
+            case "BOW" -> normalizedMaterial.equals("BOW");
+            case "CROSSBOW" -> normalizedMaterial.equals("CROSSBOW");
+            case "MACE" -> normalizedMaterial.equals("MACE");
+            case "TRIDENT", "TRIDENTS" -> normalizedMaterial.equals("TRIDENT");
+            case "HELMET", "HELMETS" -> normalizedMaterial.endsWith("_HELMET");
+            case "CHESTPLATE", "CHESTPLATES" -> normalizedMaterial.endsWith("_CHESTPLATE");
+            case "LEGGINGS" -> normalizedMaterial.endsWith("_LEGGINGS");
+            case "BOOTS" -> normalizedMaterial.endsWith("_BOOTS");
+            case "SPEAR", "SPEARS" -> normalizedMaterial.endsWith("_SPEAR");
             default -> false;
         };
     }
