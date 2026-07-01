@@ -43,10 +43,10 @@ public final class MessageUtil {
     }
 
     /**
-     * What are these weird things I do for YOU
-     * @apiNote It's not finished yet so write it in MiniMessage to begin with
-     * @param message The message to make the Legacy to minimessage
-     * @return The minimessage from legacy String
+     * Converts a legacy-formatted message string into a MiniMessage-compatible string.
+     *
+     * @param message the legacy-formatted message
+     * @return the converted MiniMessage string
      */
     public static String legacyToMiniMessage(String message) {
         String oneChar = message.replace("§", "&");
@@ -104,11 +104,19 @@ public final class MessageUtil {
     }
 
     public static void sendMessage(@NotNull Audience audience, @NotNull String message) {
-        audience.sendMessage(parse(audience instanceof Player p ? p : null, message, Map.of()));
+        Player player = null;
+        if (audience instanceof Player p) {
+            player = p;
+        }
+        audience.sendMessage(parse(player, message, Map.of()));
     }
 
     public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<String, String> placeholders) {
-        audience.sendMessage(parse(audience instanceof Player p ? p : null, message, placeholders));
+        Player player = null;
+        if (audience instanceof Player p) {
+            player = p;
+        }
+        audience.sendMessage(parse(player, message, placeholders));
     }
 
     public static @NotNull Component parse(@NotNull String message) {
