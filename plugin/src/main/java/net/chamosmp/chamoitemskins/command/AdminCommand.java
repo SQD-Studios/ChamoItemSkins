@@ -69,7 +69,7 @@ public final class AdminCommand {
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "config.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
             net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "guis/admin-gui.yml");
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "skins.yml");
+            net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
             
             MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
         } else {

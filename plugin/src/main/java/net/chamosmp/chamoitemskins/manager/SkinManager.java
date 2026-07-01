@@ -129,7 +129,7 @@ public final class SkinManager implements SkinService {
     public void reloadSkins() {
         skins.clear();
         bundles.clear();
-        var config = ConfigUtil.loadOrAdapt(plugin, "skins.yml");
+        var config = ConfigUtil.loadDataFile(plugin, "skins.yml");
         YamlUtil.loadSkins(config, rarityManager).forEach(skin -> skins.put(skin.id(), skin));
         YamlUtil.loadBundles(config).forEach(bundle -> bundles.put(bundle.id(), bundle));
     }

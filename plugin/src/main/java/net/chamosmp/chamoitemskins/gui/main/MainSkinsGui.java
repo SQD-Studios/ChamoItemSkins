@@ -123,7 +123,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot action) {
                     if (action.action().equals("ADMIN_GUI") && player.hasPermission("chamoitemskins.admin")) {
-                        player.performCommand("skinsadmin gui");
+                        player.performCommand("skinsadmin");
                     }
                 }
             });

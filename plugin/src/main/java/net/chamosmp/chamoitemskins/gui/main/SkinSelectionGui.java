@@ -239,11 +239,12 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
-            String displayName = "Search a skin";
+            String displayName = "<b><dark_red>Search skins";
             List<String> lore = new ArrayList<>();
 
             lore.add("");
-            lore.add("<dark_gray>Click to search for a skin");
+            lore.add(!isSearching ? "<white>Searching for: <dark_red>Nothing" : "<white>Searching for: <dark_red>" + search);
+
             meta.displayName(MessageUtil.parse(player, displayName, Map.of()));
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
 
@@ -338,28 +339,26 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         }
 
         if (48 == slot) {
-            if (slot != activeSearchSlot) {
-                activeSearchSlot = slot;
-                refresh();
-                if (!isSearching) {
-                    chatInputUtil.getInput(player, Component.text("Search:"), input -> {
-                        if (input == null) {
-                            isSearching = false;
-                            return;
-                        }
-                        search = input;
+            activeSearchSlot = slot;
+            refresh();
+            if (!isSearching) {
+                chatInputUtil.getInput(player, Component.text("Search:"), input -> {
+                    if (input == null) {
+                        isSearching = false;
+                        return;
+                    }
+                    search = input;
 
-                        isSearching = true;
-                        refresh();
-                        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
-                    }, "selectionsearch", Component.text("Search for a skin"));
-
-                } else {
-                    isSearching = false;
+                    isSearching = true;
                     refresh();
-                }
+                    SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+                    }, "selectionsearch", Component.text("Search for a skin"));
+            } else {
+                isSearching = false;
+                search = null;
+                refresh();
+                return;
             }
-            return;
         }
 
         Skin skin = skinMap.get(slot);

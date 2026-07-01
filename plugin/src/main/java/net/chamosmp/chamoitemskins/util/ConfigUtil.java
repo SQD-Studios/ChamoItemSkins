@@ -58,4 +58,12 @@ public final class ConfigUtil {
         
         return config;
     }
+
+    public static @NotNull YamlConfiguration loadDataFile(@NotNull Plugin plugin, @NotNull String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
+        if (!file.exists()) {
+            plugin.saveResource(fileName, false);
+        }
+        return YamlConfiguration.loadConfiguration(file);
+    }
 }
