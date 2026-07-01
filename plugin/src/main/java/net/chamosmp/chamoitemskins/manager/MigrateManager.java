@@ -43,7 +43,7 @@ public class MigrateManager implements MigrateService {
 
     @Override
     public void migrateItemSkins() {
-
+        throw new UnsupportedOperationException("migrateItemSkins() is not implemented yet in MigrateManager.");
     }
 
 
