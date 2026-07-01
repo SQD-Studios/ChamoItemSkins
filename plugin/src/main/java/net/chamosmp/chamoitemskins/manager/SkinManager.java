@@ -68,7 +68,7 @@ public final class SkinManager implements SkinService {
                 .toList();
     }
 
-    private boolean isMaterialInCategory(String materialName, String category) {
+    public static boolean isMaterialInCategoryShared(String materialName, String category) {
         return switch (category.toUpperCase()) {
             case "SWORD", "SWORDS" -> materialName.contains("SWORD") || materialName.equals("MACE");
             case "AXE", "AXES" -> materialName.contains("_AXE");
@@ -92,6 +92,10 @@ public final class SkinManager implements SkinService {
             case "ALL", "GENERAL" -> true;
             default -> false;
         };
+    }
+
+    private boolean isMaterialInCategory(String materialName, String category) {
+        return isMaterialInCategoryShared(materialName, category);
     }
 
     @Override
