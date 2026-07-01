@@ -337,7 +337,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             return;
         }
 
-        if (48 == slot) {
+        if (activeSearchSlot == slot) {
             activeSearchSlot = slot;
             refresh();
             if (!isSearching) {
