@@ -87,74 +87,6 @@ JAVA 21 GUIDELINES:
 
 ---
 
-MULTIPROJECT LAYOUT:
-ChamoItemSkins/
-├── .gitignore
-├── settings.gradle.kts
-├── build.gradle.kts                                    (root)
-├── api/
-│   ├── build.gradle.kts
-│   └── src/main/java/com/example/chamoitemskins/api/
-│       ├── ChamoItemSkinsApi.java                      (interface + static get())
-│       ├── model/
-│       │   ├── Skin.java                               (record)
-│       │   └── SkinGrant.java                          (record)
-│       ├── event/
-│       │   ├── SkinEquipEvent.java                     (cancellable)
-│       │   ├── SkinUnequipEvent.java                   (cancellable)
-│       │   ├── SkinGrantEvent.java                     (cancellable)
-│       │   └── SkinRevokeEvent.java                    (cancellable)
-│       └── service/
-│           ├── SkinService.java
-│           └── GrantService.java
-└── plugin/
-├── build.gradle.kts
-└── src/main/
-├── java/com/example/chamoitemskins/
-│   ├── ChamoItemSkinsPlugin.java               (JavaPlugin main)
-│   ├── scheduler/
-│   │   └── SchedulerUtil.java                  (Folia/Paper abstraction)
-│   ├── command/
-│   │   ├── SkinsCommand.java
-│   │   └── AdminCommand.java
-│   ├── database/
-│   │   ├── DatabaseManager.java                (sealed interface)
-│   │   ├── MySQLDatabase.java
-│   │   └── SQLiteDatabase.java
-│   ├── gui/
-│   │   ├── MainSkinsGui.java
-│   │   ├── SkinSelectionGui.java
-│   │   ├── AdminGui.java
-│   │   ├── SkinEditorGui.java
-│   │   └── config/
-│   │       ├── SlotType.java                   (sealed interface)
-│   │       └── GuiSlotDef.java                 (record)
-│   ├── listener/
-│   │   ├── NoteListener.java
-│   │   └── GuiListener.java
-│   ├── manager/
-│   │   ├── SkinManager.java
-│   │   ├── GrantManager.java
-│   │   └── CacheManager.java
-│   ├── bettermodel/
-│   │   └── BetterModelService.java
-│   ├── placeholder/
-│   │   └── ChamoItemSkinsExpansion.java
-│   └── util/
-│       ├── MessageUtil.java
-│       ├── NoteUtil.java
-│       ├── ConfigUtil.java
-│       └── YamlUtil.java                       (live skins.yml writer)
-└── resources/
-├── plugin.yml
-├── config.yml
-├── skins.yml
-├── gui.yml
-├── admin-gui.yml
-└── skin-editor-gui.yml
-
----
-
 FOLIA SCHEDULER RULES (enforce everywhere):
 - NEVER call BukkitScheduler (Bukkit.getScheduler()).
 - Use SchedulerUtil for every scheduled or thread-dispatched operation:
@@ -376,7 +308,7 @@ skin-editor-gui.yml: (editor screens — see FEATURE 8)
 ---
 
 CONSTRAINTS:
-- Java 21 only. No Kotlin source files anywhere.
+- Java 25 only. No Kotlin source files anywhere.
 - ALL Gradle build files use *.gradle.kts. Zero Groovy. Zero exceptions.
 - Adventure + MiniMessage for every player-facing string. No legacy color.
 - MessageUtil must run MiniMessage deserialization AND PlaceholderAPI
@@ -393,10 +325,6 @@ CONSTRAINTS:
 - YamlUtil writes are atomic (write to temp file, rename) where possible.
 - All public API types in :api have Javadoc.
 - Inline // comments for non-obvious logic; no prose outside Javadoc.
-- Each file begins with:
-  // --- path/to/FileName.java ---   (Java)
-  # --- path/to/filename.yml ---     (YAML / config)
-  // --- path/to/file.gradle.kts --- (build files)
 
 ---
 

@@ -1,6 +1,6 @@
 # AGENTS.md — ChamoItemSkins
 
-You are a senior Minecraft plugin developer with deep expertise in **Java 25**, **Paper 1.21+**, **Folia**, **Gradle Kotlin DSL multiproject builds**, **HikariCP**, **Adventure (MiniMessage)**, **PlaceholderAPI**, and **StrokkCommands (Brigadier)**. You write clean, production-ready Java used by large public networks.
+You are a senior Minecraft plugin developer with deep expertise in **Java 25**, **Paper 1.21.11+**, **Folia**, **Gradle Kotlin DSL multiproject builds**, **HikariCP**, **Adventure (MiniMessage)**, **PlaceholderAPI**, and **StrokkCommands (Brigadier)**. You write clean, production-ready Java used by large public networks.
 
 ---
 
@@ -15,77 +15,6 @@ You are a senior Minecraft plugin developer with deep expertise in **Java 25**, 
 | **MC Target** | Paper 1.21.11 / Folia                            |
 | **Java**      | 25 (`JavaLanguageVersion.of(25)`)                |
 | **Build**     | Gradle Kotlin DSL — every file is `*.gradle.kts` |
-
----
-
-## Repository Layout
-
-```
-ChamoItemSkins/
-├── settings.gradle.kts
-├── build.gradle.kts                         (root — shared repos, Java toolchain)
-├── api/
-│   ├── build.gradle.kts
-│   └── src/main/java/net/chamosmp/chamoitemskins/api/
-│       ├── ChamoItemSkinsApi.java           (interface + static get())
-│       ├── model/
-│       │   ├── Skin.java                    (record)
-│       │   └── SkinGrant.java               (record)
-│       ├── event/
-│       │   ├── SkinEquipEvent.java          (cancellable)
-│       │   ├── SkinUnequipEvent.java        (cancellable)
-│       │   ├── SkinGrantEvent.java          (cancellable)
-│       │   └── SkinRevokeEvent.java         (cancellable)
-│       └── service/
-│           ├── SkinService.java
-│           └── GrantService.java
-└── plugin/
-    ├── build.gradle.kts
-    └── src/main/
-        ├── java/net/chamosmp/chamoitemskins/
-        │   ├── ChamoItemSkinsPlugin.java    (JavaPlugin main, implements ChamoItemSkinsApi)
-        │   ├── scheduler/
-        │   │   └── SchedulerUtil.java       (Folia/Paper abstraction)
-        │   ├── command/
-        │   │   ├── SkinsCommand.java        (@Command("skins"))
-        │   │   └── AdminCommand.java        (@Command("skinsadmin"))
-        │   ├── database/
-        │   │   ├── DatabaseManager.java     (sealed interface)
-        │   │   ├── MySQLDatabase.java
-        │   │   └── SQLiteDatabase.java
-        │   ├── gui/
-        │   │   ├── MainSkinsGui.java
-        │   │   ├── SkinSelectionGui.java
-        │   │   ├── AdminGui.java
-        │   │   ├── GuiFillerUtil.java
-        │   │   ├── SkinEditorGui.java
-        │   │   └── config/
-        │   │       ├── SlotType.java        (sealed interface)
-        │   │       └── GuiSlotDef.java      (record)
-        │   ├── listener/
-        │   │   ├── NoteListener.java
-        │   │   └── GuiListener.java
-        │   ├── manager/
-        │   │   ├── SkinManager.java         (implements SkinService)
-        │   │   ├── GrantManager.java        (implements GrantService)
-        │   │   └── CacheManager.java
-        │   ├── models/
-        │   │   └── ModelService.java
-        │   ├── placeholder/
-        │   │   └── ChamoItemSkinsExpansion.java
-        │   └── util/
-        │       ├── MessageUtil.java
-        │       ├── NoteUtil.java
-        │       ├── ConfigUtil.java
-        │       └── YamlUtil.java            (live skins.yml writer, atomic write)
-        └── resources/
-            ├── plugin.yml
-            ├── config.yml
-            ├── skins.yml
-            ├── gui.yml
-            ├── admin-gui.yml
-            └── skin-editor-gui.yml
-```
 
 ---
 
@@ -144,7 +73,7 @@ maven("https://repo.nexomc.com/releases")
 | `runAtLocation(plugin, location, task)`        | `Bukkit.getRegionScheduler().run(plugin, location, t -> task.run())` | `Bukkit.getScheduler().runTask(plugin, task)`               |
 | `runDelayed(plugin, task, delayTicks)`         | `Bukkit.getGlobalRegionScheduler().runDelayed(...)`                  | `Bukkit.getScheduler().runTaskLater(...)`                   |
 
-Folia detection at runtime:
+folia detection at runtime:
 ```java
 boolean isFolia = Bukkit.getServer().getClass().getSimpleName().contains("Folia");
 ```
