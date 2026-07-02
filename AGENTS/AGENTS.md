@@ -1,6 +1,6 @@
 # AGENTS.md — ChamoItemSkins
 
-You are a senior Minecraft plugin developer with deep expertise in **Java 25**, **Paper 1.21+**, **Folia**, **Gradle Kotlin DSL multiproject builds**, **BetterModel**, **HikariCP**, **Adventure (MiniMessage)**, **PlaceholderAPI**, and **StrokkCommands (Brigadier)**. You write clean, production-ready Java used by large public networks.
+You are a senior Minecraft plugin developer with deep expertise in **Java 25**, **Paper 1.21+**, **Folia**, **Gradle Kotlin DSL multiproject builds**, **HikariCP**, **Adventure (MiniMessage)**, **PlaceholderAPI**, and **StrokkCommands (Brigadier)**. You write clean, production-ready Java used by large public networks.
 
 ---
 
@@ -57,6 +57,7 @@ ChamoItemSkins/
         │   │   ├── MainSkinsGui.java
         │   │   ├── SkinSelectionGui.java
         │   │   ├── AdminGui.java
+        │   │   ├── GuiFillerUtil.java
         │   │   ├── SkinEditorGui.java
         │   │   └── config/
         │   │       ├── SlotType.java        (sealed interface)
@@ -68,8 +69,8 @@ ChamoItemSkins/
         │   │   ├── SkinManager.java         (implements SkinService)
         │   │   ├── GrantManager.java        (implements GrantService)
         │   │   └── CacheManager.java
-        │   ├── bettermodel/
-        │   │   └── BetterModelService.java
+        │   ├── models/
+        │   │   └── ModelService.java
         │   ├── placeholder/
         │   │   └── ChamoItemSkinsExpansion.java
         │   └── util/
@@ -98,8 +99,7 @@ ChamoItemSkins/
 
 ### Minecraft
 - **Paper API:** `io.papermc.paper:paper-api:26.1.2.build.+` (compileOnly in plugin)
-- **Folia:** full support. **Never call `BukkitScheduler`.** See Scheduling section below.
-- **BetterModel:** `io.github.toxicity188:bettermodel-api:3.1.0` — all calls isolated in `BetterModelService`.
+- **folia:** full support. **Never call `BukkitScheduler`.** See Scheduling section below.
 - **StrokkCommands:** `net.strokkur.commands:annotations-paper:2.1.1` (compileOnly) + annotation processor `processor-paper:2.1.1`. Commands registered via `LifecycleEvents.COMMANDS`.
 - **Adventure + MiniMessage** everywhere. Zero legacy `ChatColor`.
 - **PlaceholderAPI:** `me.clip:placeholderapi:2.11.6` (compileOnly, soft-depend). Register expansion only if PAPI is present at runtime.
@@ -111,10 +111,23 @@ ChamoItemSkins/
 
 ### Repositories (in `allprojects {}`)
 ```kotlin
-mavenCentral()
-maven("https://repo.papermc.io/repository/maven-public/")
-maven { name = "eldonexus"; url = uri("https://eldonexus.de/repository/maven-public/") }
-maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+mavenCentral {
+  name = "Maven Central (HikariCP)"
+}
+maven{
+  name = "PaperMC"
+  url = uri("https://repo.papermc.io/repository/maven-public/")
+}
+maven {
+  name = "Eldonexus"
+  url = uri("https://eldonexus.de/repository/maven-public/")
+}
+maven{
+  name = "PlaceholderAPI"
+  url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+}
+maven("https://repo.hibiscusmc.com/releases/")
+maven("https://repo.nexomc.com/releases")
 ```
 
 ---
@@ -159,7 +172,7 @@ All DB `CompletableFuture` `.thenAccept()` callbacks that touch Bukkit API must 
 public record Skin(
     String id,           // unique identifier (UUID string or human-readable slug)
     String name,         // MiniMessage display name
-    String modelId,      // BetterModel model ID, e.g. "chamoitemskins:infernal_blade"
+    String modelId,      // model ID, e.g. "chamoitemskins:infernal_blade"
     Material itemType,   // Bukkit Material this skin applies to
     boolean enabled,
     Material noteMaterial,        // nullable — overrides config default
@@ -317,7 +330,7 @@ Return `null` for unrecognised placeholders.
 
 ## Developer API (`:api` submodule)
 
-`:api` has **no compile dependency** on BetterModel, HikariCP, or StrokkCommands. It compiles only against Paper API.
+`:api` has **no compile dependency** on HikariCP, or StrokkCommands. It compiles only against Paper API.
 
 ```java
 // Access the API
@@ -340,8 +353,7 @@ All public types in `:api` must have Javadoc.
     - Gradle: `// --- path/to/file.gradle.kts ---`
 - Inline `//` comments for non-obvious logic. No prose outside Javadoc.
 - `MessageUtil` must run MiniMessage deserialization AND `PlaceholderAPI.setPlaceholders()` (if PAPI present) before sending to player.
-- `BetterModelService` is the **only** place that may call BetterModel API.
-- `:api` must compile cleanly without BetterModel, HikariCP, or StrokkCommands on the classpath.
+- `:api` must compile cleanly without HikariCP, or StrokkCommands on the classpath.
 - All `@NotNull` / `@Nullable` annotations from `org.jetbrains.annotations` on all public API methods.
 - `MessageUtil.sendMessage(sender, template)` and `MessageUtil.sendMessage(sender, template, Map<String,String> placeholders)` both exist; the latter resolves `{key}` tokens before MiniMessage parsing.
 
@@ -352,7 +364,7 @@ All public types in `:api` must have Javadoc.
 - ❌ Never call `Bukkit.getScheduler()` — use `SchedulerUtil`.
 - ❌ Never use `ChatColor` or legacy colour codes — use MiniMessage.
 - ❌ Never create Groovy Gradle files (`build.gradle`, `settings.gradle`).
-- ❌ Never put BetterModel, HikariCP, or StrokkCommands imports in `:api`.
+- ❌ Never put HikariCP, or StrokkCommands imports in `:api`.
 - ❌ Never write to `skins.yml` without going through `YamlUtil.saveSkin` / `YamlUtil.deleteSkin` (atomic write + sync reload).
 - ❌ Never run Bukkit API calls from a virtual thread — always bounce back via `SchedulerUtil`.
 - ❌ Never overwrite existing user config values in `ConfigUtil.loadOrAdapt`.
@@ -362,16 +374,18 @@ All public types in `:api` must have Javadoc.
 
 ## Build Submodule Dependency Summary
 
-| Dependency     | `:api`        | `:plugin`                                 |
-|----------------|---------------|-------------------------------------------|
-| Paper API      | `compileOnly` | `compileOnly`                             |
-| BetterModel    | —             | `implementation`                          |
-| StrokkCommands | —             | `compileOnly` + annotationProcessor       |
-| PlaceholderAPI | —             | `compileOnly`                             |
-| HikariCP       | —             | `implementation` (relocated in shadowJar) |
-| `:api`         | —             | `implementation(project(":api"))`         |
+| Dependency     | `:api`        | `:plugin`                                 | `root (ChamoItemSkins)`    |
+|----------------|---------------|-------------------------------------------|----------------------------|
+| Paper API      | `compileOnly` | `compileOnly`                             | —                          |
+| StrokkCommands | —             | `compileOnly` + `annotationProcessor`     | —                          |
+| PlaceholderAPI | —             | `compileOnly`                             | —                          |
+| HikariCP       | —             | `implementation` (relocated in shadowJar) | —                          |
+| Kotlin as Java | `dokkaPlugin` | `dokkaPlugin`                             | `dokkaPlugin`              |
+| HMCWarps       | —             | `compileOnly`                             | —                          |
+| Nexo           | —             | `compileOnly`                             | —                          |
+| `:api`         | —             | `implementation(project(":api"))`         | `dokka(project(":api"))`   |
+| `:plugin`      | —             | —                                         | `dokka(project(":plugin))` |
 
-HikariCP relocated: `com.zaxxer.hikari` → `net.chamosmp.chamoitemskins.libs.hikari`
 
 --- 
 ## Agent Files
@@ -379,3 +393,107 @@ Instead of changing this file directly create a new one in the
 ./AGENTS/AGENT_PREF. Every time you use this file ask the user about future plans
 and If they accept it, create a md file in AGENTS/FUTURE/ACC and if they reject it in
 AGENT/FUTURE/REJECTED
+
+---
+## Beginner Programming Mistakes to Avoid
+
+### 1. Static Abuse
+While the `static` keyword has legitimate uses, it is frequently overused. Misapplying it leads to tight coupling and breaks object-oriented principles. The acceptable use cases are strictly limited to:
+
+- **Constant Fields**  
+  Declared as `public static final`. Example:  
+  `public static final int CONSTANT = 42;`  
+  This guarantees the value remains immutable and universally accessible.
+
+- **Proper Singleton Patterns**  
+  Use a genuine singleton (e.g., enum or private constructor with static holder) when you must **enforce** that only one instance of a class ever exists.  
+  ⚠️ **Warning**: Creating a static field with a public getter does *not* constitute a singleton—it is merely a global access point. A true singleton actively restricts instantiation.
+
+- **Utility Methods**  
+  Static methods are acceptable for stateless operations that provide pure functionality (e.g., `Math.max()`). If a method does not depend on instance state, declaring it `static` is appropriate.
+
+Any other use of `static` should be carefully scrutinized, as it often indicates a design flaw.
+
+#### 1.1 Singletons
+Singletons should be employed exclusively when enforcing a single instance is a hard requirement. For example, if you have a runnable task that must only ever be executed once by your plugin, a singleton ensures no other resource can spawn duplicates.  
+**Key takeaway**: The priority is *enforcement*. If you are merely storing a single reference without protecting the constructor, you are not implementing a singleton.
+
+
+### 2. Repetitive Code Blocks (DRY Principles)
+Violating the **Don't Repeat Yourself (DRY)** principle is a hallmark of beginner code. If you find yourself copying and pasting logic while only changing variables or literals, you need to refactor. Consider this flawed example:
+
+```java
+public void spawnPet(String pet, Location location) {
+    if (pet.equals("Bunny")) {
+        Entity entity = location.getWorld().spawnEntity(location, EntityType.RABBIT);
+        entity.setDisplayName("Bunny Pet");
+    }
+    else if (pet.equals("Cow")) {
+        Entity entity = location.getWorld().spawnEntity(location, EntityType.COW);
+        entity.setDisplayName("Cow Pet");
+    }
+    // etc. etc. etc.
+}
+```
+
+**Why this is problematic**:
+- **Reliance on Strings**: The code uses magic strings instead of a dedicated `Pet` object or enum.
+- **Repetitive Logic**: The entity spawning and naming logic is duplicated for every condition.
+- **Redundant Calls**: `setDisplayName()` is invoked separately for each branch instead of once after spawning.
+- **Spaghetti Code**: Such patterns scale poorly, leading to an unmaintainable codebase as new pets are added.
+
+**Solution**: Abstract the pet type into an object or enum, and use polymorphism or a factory to handle the variations.
+
+
+### 3. Lack of Understanding of OOP
+Java is fundamentally object-oriented. A weak grasp of its core pillars inevitably leads to rejected or unstable projects. The four foundational concepts are:
+
+1. **Abstraction**  
+   Expose only the essential features of an entity while hiding implementation details and sensitive data from the end-user.
+
+2. **Encapsulation**  
+   Restrict direct access to fields by using access modifiers (e.g., `private`). Provide controlled getters/setters to manage mutation and maintain data integrity.
+
+3. **Inheritance**  
+   Allow classes to derive members and methods from parent (super) classes, promoting code reuse.
+
+4. **Polymorphism**  
+   Enable a single interface to represent different underlying forms (e.g., overriding methods in subclasses to provide specific implementations).
+
+#### 3.1 Poor Code Design / Structure
+A fragile architecture forces you into contortions when adding features or fixing bugs. If your project relies on a chaotic, string-based system (as seen in the DRY example), maintenance becomes a nightmare. Always design with modularity and OOP principles in mind from the start.
+
+#### 3.2 Keeping Everything in a Single Class
+A 3,000-line monolithic class is an immediate rejection signal. It demonstrates:
+- No understanding of separation of concerns.
+- An unwillingness to organize code logically.
+
+**Best practices**:
+- Group event listeners into dedicated classes.
+- Separate command executors into their own handlers.
+- Use Plain Old Java Objects (POJOs) to model your data.
+
+**General rule**: A healthy project should rarely consist of only 1–2 classes. While arbitrary, aiming for at least 3–4 well-defined classes is a minimum baseline for readability and modularity. Imagine Apache Commons Lang crammed into one file—it would be unusable.
+
+
+### 4. Missing Basic Knowledge of Java
+Beyond OOP, there are universal Java standards and conventions that must be followed. Ignoring them yields messy, unprofessional code. Key areas include:
+
+- **Naming Conventions** (Oracle standards):
+  - **Classes**: `UpperCamelCase` (e.g., `PlayerManager`).
+  - **Methods & Fields**: `lowerCamelCase` (e.g., `getPlayerName`).
+  - **Packages**: All lowercase, using your reversed domain (e.g., `com.github.yourname.project`).  
+    ⚠️ **Do not** use a domain you do not own. If you lack a domain, use `com.github.<username>` or `me.<username>`.
+  - **Constants** (`static final`): `UPPER_SNAKE_CASE` (e.g., `MAX_PLAYERS`).
+
+- **Access Modifiers**  
+  Understand the implications of `public`, `private`, `protected`, and package-private. Misapplying them breaks encapsulation.
+
+- **Type Safety**
+  - Use `instanceof` before blindly casting objects.
+  - Prefer primitive types (`int`, `boolean`) over wrapper classes (`Integer`, `Boolean`) unless required by collections or generics, to avoid unnecessary overhead.
+
+- **Code Duplication**  
+  If you repeat logic, extract it into a reusable method rather than copy-pasting.
+
+**Bottom line**: Adhering to Oracle's code conventions and basic Java idioms is non-negotiable for serious development. Failing these standards—whether for a premium resource or an internal tool—results in low readability, high technical debt.
