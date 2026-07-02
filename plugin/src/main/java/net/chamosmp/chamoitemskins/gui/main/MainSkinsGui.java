@@ -46,6 +46,9 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final Map<Integer, String> categorySlots = new HashMap<>();
     private final SkinManager skinManager;
     private final ChatInputUtil chatInputUtil;
+    private final List<GuiSlotDef> selectionSlots;
+    private final String selectionTitle;
+    private final int selectionSize;
 
 
     public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil) {
@@ -58,6 +61,12 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         this.skinManager = skinManager;
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
+
+        YamlConfiguration selectionConfig = ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
+        ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
+        this.selectionSlots = parseSlots(selectionSlotsSection);
+        this.selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
+        this.selectionSize = selectionConfig.getInt("selection-size", 54);
         
         setupInventory();
     }
@@ -106,11 +115,6 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
-            ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
-            List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
-            String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
-            int selectionSize = selectionConfig.getInt("selection-size", 54);
             
             RarityManager rarityManager = pluginInstance.getRarityManager();
             ModelService modelService = pluginInstance.getModelService();
@@ -132,12 +136,16 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
             if (s == null) continue;
-            
+
             SlotType type = parseSlotType(s.getString("type", "Decorative"), s);
+            Material material = Material.matchMaterial(s.getString("material", "STONE"));
+            if (material == null) {
+                material = Material.STONE;
+            }
             slotsList.add(new GuiSlotDef(
                     type,
                     s.getInt("slot"),
-                    Material.matchMaterial(s.getString("material", "STONE")),
+                    material,
                     s.getString("name", ""),
                     s.getStringList("lore"),
                     s.getBoolean("glow", false)
