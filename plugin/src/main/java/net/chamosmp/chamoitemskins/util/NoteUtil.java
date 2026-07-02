@@ -10,6 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -32,9 +33,9 @@ public final class NoteUtil {
         Material material = skin.noteMaterial() != null ? skin.noteMaterial() : defaultMaterial;
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        
+        String time = "Permanent";
         if (meta != null) {
-            Map<String, String> placeholders = Map.of("skin_name", skin.name());
+            Map<String, String> placeholders = Map.of("skin_name", skin.name(), "time", time);
             
             meta.displayName(MessageUtil.parse(null, displayNameTemplate, placeholders));
             meta.lore(loreTemplate.stream()
@@ -65,7 +66,7 @@ public final class NoteUtil {
      * @param defaultMaterial The default material
      * @param displayNameTemplate The display name template
      * @param loreTemplate The lore template
-     * @param time In seconds
+     * @param time In days
      * @return The ItemStack note
      */
     public static @NotNull ItemStack createNote(
@@ -81,7 +82,7 @@ public final class NoteUtil {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            Map<String, String> placeholders = Map.of("skin_name", skin.name());
+            Map<String, String> placeholders = Map.of("skin_name", skin.name(), "time", time + "Days");
 
             meta.displayName(MessageUtil.parse(null, displayNameTemplate, placeholders));
             meta.lore(loreTemplate.stream()

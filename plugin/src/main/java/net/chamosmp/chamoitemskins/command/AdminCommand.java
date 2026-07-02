@@ -85,7 +85,6 @@ public final class AdminCommand {
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             giveSkinNotes(sender, target, skin, 1);
-            MessageUtil.sendMessage(sender, "<green>Gave 1" + skin.id() + " note to " + target.getName());
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 

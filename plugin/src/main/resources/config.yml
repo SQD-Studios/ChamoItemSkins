@@ -47,7 +47,7 @@ filler:
 
 note:
   default-material: PAPER
-  display-name: "{skin_name} <i><dark_gray>[Skin Note]"
+  display-name: "{skin_name} <i><dark_gray>[{time}Skin Note]"
   lore:
     - ""
 
