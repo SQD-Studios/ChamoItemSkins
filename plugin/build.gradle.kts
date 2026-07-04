@@ -12,6 +12,9 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.12.3")
     compileOnly("net.strokkur.commands:annotations-paper:2.1.1")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.1")
+    compileOnly("me.clip:placeholderapi:2.12.2")
+    compileOnly("net.strokkur.commands:annotations-paper:2.1.4")
+    annotationProcessor("net.strokkur.commands:processor-paper:2.1.4")
     implementation("com.zaxxer:HikariCP:7.1.0")
 
     // Convert Options
