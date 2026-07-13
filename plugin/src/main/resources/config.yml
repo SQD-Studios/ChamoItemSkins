@@ -55,6 +55,10 @@ note:
 filter:
   chosen-character: " > {category}"
 
+
+# Believe some messages are inlined and should be configured? You can make an issue on github!
+# https://github.com/SQD-Studios/ChamoItemSkins/issues/new
+# We also accept contributions to make a lang system.
 messages:
   skin-equipped: "<green>✔ Equipped <white>{skin_name}<green>."
   skin-unequipped: "<yellow>Skin <white>{skin_name}<yellow> removed."
