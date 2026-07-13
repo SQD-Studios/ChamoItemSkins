@@ -1,6 +1,7 @@
 // --- api/src/main/java/net/chamosmp/chamoitemskins/api/model/SkinGrant.java ---
 package net.chamosmp.chamoitemskins.api.model;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -19,4 +20,6 @@ public record SkinGrant(
         String skinId,
         Instant grantedAt,
         String source
-) {}
+) {
+
+}

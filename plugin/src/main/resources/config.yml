@@ -35,7 +35,7 @@ database:
   sqlite-file: plugins/ChamoItemSkins/data.db
 
 cache:
-  ttl-seconds: 300
+  ttl-seconds: 300 # Time to live seconds
 
 filler:
   filler-item: true
@@ -47,9 +47,10 @@ filler:
 
 note:
   default-material: PAPER
-  display-name: "{skin_name} <i><dark_gray>[{time}Skin Note]"
+  display-name: "{skin_name} <i><dark_gray>[Permanent Skin Note]" # You can still put {time_left} there, and it will default to Permanent :D
+  temporary-name: "{skin_name} <i><dark_gray>[{time_left} Day(s) Skin Note]"
   lore:
-    - ""
+    - "" # You can put these placeholders here too!
 
 filter:
   chosen-character: " > {category}"

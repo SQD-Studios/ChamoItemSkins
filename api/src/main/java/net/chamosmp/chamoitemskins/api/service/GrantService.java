@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,4 +81,8 @@ public interface GrantService {
      * @return A future that completes when the bundle is revoked.
      */
     @NotNull CompletableFuture<Void> revokeBundle(@NotNull UUID playerUuid, @NotNull String bundleId);
+
+    @NotNull CompletableFuture<Void> grantSkin(@NotNull UUID playerUuid, @NotNull String skinId, @NotNull String source, int days);
+
+    void checkAndRevokeExpiredGrants();
 }

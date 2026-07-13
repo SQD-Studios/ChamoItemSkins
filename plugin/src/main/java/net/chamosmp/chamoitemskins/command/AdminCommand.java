@@ -67,16 +67,11 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.reload")
     @Executes("reload")
     public void onReload(CommandSender sender) {
-        if (plugin instanceof ChamoItemSkinsPlugin chamoPlugin) {
-            chamoPlugin.reloadPlugin();
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadOrAdapt(plugin, "config.yml");
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "guis/admin-gui.yml");
-            net.chamosmp.chamoitemskins.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
-
-            MessageUtil.sendMessage(sender, config.getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
-        } else {
-            MessageUtil.sendMessage(sender, "<red>Failed to reload plugin: Unexpected plugin instance.");
+        try {
+            plugin.reloadConfig();
+            sender.sendRichMessage("<aqua>Reloaded config.");
+        } catch (Exception e) {
+            sender.sendRichMessage("<aqua>Failed to reload config." + e);
         }
     }
 
@@ -84,7 +79,7 @@ public final class AdminCommand {
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, 1);
+            giveSkinNotes(sender, target, skin, 1, -1);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
     }
 
@@ -99,6 +94,22 @@ public final class AdminCommand {
                     return;
                 }
                 grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND").thenRun(() -> {
+                    MessageUtil.sendMessage(sender, "<green>Granted access to " + skinId + " for " + target.getName());
+                });
+            });
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin not found: " + skinId));
+    }
+
+    @Permission("chamoitemskins.admin.access.give")
+    @Executes("access give")
+    public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int days) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
+                if (has) {
+                    MessageUtil.sendMessage(sender, "<red>" + target.getName() + " already has access to " + skinId);
+                    return;
+                }
+                grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND", days).thenRun(() -> {
                     MessageUtil.sendMessage(sender, "<green>Granted access to " + skinId + " for " + target.getName());
                 });
             });
@@ -137,18 +148,27 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
+    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount, int time) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, amount);
+            giveSkinNotes(sender, target, skin, amount, time);
         }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
     }
 
-    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount) {
+    @Permission("chamoitemskins.admin.give")
+    @Executes("give")
+    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
+        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+            giveSkinNotes(sender, target, skin, amount, -1);
+        }, () -> MessageUtil.sendMessage(sender, "<red>Skin ID not found: " + skinId));
+    }
+
+    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount, int time) {
         Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
         String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
         List<String> loreTmpl = config.getStringList("note.lore");
         for (int i = 0; i < amount; i++) {
-            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, nameTmpl, loreTmpl));
+            assert defMat != null;
+            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
         }
         MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
     }

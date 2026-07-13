@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,4 +58,30 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
     void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata);
 
     @NotNull CompletableFuture<Void> migrateSkinId(String oldSkinId, @NotNull String newSkinId);
+
+    /**
+     * Grants a skin with an optional expiration date.
+     * @param playerUuid the player UUID
+     * @param skinId     the skin ID
+     * @param source     the grant source
+     * @param expiresAt  the expiration timestamp, or null for permanent
+     * @return a CompletableFuture that completes when the grant is stored
+     */
+    @NotNull CompletableFuture<Void> grantSkinWithExpiry(
+            @NotNull UUID playerUuid,
+            @NotNull String skinId,
+            @NotNull String source,
+            @Nullable LocalDateTime expiresAt
+    );
+
+    /**
+     * Retrieves all grants that have expired (expires_at is not null and <= now).
+     * @return a CompletableFuture containing a collection of expired grant entries
+     */
+    @NotNull CompletableFuture<Collection<ExpiredGrant>> getExpiredGrants();
+
+    /**
+     * Simple record representing an expired grant entry.
+     */
+    record ExpiredGrant(@NotNull UUID playerUuid, @NotNull String skinId) {}
 }
