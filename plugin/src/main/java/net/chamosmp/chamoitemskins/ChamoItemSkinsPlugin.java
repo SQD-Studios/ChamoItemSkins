@@ -114,11 +114,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 e.printStackTrace();
             }
         }));
-
-        int pluginId = 31970;
-        Metrics metrics = new Metrics(this, pluginId);
-
-        // Optional: Add custom charts
+        Metrics metrics = new Metrics(this, 31970);
         metrics.addCustomChart(
                 new SingleLineChart("totalskins", () -> getSkinService().getSkins().size())
         );
