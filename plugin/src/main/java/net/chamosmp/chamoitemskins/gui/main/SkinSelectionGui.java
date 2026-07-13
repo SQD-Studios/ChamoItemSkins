@@ -97,7 +97,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
 
         for (GuiSlotDef def : slots) {
-            if (def.type() instanceof SlotType.FilterSlot filter) {
+            if (def.type() instanceof SlotType.FilterSlot) {
                 filterSlotCategories.put(def.slot(), "category");
             }
         }
@@ -204,7 +204,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
             Map<String, String> placeholders;
 
-            assert character != null;
+            if (character == null) return item;
             if (filterLoreCycle == 1) {
                 placeholders = Map.of("owned", MessageUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins");
             } else {

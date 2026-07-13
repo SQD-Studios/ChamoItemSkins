@@ -74,8 +74,7 @@ public final class NoteListener implements Listener {
                     log.error("Exception happened. Failed to unbox the persistent container: ", e);
                 }
             }).exceptionally(ex -> {
-                // If it fails with " HikariDataSource has been closed", it might be during reload.
-                if (ex.getMessage().contains("closed")) {
+                if (ex.getMessage() != null && ex.getMessage().contains("closed")) {
                     MessageUtil.sendMessage(player, "<red>Database is currently busy or reloading. Please try again in a moment.");
                 } else {
                     player.sendMessage("Failed to check skin ownership: " + ex.getMessage());

@@ -164,13 +164,12 @@ public final class AdminCommand {
 
     private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount, int time) {
         Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-        String nameTmpl = config.getString("note.display-name", "<gold><bold>Skin Note");
         List<String> loreTmpl = config.getStringList("note.lore");
         for (int i = 0; i < amount; i++) {
-            assert defMat != null;
+            if (defMat == null) return;
             target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
         }
-        MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " notes to " + target.getName());
+        MessageUtil.sendMessage(sender, "<green>Gave " + amount + " " + skin.id() + " note(s) to " + target.getName());
     }
 
     @Permission("chamoitemskins.admin.migrate")
