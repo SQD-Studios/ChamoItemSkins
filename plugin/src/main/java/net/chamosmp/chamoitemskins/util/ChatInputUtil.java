@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.util;
 
+import net.chamosmp.chamoitemskins.manager.MigrateManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -29,10 +30,12 @@ public final class ChatInputUtil implements Listener {
     private final Map<UUID, Consumer<String>> pendingInputs = new ConcurrentHashMap<>();
     private final Map<UUID, Supplier<Collection<String>>> pendingSuggestions = new ConcurrentHashMap<>();
     private final DialogUtil dialogUtil;
+    private final MessageUtil messageUtil;
 
-    public ChatInputUtil(Plugin plugin, DialogUtil dialogUtil) {
+    public ChatInputUtil(Plugin plugin, DialogUtil dialogUtil, MessageUtil messageUtil) {
         this.dialogUtil = dialogUtil;
         this.plugin = plugin;
+        this.messageUtil = messageUtil;
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -48,7 +51,7 @@ public final class ChatInputUtil implements Listener {
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title, String defaultValue) {
         if (!dialogUtil.canUseDialogs()) {
             player.closeInventory();
-            MessageUtil.sendMessage(player, prompt + " <red>Type cancel to cancel.");
+            messageUtil.sendLangMessage(player, prompt + " <red>Type cancel to cancel.");
             pendingInputs.put(player.getUniqueId(), callback);
         } else {
             dialogUtil.getInput(title, player, key, prompt, defaultValue, callback);
@@ -66,7 +69,7 @@ public final class ChatInputUtil implements Listener {
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title) {
         if (!dialogUtil.canUseDialogs()) {
             player.closeInventory();
-            MessageUtil.sendMessage(player, prompt + " <red>Type cancel to cancel.");
+            messageUtil.sendLangMessage(player, prompt + " <red>Type cancel to cancel.");
             pendingInputs.put(player.getUniqueId(), callback);
         } else {
             dialogUtil.getInput(title, player, key, prompt, callback);
@@ -76,7 +79,7 @@ public final class ChatInputUtil implements Listener {
     public void getYesNo(Player player, Consumer<String> callback, String key, Component title) {
         if (!dialogUtil.canUseDialogs()) {
             player.closeInventory();
-            MessageUtil.sendMessage(player, title + " <yellow>(yes or no) <red>Type cancel to cancel.");
+            messageUtil.sendLangMessage(player, title + " <yellow>(yes or no) <red>Type cancel to cancel.");
             pendingInputs.put(player.getUniqueId(), callback);
         } else {
             dialogUtil.getYesNo(title, player, key, callback);
@@ -94,7 +97,7 @@ public final class ChatInputUtil implements Listener {
 
         String message = event.getMessage();
         if (message.equalsIgnoreCase("cancel")) {
-            MessageUtil.sendMessage(event.getPlayer(), "<red>Input cancelled.");
+            messageUtil.sendLangMessage(event.getPlayer(), "<red>Input cancelled.");
             return;
         }
 

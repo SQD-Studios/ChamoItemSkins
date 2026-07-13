@@ -31,12 +31,14 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
     private final DialogUtil dialogUtil;
+    private final MessageUtil messageUtil;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, DialogUtil dialogUtil) {
+    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, DialogUtil dialogUtil, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
         this.dialogUtil = dialogUtil;
+        this.messageUtil = messageUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of()));
         
         setupInventory();
@@ -77,7 +79,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                     if (plugin instanceof net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin chamoPlugin) {
                         chamoPlugin.reloadPlugin();
                     }
-                    MessageUtil.sendMessage(player, plugin.getConfig().getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
+                    messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
                     player.closeInventory();
                 });
             }
@@ -109,7 +111,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                     open();
                 }, "adminguirevokeskinid", Component.text("Revoke Access", NamedTextColor.YELLOW));
             }
-            default -> player.sendMessage("Action " + action + " not implemented yet.");
+            default -> player.sendRichMessage("Action " + action + " not implemented yet.");
         }
     }
 

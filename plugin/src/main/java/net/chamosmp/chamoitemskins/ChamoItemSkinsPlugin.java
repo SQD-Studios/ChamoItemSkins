@@ -1,11 +1,13 @@
 package net.chamosmp.chamoitemskins;
 
 import de.skyslycer.hmcwraps.HMCWraps;
+import de.skyslycer.hmcwraps.messages.Messages;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.lang.LanguageManager;
 import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
@@ -47,6 +49,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private ChatInputUtil chatInputUtil;
     private DialogUtil dialogUtil;
     private MigrateManager migrateManager;
+    private LanguageManager langManager;
 
 
     /**
@@ -54,6 +57,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onLoad() {
+        new MessageUtil(langManager);
+
         NoteUtil.init(this);
     }
 
@@ -63,6 +68,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
+
+
         migrateManager = new MigrateManager(this, skinManager);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
@@ -71,7 +78,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         reloadPlugin();
 
-        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig()), this);
+        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), new MessageUtil(langManager)), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
         Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
 
@@ -98,7 +105,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 int adminSize = adminGuiConfig.getInt("size", 54);
 
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, new MessageUtil(langManager));
                 getLogger().info("Successfully registered commands.");
             } catch (Exception e) {
                 getLogger().severe("Failed to register commands: " + e.getMessage());
@@ -126,6 +133,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         if (this.grantManager == null) {
             this.grantManager = new GrantManager(this, databaseManager, cacheManager, skinManager, logManager, modelService);
         }
+        if (this.langManager == null) this.langManager = new LanguageManager(this);
     }
 
     /**
@@ -138,13 +146,12 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
         saveDefaultConfig();
         reloadConfig();
-        MessageUtil.loadLanguages(this);
         
         initManagers();
         
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
         this.dialogUtil = new DialogUtil(this);
-        this.chatInputUtil = new ChatInputUtil(this, dialogUtil);
+        this.chatInputUtil = new ChatInputUtil(this, dialogUtil, new MessageUtil(langManager));
 
 
         Bukkit.getServicesManager().unregisterAll(this);

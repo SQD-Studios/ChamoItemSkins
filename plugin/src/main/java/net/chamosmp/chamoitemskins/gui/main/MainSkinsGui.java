@@ -114,7 +114,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             
             RarityManager rarityManager = pluginInstance.getRarityManager();
             ModelService modelService = pluginInstance.getModelService();
-            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil).open();
+            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new net.chamosmp.chamoitemskins.lang.LanguageManager(plugin))).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot action) {

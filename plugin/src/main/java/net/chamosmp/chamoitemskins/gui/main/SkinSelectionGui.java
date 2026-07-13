@@ -52,6 +52,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final List<Skin> pinnedSkins;
     private final Map<Integer, Skin> skinMap = new HashMap<>();
     private final ChatInputUtil chatInputUtil;
+    private final MessageUtil messageUtil;
 
     private final Map<Integer, String> filterSlotCategories = new HashMap<>();
     private final String baseCategory;
@@ -83,7 +84,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull String title,
             int size,
             @NotNull List<GuiSlotDef> slots,
-            ChatInputUtil chatInputUtil
+            ChatInputUtil chatInputUtil, MessageUtil messageUtil
     ) {
         this.plugin = plugin;
         this.player = player;
@@ -94,6 +95,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.slots = slots;
         this.baseCategory = category;
         this.chatInputUtil = chatInputUtil;
+        this.messageUtil = messageUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
 
         for (GuiSlotDef def : slots) {
@@ -386,19 +388,19 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         Skin skin = skinMap.get(slot);
         if (skin != null) {
             if (!ownedSkinIds.contains(skin.id())) {
-                MessageUtil.sendMessage(player, plugin.getConfig().getString("messages.skin-not-owned", "<red>✘ You don't own <white>{skin_name}<red>."), Map.of("skin_name", skin.name()));
+                messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-not-owned", "<red>✘ You don't own <white>{skin_name}<red>."), Map.of("skin_name", skin.name()));
                 return;
             }
 
             ItemStack handItem = player.getInventory().getItemInMainHand();
             if (handItem.getType() == Material.AIR) {
-                MessageUtil.sendMessage(player, "<red>You must be holding an item to apply this skin!");
+                messageUtil.sendLangMessage(player, "<red>You must be holding an item to apply this skin!");
                 return;
             }
             Material targetMat = handItem.getType();
 
             if (skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat.name(), cat))) {
-                MessageUtil.sendMessage(player, "<red>This skin cannot be applied to this item!");
+                messageUtil.sendLangMessage(player, "<red>This skin cannot be applied to this item!");
                 return;
             }
 
@@ -406,14 +408,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (skin.id().equals(activeId)) {
                 grantService.setActiveSkin(player.getUniqueId(), targetMat, null).thenRun(() ->
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            MessageUtil.sendMessage(player, plugin.getConfig().getString("messages.skin-unequipped", "<yellow>Skin <white>{skin_name}<yellow> removed."), Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-unequipped", "<yellow>Skin <white>{skin_name}<yellow> removed."), Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, null);
                         }, () -> {})
                 );
             } else {
                 grantService.setActiveSkin(player.getUniqueId(), targetMat, skin.id()).thenRun(() ->
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            MessageUtil.sendMessage(player, plugin.getConfig().getString("messages.skin-equipped", "<green>✔ Equipped <white>{skin_name}<green>."), Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-equipped", "<green>✔ Equipped <white>{skin_name}<green>."), Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, skin.id());
                         }, () -> {})
                 );

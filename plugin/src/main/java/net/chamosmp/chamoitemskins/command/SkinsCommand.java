@@ -8,8 +8,6 @@ import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
-import net.chamosmp.chamoitemskins.util.LoggerUtil;
-import net.kyori.adventure.text.Component;
 import net.strokkur.commands.Aliases;
 import net.strokkur.commands.Command;
 import net.strokkur.commands.Executes;

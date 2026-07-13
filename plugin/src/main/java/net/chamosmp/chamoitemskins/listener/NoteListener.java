@@ -33,12 +33,14 @@ public final class NoteListener implements Listener {
     private final SkinService skinService;
     private final GrantService grantService;
     private final FileConfiguration config;
+    private final MessageUtil messageUtil;
 
-    public NoteListener(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config) {
+    public NoteListener(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
         this.config = config;
+        this.messageUtil = messageUtil;
     }
 
     @EventHandler
@@ -55,7 +57,7 @@ public final class NoteListener implements Listener {
         skinService.getSkin(skinId).ifPresent(skin -> {
             grantService.hasSkin(player.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
-                    MessageUtil.sendMessage(player, config.getString("messages.already-owned", "<red>You already own this skin!"));
+                    messageUtil.sendLangMessage(player, config.getString("messages.already-owned", "<red>You already own this skin!"));
                     return;
                 }
                 try {
@@ -63,11 +65,11 @@ public final class NoteListener implements Listener {
                         // Re-check amount in sync to avoid race conditions as much as possible with item reduction
                         SchedulerUtil.runSync(plugin, () -> {
                             item.setAmount(item.getAmount() - 1);
-                            MessageUtil.sendMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
+                            messageUtil.sendLangMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
                                     Map.of("skin_name", skin.name()));
                         });
                     }).exceptionally(ex -> {
-                        player.sendMessage("Failed to grant skin: " + ex.getMessage());
+                        player.sendRichMessage("Failed to grant skin: " + ex.getMessage());
                         return null;
                     });
                 } catch (NullPointerException e) {
@@ -75,9 +77,9 @@ public final class NoteListener implements Listener {
                 }
             }).exceptionally(ex -> {
                 if (ex.getMessage() != null && ex.getMessage().contains("closed")) {
-                    MessageUtil.sendMessage(player, "<red>Database is currently busy or reloading. Please try again in a moment.");
+                    messageUtil.sendLangMessage(player, "<red>Database is currently busy or reloading. Please try again in a moment.");
                 } else {
-                    player.sendMessage("Failed to check skin ownership: " + ex.getMessage());
+                    player.sendRichMessage("Failed to check skin ownership: " + ex.getMessage());
                 }
                 return null;
             });

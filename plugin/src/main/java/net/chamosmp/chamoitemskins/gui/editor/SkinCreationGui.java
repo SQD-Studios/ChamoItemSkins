@@ -32,6 +32,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private final Player player;
     private final SkinService skinService;
     private final RarityManager rarityManager;
+    private final MessageUtil messageUtil;
 
     private String id = "new_skin";
     private String name = "New Skin";
@@ -47,11 +48,12 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
             "SWORD", "AXE", "SHIELD", "PICKAXE", "BOW", "CROSSBOW", "SHOVEL", "SPEAR", "MACE", "HOE"
     );
 
-    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService) {
+    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
+        this.messageUtil = messageUtil;
         this.rarity = rarityManager.getDefaultRarity();
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<green>Create New Skin"));
         
@@ -196,7 +198,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
             Skin skin = new Skin(id, name, modelId, rarity, categories, enabled, null,
                     new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
             skinService.saveSkin(skin);
-            MessageUtil.sendMessage(player, "<green>Skin created!");
+            messageUtil.sendLangMessage(player, "<green>Skin created!");
             new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
         }
     }

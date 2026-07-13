@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import net.chamosmp.chamoitemskins.lang.LanguageManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,24 +25,18 @@ public final class MessageUtil {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final boolean PAPI_PRESENT = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
     private static final Map<String, YamlConfiguration> LANGUAGE_MAP = new HashMap<>();
-    private static String defaultLanguage = "en";
+    private final LanguageManager langManager;
 
-    private MessageUtil() {}
+    public MessageUtil(LanguageManager langManager) {
+        this.langManager = langManager;
+    }
 
-    public static void loadLanguages(@NotNull Plugin plugin) {
-        LANGUAGE_MAP.clear();
-        File folder = new File(plugin.getDataFolder(), "languages");
-        if (!folder.exists()) folder.mkdirs();
+    public void sendLangMessage(Audience player, String key, Map<String, String> placeholders) {
+        sendMessage(player, legacyToMiniMessage(langManager.getMessage(key, placeholders)));
+    }
 
-        defaultLanguage = plugin.getConfig().getString("default-language", "en").toLowerCase();
-
-        File[] files = folder.listFiles((dir, name) -> name.startsWith("messages_") && name.endsWith(".yml"));
-        if (files != null) {
-            for (File file : files) {
-                String lang = file.getName().substring(9, file.getName().length() - 4);
-                LANGUAGE_MAP.put(lang.toLowerCase(), YamlConfiguration.loadConfiguration(file));
-            }
-        }
+    public void sendLangMessage(Audience player, String key) {
+        sendMessage(player, legacyToMiniMessage(langManager.getMessage(key)));
     }
 
     /**
@@ -69,30 +64,12 @@ public final class MessageUtil {
         String light_purple = red.replace("&d", "<light_purple>");
         String yellow = light_purple.replace("&e", "<yellow>");
         String white = yellow.replace("&f", "<white>");
-        String minecoin_gold = white.replace("&g", "<#DDD605>");
-        String material_quartz = minecoin_gold.replace("&h", "<#E3D4D1>");
-        String material_iron = material_quartz.replace("&i", "<#CECACA>");
-        String material_netherite = material_iron.replace("&j", "<#443A3B>");
-        String material_gold = material_netherite.replace("&p", "<#DEB12D>");
-        String material_emerald = material_gold.replace("&q", "<#119F36>");
-        String material_diamond = material_emerald.replace("&s", "<#2CBAA8>");
-        String material_lapis = material_diamond.replace("&t", "<#21497B>");
-        String material_amethyst = material_lapis.replace("&u", "<#9A5CC6>");
-        String material_resin = material_amethyst.replace("&v", "<#EB7114>");
-        String party_blue_color = material_resin.replace("&w", "<#8CB3FF>");
-        String bold = party_blue_color.replace("&l", "<b>");
+        String bold = white.replace("&l", "<b>");
         String italic = bold.replace("&o", "<i>");
         String underline = italic.replace("&n", "<u>");
         String strikethrough = underline.replace("&m", "<st>");
 
         return strikethrough.replace("&k", "<obf>");
-    }
-
-    public static @NotNull String getMessage(@NotNull String key, @NotNull String lang) {
-        YamlConfiguration config = LANGUAGE_MAP.get(lang.toLowerCase());
-        if (config == null) config = LANGUAGE_MAP.get(defaultLanguage);
-        if (config == null) return key;
-        return config.getString(key, key);
     }
 
     /**
@@ -123,7 +100,7 @@ public final class MessageUtil {
     }
 
     public static @NotNull Component parse(@NotNull String message) {
-        return MINI_MESSAGE.deserialize(message);
+        return MINI_MESSAGE.deserialize(legacyToMiniMessage(message));
     }
 
     public static @NotNull Component parse(Player player, @NotNull String message, @NotNull Map<String, String> placeholders) {
@@ -136,7 +113,7 @@ public final class MessageUtil {
             resolved = PlaceholderAPI.setPlaceholders(player, resolved);
         }
         
-        return MINI_MESSAGE.deserialize(resolved);
+        return MINI_MESSAGE.deserialize(legacyToMiniMessage(resolved));
     }
 
     public static @NotNull List<String> placeholder(@NotNull List<String> message, @NotNull Map<String, String> placeholders) {

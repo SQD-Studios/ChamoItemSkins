@@ -284,7 +284,7 @@ All public types in `:api` must have Javadoc.
 - `MessageUtil` must run MiniMessage deserialization AND `PlaceholderAPI.setPlaceholders()` (if PAPI present) before sending to player.
 - `:api` must compile cleanly without HikariCP, or StrokkCommands on the classpath.
 - All `@NotNull` / `@Nullable` annotations from `org.jetbrains.annotations` on all public API methods.
-- `MessageUtil.sendMessage(sender, template)` and `MessageUtil.sendMessage(sender, template, Map<String,String> placeholders)` both exist; the latter resolves `{key}` tokens before MiniMessage parsing.
+- `MessageUtil.sendLangMessage(sender, template)` and `MessageUtil.sendLangMessage(sender, template, Map<String,String> placeholders)` both exist; the latter resolves `{key}` tokens before MiniMessage parsing.
 
 ---
 

@@ -37,18 +37,20 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     private final RarityManager rarityManager;
     private Skin skin;
     private final Inventory inventory;
+    private final MessageUtil messageUtil;
 
     private static final List<String> ALL_CATEGORIES = List.of(
             "SWORD", "AXE", "SHIELD", "PICKAXE", "BOW", "CROSSBOW", "SHOVEL", "SPEAR", "MACE", "HOE"
     );
 
-    public SkinEditDetailGui(Plugin plugin, Player player, SkinService skinService, Skin skin) {
+    public SkinEditDetailGui(Plugin plugin, Player player, SkinService skinService, Skin skin, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
         this.skin = skin;
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<gold>Edit Skin: " + skin.id()));
+        this.messageUtil = messageUtil;
 
         refresh();
     }
@@ -147,7 +149,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                 }
 
                 if (skinService.getSkin(newId).isPresent()) {
-                    MessageUtil.sendMessage(player, "<red>A skin with ID " + newId + " already exists!");
+                    messageUtil.sendLangMessage(player, "<red>A skin with ID " + newId + " already exists!");
                     open();
                     return;
                 }

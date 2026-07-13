@@ -16,6 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import net.chamosmp.chamoitemskins.lang.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,13 +111,13 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == NEW_SKIN_SLOT) {
-            new SkinCreationGui(plugin, player, skinService).open();
+            new SkinCreationGui(plugin, player, skinService, new MessageUtil(new LanguageManager(plugin))).open();
             return;
         }
 
         Skin skin = slotToSkin.get(slot);
         if (skin != null) {
-            new SkinEditDetailGui(plugin, player, skinService, skin).open();
+            new SkinEditDetailGui(plugin, player, skinService, skin, new MessageUtil(new LanguageManager(plugin))).open();
         }
     }
 
