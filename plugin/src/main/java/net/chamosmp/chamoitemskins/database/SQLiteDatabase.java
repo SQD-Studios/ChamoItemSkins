@@ -11,10 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -49,7 +47,8 @@ public final class SQLiteDatabase implements DatabaseManager {
                     player_uuid VARCHAR(36) NOT NULL,
                     skin_id     VARCHAR(64) NOT NULL,
                     granted_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    source      VARCHAR(32) NOT NULL
+                    source      VARCHAR(32) NOT NULL,
+                    expires_at  TIMESTAMP   NULL
                 )""");
             conn.createStatement().execute("""
                 CREATE INDEX IF NOT EXISTS idx_player_uuid ON player_skin_grants(player_uuid)
@@ -70,6 +69,11 @@ public final class SQLiteDatabase implements DatabaseManager {
                     metadata    TEXT,
                     timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )""");
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("ALTER TABLE player_skin_grants ADD COLUMN expires_at TIMESTAMP");
+            } catch (SQLException ignored) {
+                // Column already exists
+            }
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to initialize SQLite: " + e.getMessage());
         }
@@ -229,4 +233,55 @@ public final class SQLiteDatabase implements DatabaseManager {
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
+
+    @Override
+    public @NotNull CompletableFuture<Void> grantSkinWithExpiry(
+            @NotNull UUID playerUuid,
+            @NotNull String skinId,
+            @NotNull String source,
+            @Nullable LocalDateTime expiresAt) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("""
+                     INSERT INTO player_skin_grants (grant_id, player_uuid, skin_id, source, expires_at)
+                     VALUES (?, ?, ?, ?, ?)
+                 """)) {
+                ps.setString(1, UUID.randomUUID().toString());
+                ps.setString(2, playerUuid.toString());
+                ps.setString(3, skinId);
+                ps.setString(4, source);
+                ps.setTimestamp(5, expiresAt != null ? Timestamp.valueOf(expiresAt) : null);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to grant skin with expiry: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Collection<ExpiredGrant>> getExpiredGrants() {
+        return CompletableFuture.supplyAsync(() -> {
+            Collection<ExpiredGrant> expired = new ArrayList<>();
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("""
+                     SELECT player_uuid, skin_id
+                     FROM player_skin_grants
+                     WHERE expires_at IS NOT NULL AND expires_at <= CURRENT_TIMESTAMP
+                 """)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        expired.add(new ExpiredGrant(
+                                UUID.fromString(rs.getString("player_uuid")),
+                                rs.getString("skin_id")
+                        ));
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to get expired grants: " + e.getMessage());
+            }
+            return expired;
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
 }
+

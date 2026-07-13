@@ -20,6 +20,9 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -71,36 +74,65 @@ public final class GrantManager implements GrantService {
 
     @Override
     public @NotNull CompletableFuture<Boolean> hasSkin(@NotNull UUID playerUuid, @NotNull String skinId) {
-        return getGrants(playerUuid).thenApply(grants -> 
+        return getGrants(playerUuid).thenApply(grants ->
             grants.stream().anyMatch(g -> g.skinId().equals(skinId))
         );
     }
 
     @Override
     public @NotNull CompletableFuture<Void> grantSkin(@NotNull UUID playerUuid, @NotNull String skinId, @NotNull String source) {
+        return grantSkin(playerUuid, skinId, source, -1);
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> grantSkin(@NotNull UUID playerUuid, @NotNull String skinId, @NotNull String source, int days) {
+
         Player player = Bukkit.getPlayer(playerUuid);
         Skin skin = skinManager.getSkin(skinId).orElse(null);
-        
+
         if (player != null && skin != null) {
             CompletableFuture<Void> future = new CompletableFuture<>();
             SchedulerUtil.runSync(plugin, () -> {
                 SkinGrantEvent event = new SkinGrantEvent(player, skin, source);
                 Bukkit.getPluginManager().callEvent(event);
-                
+
                 if (!event.isCancelled()) {
-                    db.grantSkin(playerUuid, skinId, source).thenRun(() -> {
-                        cache.invalidate(playerUuid);
-                        logService.log(playerUuid, "GRANT", skinId, source);
-                        future.complete(null);
-                    });
+                    // Calculate expiration. If days <= 0, set to null (never expires) or handle accordingly.
+                    LocalDateTime expiresAt = days > 0 ? LocalDateTime.now().plusDays(days) : null;
+                    db.grantSkinWithExpiry(playerUuid, skinId, source, expiresAt)
+                            .thenRun(() -> {
+                                cache.invalidate(playerUuid);
+                                logService.log(playerUuid, "GRANT", skinId, source);
+                                future.complete(null);
+                            })
+                            .exceptionally(ex -> {
+                                future.completeExceptionally(ex);
+                                return null;
+                            });
                 } else {
                     future.completeExceptionally(new RuntimeException("Grant cancelled by event"));
                 }
             });
             return future;
         }
-        
-        return db.grantSkin(playerUuid, skinId, source).thenRun(() -> cache.invalidate(playerUuid));
+        LocalDateTime expiresAt = days > 0 ? LocalDateTime.now().plusDays(days) : null;
+        return db.grantSkinWithExpiry(playerUuid, skinId, source, expiresAt)
+                .thenRun(() -> cache.invalidate(playerUuid));
+    }
+
+    @Override
+    public void checkAndRevokeExpiredGrants() {
+        db.getExpiredGrants().thenAccept(expiredGrants -> {
+            if (expiredGrants.isEmpty()) return;
+
+            // Use the correct type: DatabaseManager.ExpiredGrant
+            for (DatabaseManager.ExpiredGrant entry : expiredGrants) {
+                revokeSkin(entry.playerUuid(), entry.skinId());
+            }
+        }).exceptionally(ex -> {
+            plugin.getLogger().warning("Failed to check expired skins: " + ex);
+            return null;
+        });
     }
 
     @Override
@@ -217,7 +249,7 @@ public final class GrantManager implements GrantService {
         for (String skinId : bundle.skinIds()) {
             futures.add(grantSkin(playerUuid, skinId, source + " (Bundle: " + bundleId + ")"));
         }
-        
+
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenRun(() -> logService.log(playerUuid, "GRANT_BUNDLE", bundleId, source));
     }
@@ -232,8 +264,9 @@ public final class GrantManager implements GrantService {
         for (String skinId : bundle.skinIds()) {
             futures.add(revokeSkin(playerUuid, skinId));
         }
-        
+
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenRun(() -> logService.log(playerUuid, "REVOKE_BUNDLE", bundleId, null));
     }
+
 }

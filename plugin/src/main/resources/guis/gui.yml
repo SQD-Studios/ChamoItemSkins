@@ -113,22 +113,15 @@ slots:
 selection-title: Select <white>{material}<gray> Skins
 selection-size: 54
 selection-slots:
-  filter_all:
-    slot: 47
-    type: FilterSlot
-    category: ALL
-    material: CHEST
-    name: <yellow>All Skins
-    lore:
-      - <gray>Show every skin in this category.
-  filter_owned:
+  filter:
     slot: 46
     type: FilterSlot
-    category: OWNED
     material: EMERALD
-    name: <green>Owned
+    name: <dark_red><b>Filter Skins
     lore:
-      - <gray>Show only skins you own.
+      - " "
+      - "{owned}"
+      - "{all}"
   back:
     slot: 45
     type: BackSlot
@@ -140,6 +133,8 @@ selection-slots:
     slot: 48
     type: SearchSlot
     material: HOPPER
-    name: "<b><dark_red>Search skins"
+    name: <b><red>Search skins
     lore:
-      - ""
+      - ''
+      - <white>Currently searching for:<dark_red> {search}
+      - ' '

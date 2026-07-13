@@ -12,7 +12,9 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -135,5 +137,24 @@ public final class MessageUtil {
         }
         
         return MINI_MESSAGE.deserialize(resolved);
+    }
+
+    public static @NotNull List<String> placeholder(@NotNull List<String> message, @NotNull Map<String, String> placeholders) {
+        List<String> resolved = new ArrayList<>(message); // copy to avoid altering input
+        for (var entry : placeholders.entrySet()) {
+            String key = "{" + entry.getKey() + "}";
+            String value = entry.getValue();
+            resolved.replaceAll(s -> s.replace(key, value));
+        }
+        return resolved;
+    }
+
+    public static @NotNull String placeholder(@NotNull String message, @NotNull Map<String, String> placeholders) {
+        String resolved = message;
+        for (var entry : placeholders.entrySet()) {
+            resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
+
+        return resolved;
     }
 }

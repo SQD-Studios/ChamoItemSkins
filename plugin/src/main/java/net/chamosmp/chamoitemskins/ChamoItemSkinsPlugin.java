@@ -21,6 +21,7 @@ import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.listener.NoteListener;
 import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
+import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
@@ -88,8 +89,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                     initManagers();
                 }
 
-                var guiConfig = ConfigUtil.loadOrAdapt(this, "guis/gui.yml");
-                var adminGuiConfig = ConfigUtil.loadOrAdapt(this, "guis/admin-gui.yml");
+                var guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
+                var adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
                 List<GuiSlotDef> mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
                 String skinsTitle = guiConfig.getString("title", "Skins");
@@ -134,9 +135,10 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      * The method to reload the plugin
      */
     public void reloadPlugin() {
+
         ConfigUtil.loadOrAdapt(this, "config.yml");
-        ConfigUtil.loadOrAdapt(this, "guis/gui.yml");
-        ConfigUtil.loadOrAdapt(this, "guis/admin-gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
         saveDefaultConfig();
         reloadConfig();
         MessageUtil.loadLanguages(this);
@@ -153,6 +155,13 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
+
+        SchedulerUtil.runAsync(this, () -> grantManager.checkAndRevokeExpiredGrants());
+
+        SchedulerUtil.runDelayed(this, () -> grantManager.checkAndRevokeExpiredGrants(),  6000L);
+
+        // Periodically Reload the plugin (And maybe break some things :D)
+        SchedulerUtil.runDelayed(this, this::reloadPlugin, 7000L);
     }
 
     /**
@@ -202,7 +211,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
             case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot(section.getString("category", "ALL"));
+            case "FILTERSLOT" -> new SlotType.FilterSlot();
             case "BACKSLOT" -> new SlotType.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
             default -> new SlotType.Decorative();

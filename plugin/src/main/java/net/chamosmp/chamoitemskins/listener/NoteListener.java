@@ -14,15 +14,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+
+import static net.chamosmp.chamoitemskins.util.NoteUtil.EXPIRATION_KEY;
 
 /**
  * Handles skin note consumption.
  */
 public final class NoteListener implements Listener {
+    private static final Logger log = LoggerFactory.getLogger(NoteListener.class);
     private final Plugin plugin;
     private final SkinService skinService;
     private final GrantService grantService;
@@ -38,32 +44,35 @@ public final class NoteListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        
+
         ItemStack item = event.getItem();
         if (item == null || !NoteUtil.isNote(item)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
         String skinId = NoteUtil.getSkinId(item);
-        
+
         skinService.getSkin(skinId).ifPresent(skin -> {
             grantService.hasSkin(player.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
                     MessageUtil.sendMessage(player, config.getString("messages.already-owned", "<red>You already own this skin!"));
                     return;
                 }
-
-                grantService.grantSkin(player.getUniqueId(), skinId, "NOTE").thenRun(() -> {
-                    // Re-check amount in sync to avoid race conditions as much as possible with item reduction
-                    SchedulerUtil.runSync(plugin, () -> {
-                        item.setAmount(item.getAmount() - 1);
-                        MessageUtil.sendMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
-                                Map.of("skin_name", skin.name()));
+                try {
+                    grantService.grantSkin(player.getUniqueId(), skinId, "NOTE", item.getPersistentDataContainer().get(EXPIRATION_KEY, PersistentDataType.INTEGER)).thenRun(() -> {
+                        // Re-check amount in sync to avoid race conditions as much as possible with item reduction
+                        SchedulerUtil.runSync(plugin, () -> {
+                            item.setAmount(item.getAmount() - 1);
+                            MessageUtil.sendMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
+                                    Map.of("skin_name", skin.name()));
+                        });
+                    }).exceptionally(ex -> {
+                        player.sendMessage("Failed to grant skin: " + ex.getMessage());
+                        return null;
                     });
-                }).exceptionally(ex -> {
-                    player.sendMessage("Failed to grant skin: " + ex.getMessage());
-                    return null;
-                });
+                } catch (NullPointerException e) {
+                    log.error("Exception happened. Failed to unbox the persistent container: ", e);
+                }
             }).exceptionally(ex -> {
                 // If it fails with " HikariDataSource has been closed", it might be during reload.
                 if (ex.getMessage().contains("closed")) {
