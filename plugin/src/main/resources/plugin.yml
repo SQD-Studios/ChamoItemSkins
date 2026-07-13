@@ -5,6 +5,8 @@ api-version: '1.21.4'
 authors: ["SQD Studios", Chamogelastos]
 
 softdepend: [PlaceholderAPI, HMCWraps]
+
+
 permissions:
   chamoitemskins.use:
     description: Allows using the /skins command

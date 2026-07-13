@@ -47,8 +47,7 @@ public final class MessageUtil {
      */
     public static String legacyToMiniMessage(String message) {
         String oneChar = message.replace("§", "&");
-        String twoChar = oneChar.replace("<&>", "&");
-        String black = twoChar.replace("&0", "<black>");
+        String black = oneChar.replace("&0", "<black>");
         String dark_blue = black.replace("&1", "<dark_blue>");
         String dark_green = dark_blue.replace("&2", "<dark_green>");
         String dark_aqua = dark_green.replace("&3", "<dark_aqua>");
