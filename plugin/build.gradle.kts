@@ -60,7 +60,7 @@ tasks {
     // runServer, by my boii JPenilla
     runServer {
         downloadPlugins {
-            modrinth("lKEzGugV", "2.12.2")
+            modrinth("lKEzGugV", "2.12.3")
         }
 
         minecraftVersion("26.1.2")
