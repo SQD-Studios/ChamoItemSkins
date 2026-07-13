@@ -19,6 +19,13 @@ import java.util.Map;
  */
 public final class NoteUtil {
     public static NamespacedKey SKIN_ID_KEY;
+    public static NamespacedKey EXPIRATION_KEY;
+
+    public static void init(@NotNull Plugin plugin) {
+        SKIN_ID_KEY = new NamespacedKey(plugin, "skin_id");
+        EXPIRATION_KEY = new NamespacedKey(plugin, "expiration");
+    }
+
 
     private NoteUtil() {}
 
@@ -32,11 +39,12 @@ public final class NoteUtil {
     }
 
 
-    public static NamespacedKey EXPIRATION_KEY;
 
-    public static boolean isNote(@NotNull ItemStack item) {
-        if (item.getType().isAir() || !item.hasItemMeta()) return false;
-        return item.getItemMeta().getPersistentDataContainer().has(SKIN_ID_KEY, PersistentDataType.STRING);
+
+    public static boolean isNote(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        if (SKIN_ID_KEY == null) return false;
+        return item.getItemMeta().getPersistentDataContainer().has(SKIN_ID_KEY);
     }
 
     public static String getSkinId(@NotNull ItemStack item) {
@@ -51,8 +59,6 @@ public final class NoteUtil {
             @NotNull List<String> loreTemplate,
             int timeInDays
     ) {
-        SKIN_ID_KEY = new NamespacedKey("chamoitemskins", "skin_id");
-        EXPIRATION_KEY = new NamespacedKey(plugin, "note_expiration");
         FileConfiguration config = plugin.getConfig();
 
         Material material = skin.noteMaterial() != null ? skin.noteMaterial() : defaultMaterial;

@@ -22,10 +22,7 @@ import net.chamosmp.chamoitemskins.listener.NoteListener;
 import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
-import net.chamosmp.chamoitemskins.util.ConfigUtil;
-import net.chamosmp.chamoitemskins.util.DialogUtil;
-import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.chamoitemskins.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.ServicePriority;
@@ -57,7 +54,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onLoad() {
-
+        NoteUtil.init(this);
     }
 
     /**
