@@ -20,7 +20,7 @@ rarities:
 database:
 
   # Choose MySQL or SQLite
-  # MySQL (For multiserver support. Not tested)
+  # MySQL (For multiserver support (Not tested))
   # SQLite (Great lightweight solution)
   type: sqlite
 
@@ -50,6 +50,9 @@ note:
   display-name: "{skin_name} <i><dark_gray>[{time}Skin Note]"
   lore:
     - ""
+
+filter:
+  chosen-character: " > {category}"
 
 messages:
   skin-equipped: "<green>✔ Equipped <white>{skin_name}<green>."

@@ -88,8 +88,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                     initManagers();
                 }
 
-                var guiConfig = ConfigUtil.loadOrAdapt(this, "guis/gui.yml");
-                var adminGuiConfig = ConfigUtil.loadOrAdapt(this, "guis/admin-gui.yml");
+                var guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
+                var adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
                 List<GuiSlotDef> mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
                 String skinsTitle = guiConfig.getString("title", "Skins");
@@ -135,8 +135,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     public void reloadPlugin() {
         ConfigUtil.loadOrAdapt(this, "config.yml");
-        ConfigUtil.loadOrAdapt(this, "guis/gui.yml");
-        ConfigUtil.loadOrAdapt(this, "guis/admin-gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
         saveDefaultConfig();
         reloadConfig();
         MessageUtil.loadLanguages(this);
@@ -202,7 +202,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
             case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot(section.getString("category", "ALL"));
+            case "FILTERSLOT" -> new SlotType.FilterSlot();
             case "BACKSLOT" -> new SlotType.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
             default -> new SlotType.Decorative();

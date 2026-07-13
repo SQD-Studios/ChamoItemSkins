@@ -106,7 +106,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = ConfigUtil.loadOrAdapt(plugin, "guis/gui.yml");
+            YamlConfiguration selectionConfig = ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
             List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
@@ -149,10 +149,10 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
             case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot(section.getString("category", "ALL"));
+            case "FILTERSLOT" -> new SlotType.FilterSlot();
             case "BACKSLOT" -> new SlotType.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
-            case "SEARCHSLOT" -> new SlotType.SearchSlot(section.getString("category", "search"));
+            case "SEARCHSLOT" -> new SlotType.SearchSlot();
             default -> new SlotType.Decorative();
         };
     }

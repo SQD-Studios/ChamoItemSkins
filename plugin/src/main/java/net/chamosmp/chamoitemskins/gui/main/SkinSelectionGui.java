@@ -12,10 +12,13 @@ import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
+import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,6 +27,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,13 +55,19 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
     private final Map<Integer, String> filterSlotCategories = new HashMap<>();
     private final String baseCategory;
-    private String activeFilterCategory;
-    private int activeFilterSlot = -1;
 
-    private int activeSearchSlot = -1;
-    private Map<Integer, String> searchSlotCategories = new HashMap<>();
+    /**
+     * I need to Javadoc this because I WON'T REMEMBER IT<br>
+     * {@code 1} = Owned<br>
+     * {@code 2} = All<br>
+     * {@code Default} = 2<br>
+     */
+    private int filterLoreCycle = 2;
+
+
     private String search;
     private boolean isSearching = false;
+    private int searchSlot = 0;
 
     private Map<Material, String> activeSkins = new HashMap<>();
     private Set<String> ownedSkinIds = new HashSet<>();
@@ -83,15 +93,12 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.modelService = modelService;
         this.slots = slots;
         this.baseCategory = category;
-        this.activeFilterCategory = category;
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
 
         for (GuiSlotDef def : slots) {
             if (def.type() instanceof SlotType.FilterSlot filter) {
-                filterSlotCategories.put(def.slot(), filter.category());
-            } else if (def.type() instanceof SlotType.SearchSlot) {
-                searchSlotCategories.put(def.slot(), "search"); // value doesn't matter, just needs to be present
+                filterSlotCategories.put(def.slot(), "category");
             }
         }
         if (!filterSlotCategories.isEmpty()) {
@@ -99,8 +106,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                     .filter(e -> e.getValue().equalsIgnoreCase(category))
                     .findFirst()
                     .ifPresent(e -> {
-                        activeFilterSlot = e.getKey();
-                        activeFilterCategory = e.getValue();
+
                     });
         }
 
@@ -123,7 +129,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 continue;
             }
             if (def.type() instanceof SlotType.FilterSlot) {
-                inventory.setItem(def.slot(), createFilterItem(def, def.slot() == activeFilterSlot));
+                inventory.setItem(def.slot(), createFilterItem(def));
             } else if (def.type() instanceof SlotType.SearchSlot) {
                 inventory.setItem(def.slot(), createSearchItem(def));
             } else {
@@ -152,7 +158,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private @NotNull List<Skin> filterSkins(@NotNull List<Skin> source) {
-        String filter = activeFilterCategory == null ? "ALL" : activeFilterCategory;
+        String filter = filterLoreCycle == 1 ? "OWNED" : "ALL";
         return source.stream()
                 .filter(skin -> baseCategory == null
                         || baseCategory.equalsIgnoreCase("ALL")
@@ -183,15 +189,33 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return true;
     }
 
-    private static final List<String> ALL_FILTERS = List.of ("OWNED", "ALL");
+    private static final List<String> ALL_FILTERS = List.of("OWNED", "ALL");
 
-    private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def, boolean active) {
+    private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def) {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
+
             meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
-            meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
-            meta.setEnchantmentGlintOverride(active || def.glow());
+
+
+            YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml");
+            String character = config.getString("filter.chosen-character");
+
+            Map<String, String> placeholders;
+
+            assert character != null;
+            if (filterLoreCycle == 1) {
+                placeholders = Map.of("owned", MessageUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins");
+            } else {
+                placeholders = Map.of("owned", "Owned", "all", MessageUtil.placeholder(character, Map.of("category", "All Skins")));
+            }
+            List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
+            meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+
+
+            meta.setEnchantmentGlintOverride(def.glow());
+
             item.setItemMeta(meta);
         }
         return item;
@@ -239,16 +263,16 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
-
-            List<String> lore = new ArrayList<>(def.lore());
-
             String safeSearch = search == null ? "Nothing" : search;
-            lore.add("<white>Searching for: <dark_red>" + safeSearch);
+            Map<String, String> placeholders = Map.of("search", safeSearch);
+
+            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+            List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
 
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
             item.setItemMeta(meta);
         }
+        searchSlot = def.slot();
         return item;
     }
 
@@ -329,16 +353,15 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         int slot = event.getRawSlot();
 
         if (filterSlotCategories.containsKey(slot)) {
-            if (slot != activeFilterSlot) {
-                activeFilterSlot = slot;
-                activeFilterCategory = filterSlotCategories.get(slot);
-                refresh();
+            if (filterLoreCycle == 1) {
+                filterLoreCycle = 2;
+            } else {
+                filterLoreCycle = 1;
             }
-            return;
+            refresh();
         }
 
-        if (48 == slot) {
-            activeSearchSlot = slot;
+        if (searchSlot == slot) {
             refresh();
             if (!isSearching) {
                 chatInputUtil.getInput(player, Component.text("Search:"), input -> {

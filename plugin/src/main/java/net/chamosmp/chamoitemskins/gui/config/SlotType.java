@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public sealed interface SlotType {
     record Decorative() implements SlotType {}
     record SkinSlot(int index) implements SlotType {}
-    record FilterSlot(@NotNull String category) implements SlotType {}
+    record FilterSlot() implements SlotType {}
     record BackSlot() implements SlotType {}
     record ActionSlot(String action) implements SlotType {}
-    record SearchSlot(@NotNull String category) implements SlotType {}
+    record SearchSlot() implements SlotType {}
 }
