@@ -18,9 +18,9 @@ currently being supported with security updates.
 
 ## Supported Software
 
-| Paper           | Purpur          | Spigot/Bukkit                                       | Paper Perfomance Fork                                                                                          | PumpkinMC | Paper Fork        | Folia           | Are there even more software?       |
-|-----------------|-----------------|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------|-----------|-------------------|-----------------|-------------------------------------|
-| Fully Supported | Fully Supported | Can work, won't give support. Some features missing | We don't gurantee that our plugin will work on those software. As they may heavily change how the server works | Just no.  | We don't know lol | Fully Supported | Yes, but I won't cover them here :D |
+| Paper           | Purpur          | Spigot/Bukkit | Paper Perfomance Fork                                                                                          | PumpkinMC | Paper Fork        | Folia           | Are there even more software?       |
+|-----------------|-----------------|---------------|----------------------------------------------------------------------------------------------------------------|-----------|-------------------|-----------------|-------------------------------------|
+| Fully Supported | Fully Supported | Good luck lol | We don't gurantee that our plugin will work on those software. As they may heavily change how the server works | Just no.  | We don't know lol | Fully Supported | Yes, but I won't cover them here :D |
 
 
 

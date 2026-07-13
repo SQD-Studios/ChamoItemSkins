@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.manager.MigrateManager;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -87,7 +87,7 @@ public final class ChatInputUtil implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChat(AsyncPlayerChatEvent event) {
+    public void onChat(AsyncChatEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         if (!pendingInputs.containsKey(uuid)) return;
 
@@ -95,7 +95,7 @@ public final class ChatInputUtil implements Listener {
         pendingSuggestions.remove(uuid);
         Consumer<String> callback = pendingInputs.remove(uuid);
 
-        String message = event.getMessage();
+        String message = String.valueOf(event.message());
         if (message.equalsIgnoreCase("cancel")) {
             messageUtil.sendLangMessage(event.getPlayer(), "<red>Input cancelled.");
             return;
