@@ -25,6 +25,9 @@ import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.*;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.ServicePriority;
@@ -69,7 +72,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public void onEnable() {
 
-
         migrateManager = new MigrateManager(this, skinManager);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
@@ -113,6 +115,15 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
             }
         }));
 
+        int pluginId = 31970;
+        Metrics metrics = new Metrics(this, pluginId);
+
+        // Optional: Add custom charts
+        metrics.addCustomChart(
+                new SingleLineChart("totalskins", () -> getSkinService().getSkins().size())
+        );
+
+        getLogger().info("Successfully loaded metrics.");
         getLogger().info("ChamoItemSkins enabled successfully.");
     }
 

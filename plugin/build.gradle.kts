@@ -10,15 +10,10 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("me.clip:placeholderapi:2.12.3")
-    compileOnly("net.strokkur.commands:annotations-paper:2.1.1")
-    annotationProcessor("net.strokkur.commands:processor-paper:2.1.1")
-    compileOnly("me.clip:placeholderapi:2.12.3")
-    compileOnly("net.strokkur.commands:annotations-paper:2.1.4")
-    annotationProcessor("net.strokkur.commands:processor-paper:2.1.4")
-    compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("net.strokkur.commands:annotations-paper:2.1.4")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.4")
     implementation("com.zaxxer:HikariCP:7.1.0")
+    implementation("org.bstats:bstats-bukkit:3.2.1")
 
     // Convert Options
     compileOnly("de.skyslycer.hmcwraps:api:1.8.2")
@@ -37,6 +32,8 @@ tasks {
     shadowJar {
         configurations = project.configurations.runtimeClasspath.map { setOf(it) }
         archiveClassifier.set("")
+
+        relocate("org.bstats", project.group.toString())
     }
 
     // We want all jars to produce shadowed ones
