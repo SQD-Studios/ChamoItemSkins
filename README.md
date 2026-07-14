@@ -1,8 +1,10 @@
 ![ChamoItemSkins](assets/ChamoItemSKins%20ad.png)
 
 [![Build](https://img.shields.io/github/actions/workflow/status/SQD-Studios/ChamoItemSkins/gradle.yml?style=flat-square)](https://github.com/SQD-Studios/ChamoItemSkins/actions)
-[![Static Badge](https://img.shields.io/badge/Documentation-8A2BE2?style=flat-square)](https://sqd-studios.github.io/docs/chamoitemskins/administration/introduction/installing/)
+[![Documentation](https://img.shields.io/badge/Documentation-8A2BE2?style=flat-square)](https://sqd-studios.github.io/docs/chamoitemskins/administration/introduction/installing/)
 [![Javadocs](https://img.shields.io/badge/Javadocs-ED8B00?style=flat-square)](https://sqd-studios.github.io/ChamoItemSkins/)
+[![Crowdin](https://img.shields.io/badge/Crowdin-%232E3340?style=flat-square&logo=crowdin)](https://crowdin.com/project/sqd-studios)
+
 
 ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugin built for **Spigot (Forks too!) 1.21.11** and **Folia**. It allows players to unlock and apply custom models to their items using a sleek GUI system. Primarily made for model support, providing a seamless cosmetic experience for large-scale networks.
 
