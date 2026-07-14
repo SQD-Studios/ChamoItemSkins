@@ -15,15 +15,18 @@ import java.util.Map;
 /**
  * Service for applying BetterModel item models to {@link ItemStack}s.
  */
-public final class ModelService {
+public final class ModelService extends NexoService {
 
     private static final String NAMESPACE = "chamoitemskins";
+
+    private final NexoService nexoService;
 
     /**
      * Constructs a new ModelService.
      */
     public ModelService() {
 
+        this.nexoService = new NexoService();
     }
 
     /**
@@ -45,18 +48,25 @@ public final class ModelService {
      * @param modelId The ID of the model to apply.
      */
     public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
+        if (modelId.isBlank() || item.getType().isAir()) {
+            return;
+        }
+        var meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
 
-            if (modelId.isBlank() || item.getType().isAir()) {
-                return;
-            }
-            var meta = item.getItemMeta();
-            if (meta == null) {
-                return;
-            }
 
-            NamespacedKey key = resolveItemModelKey(modelId);
-            meta.setItemModel(key);
-            item.setItemMeta(meta);
+        if (isNexo(modelId)) {
+            applyNexoItem(item, modelId);
+            return;
+        }
+
+
+        NamespacedKey key = resolveItemModelKey(modelId);
+        meta.setItemModel(key);
+        item.setItemMeta(meta);
+
     }
 
     /**
@@ -125,7 +135,7 @@ public final class ModelService {
      * it is used as-is. Otherwise, the hardcoded "bettermodel" namespace is used
      * with the bare model name as the path — no subfolder prefix is added.
      */
-    private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
+     private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
             int separator = modelId.indexOf(':');
             if (separator >= 0 && separator < modelId.length() - 1) {
                 return new NamespacedKey(
