@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.models;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +14,7 @@ public class NexoService {
 
     @SuppressWarnings("deprecation")
     public void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
+        if (!isNexoEnabled()) { return; }
         ItemBuilder builder = NexoItems.itemFromId(getNexoId(nexoId));
         if (builder == null) return;
         ItemStack newItem = builder.build();
@@ -24,6 +26,10 @@ public class NexoService {
 
     public String getNexoId(@NotNull String modelId) {
         return modelId.split("nexo:")[1];
+    }
+
+    public boolean isNexoEnabled() {
+        return Bukkit.getServer().getPluginManager().getPlugin("Nexo") != null;
     }
 
 }
