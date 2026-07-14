@@ -6,15 +6,12 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import net.chamosmp.chamoitemskins.lang.LanguageManager;
+import net.chamosmp.chamoitemskins.manager.LanguageManager;
 
-import java.io.File;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +21,6 @@ import java.util.Map;
 public final class MessageUtil {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final boolean PAPI_PRESENT = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-    private static final Map<String, YamlConfiguration> LANGUAGE_MAP = new HashMap<>();
     private final LanguageManager langManager;
 
     public MessageUtil(LanguageManager langManager) {
@@ -42,8 +38,8 @@ public final class MessageUtil {
     /**
      * Converts a legacy-formatted message string into a MiniMessage-compatible string.
      *
-     * @param message the legacy-formatted message
-     * @return the converted MiniMessage string
+     * @param message The legacy-formatted message
+     * @return The message with MiniMessage tags instead of legacy
      */
     public static String legacyToMiniMessage(String message) {
         String oneChar = message.replace("§", "&");

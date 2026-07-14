@@ -1,13 +1,11 @@
 package net.chamosmp.chamoitemskins;
 
-import de.skyslycer.hmcwraps.HMCWraps;
-import de.skyslycer.hmcwraps.messages.Messages;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.lang.LanguageManager;
+import net.chamosmp.chamoitemskins.manager.LanguageManager;
 import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
@@ -26,7 +24,6 @@ import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.*;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

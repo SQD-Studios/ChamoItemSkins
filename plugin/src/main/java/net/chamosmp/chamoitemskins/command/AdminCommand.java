@@ -1,7 +1,6 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/AdminCommand.java ---
 package net.chamosmp.chamoitemskins.command;
 
-import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
@@ -23,7 +22,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
 import java.util.List;
+import java.util.Map;
 
 @Command("skinsadmin")
 @Aliases({"sa", "skinadmin"})
@@ -82,7 +83,10 @@ public final class AdminCommand {
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             giveSkinNotes(sender, target, skin, 1, -1);
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
 
@@ -92,14 +96,17 @@ public final class AdminCommand {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
-                    messageUtil.sendLangMessage(sender, "<red>" + target.getName() + " already has access to " + skinId);
+                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("skin_id", skinId, "target", target.getName()));
                     return;
                 }
                 grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND").thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "<green>Granted access to " + skinId + " for " + target.getName());
+                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("skin_id", skinId, "target", target.getName()));
                 });
             });
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
     @Permission("chamoitemskins.admin.access.give")
@@ -108,14 +115,17 @@ public final class AdminCommand {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
-                    messageUtil.sendLangMessage(sender, "<red>" + target.getName() + " already has access to " + skinId);
+                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("skin_id", skinId, "target", target.getName()));
                     return;
                 }
                 grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND", days).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "<green>Granted access to " + skinId + " for " + target.getName());
+                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("skin_id", skinId, "target", target.getName()));
                 });
             });
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
     @Permission("chamoitemskins.admin.access.revoke")
@@ -124,26 +134,31 @@ public final class AdminCommand {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (!has) {
-                    messageUtil.sendLangMessage(sender, "<red>" + target.getName() + " does not have access to " + skinId);
+                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("skin_id", skinId, "target", target.getName()));
                     return;
                 }
                 grantService.revokeSkin(target.getUniqueId(), skinId).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "<green>Revoked access to " + skinId + " from " + target.getName());
+                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("skin_id", skinId, "target", target.getName()));
                 });
             });
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
     @Permission("chamoitemskins.admin.help")
     @Executes("help")
     public void onHelp(CommandSender sender) {
         sender.sendRichMessage("List of commands:");
+        sender.sendRichMessage(" ");
         sender.sendRichMessage("<red>Admin");
         sender.sendRichMessage("access give <player> <skinid> - Gives direct access to a skin");
         sender.sendRichMessage("access revoke <player> <skinid> - Revokes access to a skin");
-        sender.sendRichMessage("give <player> <skinid> [amount] - Gives a physical note, to get access to a skin");
+        sender.sendRichMessage("give <player> <skinid> [amount] [time] - Gives a physical note, to get access to a skin");
         sender.sendRichMessage("access editor - Opens the skin editor");
         sender.sendRichMessage("skinsadmin/sa/skinadmin - Opens the skin editor");
+        sender.sendRichMessage(" ");
         sender.sendRichMessage("<gold>User");
         sender.sendRichMessage("skins/skin - Opens the skin gui");
     }
@@ -153,7 +168,10 @@ public final class AdminCommand {
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount, int time) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             giveSkinNotes(sender, target, skin, amount, time);
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin ID not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
     @Permission("chamoitemskins.admin.give")
@@ -161,7 +179,10 @@ public final class AdminCommand {
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             giveSkinNotes(sender, target, skin, amount, -1);
-        }, () -> messageUtil.sendLangMessage(sender, "<red>Skin ID not found: " + skinId));
+        }, () -> {
+            Map<String, String> placeholders = Map.of("skin_id", skinId);
+            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+        });
     }
 
     private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount, int time) {
@@ -171,7 +192,7 @@ public final class AdminCommand {
             if (defMat == null) return;
             target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
         }
-        messageUtil.sendLangMessage(sender, "<green>Gave " + amount + " " + skin.id() + " note(s) to " + target.getName());
+        messageUtil.sendLangMessage(sender, "admin-give-note", Map.of("skin_id", skin.id(), "target", target.getName(), "amount", String.valueOf(amount)));
     }
 
     @Permission("chamoitemskins.admin.migrate")

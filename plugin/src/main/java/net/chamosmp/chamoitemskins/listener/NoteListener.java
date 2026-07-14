@@ -1,7 +1,6 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/listener/NoteListener.java ---
 package net.chamosmp.chamoitemskins.listener;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
@@ -16,7 +15,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +55,7 @@ public final class NoteListener implements Listener {
         skinService.getSkin(skinId).ifPresent(skin -> {
             grantService.hasSkin(player.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
-                    messageUtil.sendLangMessage(player, config.getString("messages.already-owned", "<red>You already own this skin!"));
+                    messageUtil.sendLangMessage(player, "already-owned");
                     return;
                 }
                 try {
@@ -65,8 +63,7 @@ public final class NoteListener implements Listener {
                         // Re-check amount in sync to avoid race conditions as much as possible with item reduction
                         SchedulerUtil.runSync(plugin, () -> {
                             item.setAmount(item.getAmount() - 1);
-                            messageUtil.sendLangMessage(player, config.getString("messages.grant-received", "<green>✔ You unlocked <white>{skin_name}<green>!"),
-                                    Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player, "grant-received", Map.of("skin_name", skin.name()));
                         });
                     }).exceptionally(ex -> {
                         player.sendRichMessage("Failed to grant skin: " + ex.getMessage());
@@ -77,9 +74,10 @@ public final class NoteListener implements Listener {
                 }
             }).exceptionally(ex -> {
                 if (ex.getMessage() != null && ex.getMessage().contains("closed")) {
-                    messageUtil.sendLangMessage(player, "<red>Database is currently busy or reloading. Please try again in a moment.");
+                    messageUtil.sendLangMessage(player, "busy-database");
                 } else {
                     player.sendRichMessage("Failed to check skin ownership: " + ex.getMessage());
+                    player.sendRichMessage("Please contact an admin and try again later.");
                 }
                 return null;
             });

@@ -27,6 +27,7 @@ import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import net.chamosmp.chamoitemskins.manager.LanguageManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +115,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             
             RarityManager rarityManager = pluginInstance.getRarityManager();
             ModelService modelService = pluginInstance.getModelService();
-            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new net.chamosmp.chamoitemskins.lang.LanguageManager(plugin))).open();
+            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new LanguageManager(plugin))).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot action) {

@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.plugin.Plugin;
 
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -76,10 +74,17 @@ public final class ChatInputUtil implements Listener {
         }
     }
 
+    /**
+     * The chat thingy doesn't really work. It works only on the dialogs
+     * @param player The player to open the util to
+     * @param callback Callback is the piece of code to be executed
+     * @param key (Dialog Only) The key, the buttons/dialog should have
+     * @param title (Dialog Only) The title in the dialog
+     */
     public void getYesNo(Player player, Consumer<String> callback, String key, Component title) {
         if (!dialogUtil.canUseDialogs()) {
             player.closeInventory();
-            messageUtil.sendLangMessage(player, title + " <yellow>(yes or no) <red>Type cancel to cancel.");
+            messageUtil.sendLangMessage(player, title + " <yellow>(Yes or No) <red>Type cancel to cancel.");
             pendingInputs.put(player.getUniqueId(), callback);
         } else {
             dialogUtil.getYesNo(title, player, key, callback);

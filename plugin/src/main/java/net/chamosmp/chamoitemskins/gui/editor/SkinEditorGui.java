@@ -16,7 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import net.chamosmp.chamoitemskins.lang.LanguageManager;
+import net.chamosmp.chamoitemskins.manager.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

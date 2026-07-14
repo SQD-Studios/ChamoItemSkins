@@ -17,7 +17,6 @@ import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -27,7 +26,6 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -388,19 +386,19 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         Skin skin = skinMap.get(slot);
         if (skin != null) {
             if (!ownedSkinIds.contains(skin.id())) {
-                messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-not-owned", "<red>✘ You don't own <white>{skin_name}<red>."), Map.of("skin_name", skin.name()));
+                messageUtil.sendLangMessage(player, "skin-not-owned", Map.of("skin_name", skin.name()));
                 return;
             }
 
             ItemStack handItem = player.getInventory().getItemInMainHand();
             if (handItem.getType() == Material.AIR) {
-                messageUtil.sendLangMessage(player, "<red>You must be holding an item to apply this skin!");
+                messageUtil.sendLangMessage(player, "holding");
                 return;
             }
             Material targetMat = handItem.getType();
 
             if (skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat.name(), cat))) {
-                messageUtil.sendLangMessage(player, "<red>This skin cannot be applied to this item!");
+                messageUtil.sendLangMessage(player, "cannot-item");
                 return;
             }
 
@@ -408,14 +406,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (skin.id().equals(activeId)) {
                 grantService.setActiveSkin(player.getUniqueId(), targetMat, null).thenRun(() ->
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-unequipped", "<yellow>Skin <white>{skin_name}<yellow> removed."), Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player, "skin-unequipped", Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, null);
                         }, () -> {})
                 );
             } else {
                 grantService.setActiveSkin(player.getUniqueId(), targetMat, skin.id()).thenRun(() ->
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.skin-equipped", "<green>✔ Equipped <white>{skin_name}<green>."), Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player,"skin-equipped",  Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, skin.id());
                         }, () -> {})
                 );

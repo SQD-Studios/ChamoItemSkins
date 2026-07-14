@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Command("skins")
 @Aliases("skin")

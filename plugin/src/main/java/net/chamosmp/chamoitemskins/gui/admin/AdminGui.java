@@ -79,7 +79,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                     if (plugin instanceof net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin chamoPlugin) {
                         chamoPlugin.reloadPlugin();
                     }
-                    messageUtil.sendLangMessage(player, plugin.getConfig().getString("messages.reload-success", "<green>ChamoItemSkins reloaded."));
+                    messageUtil.sendLangMessage(player, "reload-success");
                     player.closeInventory();
                 });
             }

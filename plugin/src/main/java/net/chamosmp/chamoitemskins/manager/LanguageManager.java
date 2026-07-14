@@ -1,7 +1,6 @@
-package net.chamosmp.chamoitemskins.lang;
+package net.chamosmp.chamoitemskins.manager;
 
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
+import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -44,7 +43,6 @@ public class LanguageManager {
         try {
             YamlConfiguration yaml = YamlConfiguration.loadConfiguration(langFile);
             messages.clear();
-            // Flatten all keys (including nested) into a single map
             flatten("", yaml.getValues(true));
             currentLang = langCode;
             plugin.getLogger().info("Loaded language: " + currentLang + " (" + messages.size() + " messages)");
@@ -70,24 +68,7 @@ public class LanguageManager {
     }
 
     /**
-     * Reloads the currently active language.
-     */
-    public void reload() {
-        loadLanguage(currentLang);
-    }
-
-    /**
-     * Switches to a new language and reloads it.
-     */
-    public void setLanguage(String langCode) {
-        loadLanguage(langCode);
-        plugin.getConfig().set("language", langCode);
-        plugin.saveConfig();
-    }
-
-    /**
      * Gets a message by key. Supports placeholders like {player}.
-     * If the key doesn't exist, returns a fallback: "Missing: key".
      */
     public String getMessage(String key, Map<String, String> placeholders) {
         String template = messages.getOrDefault(key, /*"<red>Missing: " +*/ key); // If it ain't broke don't fix it (I won't go and create messages for everything lal
@@ -99,33 +80,14 @@ public class LanguageManager {
         return template;
     }
 
-    // Overloaded for no placeholders
     public String getMessage(String key) {
         return getMessage(key, null);
     }
 
+    /// It's just a glorified {@link ConfigUtil#loadDataFile(Plugin, String)} but it does it in a try/catch and defaults to the lang folder. I'm welcome.
     private void createLanguageFile(String langName) {
-        File langDir = new File(plugin.getDataFolder(), "lang");
-        if (!langDir.exists()) langDir.mkdirs();
-        File defaultFile = new File(langDir, langName + ".yml");
-        if (defaultFile.exists()) return;
-
-        YamlConfiguration defaultYaml = new YamlConfiguration();
-
-        defaultYaml.set("already-owned", "<red>You already own this skin!");
-        defaultYaml.set("grant-received", "<green>✔ You unlocked {skin_name}!");
-        defaultYaml.set("skin-equipped", "<green>✔ Equipped {skin_name}!");
-        defaultYaml.set("skin-unequipped", "<yellow>Skin {skin_name} removed.");
-        defaultYaml.set("skin-not-owned", "<red>✘ You don't own {skin_name}.");
-        defaultYaml.set("skin-revoked-notify", "<red>Your skin {skin_name} was revoked.");
-        defaultYaml.set("admin-grant-success", "<green>Granted {skin_name} to {player}.");
-        defaultYaml.set("admin-revoke-success", "<red>Revoked {skin_name} from {player}.");
-        defaultYaml.set("reload-success", "<green>ChamoItemSkins reloaded.");
-        defaultYaml.set("editor-saved", "<green>Skin {skin_name} saved.");
-        defaultYaml.set("editor-deleted", "<red>Skin {skin_id} deleted.");
-
         try {
-            defaultYaml.save(defaultFile);
+            ConfigUtil.loadOrAdapt(plugin, "lang/" + langName);
         } catch (Exception e) {
             plugin.getLogger().severe("Could not create default language file: " + e.getMessage());
         }

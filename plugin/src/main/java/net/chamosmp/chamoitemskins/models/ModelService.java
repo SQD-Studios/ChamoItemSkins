@@ -1,20 +1,16 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/bettermodel/BetterModelService.java ---
 package net.chamosmp.chamoitemskins.models;
 
-import com.nexomc.nexo.api.NexoItems;
 import net.chamosmp.chamoitemskins.api.model.Skin;
-import net.chamosmp.chamoitemskins.manager.SkinManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Service for applying BetterModel item models to {@link ItemStack}s.
