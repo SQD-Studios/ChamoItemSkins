@@ -34,6 +34,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         new MessageUtil(langManager);
 
         NoteUtil.init(this);
+
     }
 
     /**
@@ -80,6 +82,12 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), new MessageUtil(langManager)), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
         Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
+
+        try {
+            getServer().getPluginManager().registerEvents(new SelfPackUtil(this), this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new ChamoItemSkinsExpansion(skinManager, grantManager, rarityManager, this).register();

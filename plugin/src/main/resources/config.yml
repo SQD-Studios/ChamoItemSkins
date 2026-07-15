@@ -59,3 +59,13 @@ filter:
 # Believe some messages are inlined and should be configured? You can make an issue on GitHub!
 # https://github.com/SQD-Studios/ChamoItemSkins/issues/new
 language: en
+
+selfpack: # This is if you want to have self pack hosting for your server. You will need an open port.
+  enable: true # This can and will affect your CPU and RAM
+  port: 32768 # An open port to host the server to
+  ip: localhost # IMPORTANT. CHANGE THIS OR IT WILL NOT WORK CORRECTLY
+
+
+  # This is pre-make only
+  pre-make: false # When true, if you put the models in the selfpack/models and the textures into selfpack/models/textures. If false we expect you to put a texture pack in selfpack/resourcepack.zip (The resourcepack.zip should be your pack)
+  description: "Server Resource Pack" # The description of the resource pack.

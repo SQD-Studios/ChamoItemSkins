@@ -6,28 +6,30 @@
 [![Crowdin](https://img.shields.io/badge/Crowdin-%232E3340?style=flat-square&logo=crowdin)](https://crowdin.com/project/sqd-studios)
 
 
-ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugin built for **Paper (Forks too!) 1.21.11** and **Folia**. It allows players to unlock and apply custom models to their items using a sleek GUI system. Primarily made for model support, providing a seamless cosmetic experience for large-scale networks.
+ChamoItemSkins is a Minecraft skin plugin built for **Paper 26.1.2** and **Folia**. It allows players to unlock and apply skins to their items. Primarily made for resource pack models support.
 
 
 ##  Features
 
-- **BetterModel Integration**: Native support for custom models with high performance.
 - **Folia & Paper Support**: Fully compatible with multithreaded server environments.
 - **Dynamic Skin System**: Define skins in `skins.yml` with custom display items, names, and lore.
 - **Physical Unlockables**: Give players "Skin Notes" that they can right-click to permanently unlock a cosmetic.
-- **Multiple GUI Menus**:
+- **Multiple GUIs**:
   - **Main Menu**: Browse skin categories by item type.
   - **Skin Selection**: Equippable skins for owned items.
   - **Admin GUI**: Manage grants, revoke skins, and reload configurations in-game.
-  - **Live Skin Editor**: Create and modify skins directly from a GUI with real-time `skins.yml` updates.
+  - **Live Skin Editor**: Modify existing skins directly from a GUI.
+  - **Skin Creation GUI** Create new skins from a GUI
 - **Database Support**: Choose between **SQLite** (local) or **MySQL** (multiserver sync).
 - **PlaceholderAPI Support**: Custom placeholders for active skins, ownership status, and totals.
 - **Developer API**: Clean, event-driven API for third-party integrations.
+- **Nexo Items Support** Instead of vanilla models use Nexo Items
+- **HMCWarps Migration** Migrate from HMCWarps to us
 
 ##  Requirements
 
 - **Java 25** or higher.
-- **Paper/Folia 1.21.11+**.
+- **Paper/Folia 26.1.2+**.
 - (Optional) **PlaceholderAPI** for menu/chat integration.
 - (Optional) **Nexo** for NexoItems support
 - (Optional) **HMCWarps** for the migration
@@ -40,14 +42,15 @@ ChamoItemSkins is a high-performance, feature-rich Minecraft cosmetic skin plugi
 4. Configure our plugin and enjoy!
 
 ##  Configuration
-**Keep in mind that our wiki has a more detailed guide, so we recommend checking that instead :D**
+**Keep in mind that our documentation has a more detailed guide, so we recommend checking that instead :D**
 
-The plugin uses several YAML files for deep customization:
+The plugin uses several YAML configuration files:
 
-- **`config.yml`**: Database settings, global messages, and default Note item settings.
+- **`config.yml`**: Database settings, default Note item settings, selfpack hosting, filler gui items, rarities and more!
 - **`skins.yml`**: Define all available skins, their model IDs, and associated item types.
 - **`gui.yml`**: GUI for the `/skins` command and skin selection.
-- **`admin-gui.yml`**: Configuration for the administrative GUI.
+- **`admin-gui.yml`**: Configuration for the admin GUI.
+- **`lang\(language code)`** Stores all the messages in the specified language
 
 ### Example Skin Definition (`skins.yml`)
 ```yaml
@@ -67,7 +70,7 @@ skins:
 
 ##  Commands & Permissions
 
-> [!INFO]
+> [!WARNING]
 > This needs to be documented and is outdated
 
 ### Player Commands
@@ -84,7 +87,7 @@ skins:
 
 ##  Placeholders
 
-> [!INFO]
+> [!WARNING]
 > This needs to be documented and is outdated
 
 Use these with **PlaceholderAPI**:

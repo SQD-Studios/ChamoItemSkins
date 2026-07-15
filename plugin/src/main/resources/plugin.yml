@@ -41,5 +41,3 @@ permissions:
 
 libraries:
   - "com.zaxxer:HikariCP:7.1.0"
-  - "net.kyori:adventure-api:5.1.1"
-  - "net.kyori:adventure-text-minimessage:5.1.1"
