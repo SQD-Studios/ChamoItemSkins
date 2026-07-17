@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "9.5.1"
+    id("com.gradleup.shadow") version "9.6.0"
     id("maven-publish")
     id("org.jetbrains.dokka") version "2.2.0"
 }
