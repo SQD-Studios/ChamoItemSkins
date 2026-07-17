@@ -2,11 +2,13 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
@@ -38,15 +40,14 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private String name = "New Skin";
     private String modelId = "model_id";
     private Material itemType = Material.DIAMOND_SWORD;
-    private List<String> categories = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
     private boolean enabled = true;
 
     private Rarity rarity;
     private final Inventory inventory;
 
-    private static final List<String> ALL_CATEGORIES = List.of(
-            "SWORD", "AXE", "SHIELD", "PICKAXE", "BOW", "CROSSBOW", "SHOVEL", "SPEAR", "MACE", "HOE"
-    );
+
+    private final List<Category> ALL_CATEGORIES;
 
     public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil) {
         this.plugin = plugin;
@@ -54,6 +55,8 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         this.skinService = skinService;
         this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
         this.messageUtil = messageUtil;
+        CategoryManager categoryManager = new CategoryManager(this.plugin);
+        this.ALL_CATEGORIES = categoryManager.getCategories();
         this.rarity = rarityManager.getDefaultRarity();
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<green>Create New Skin"));
         
@@ -71,10 +74,15 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         // Category Cycle Item
         List<String> lore = new ArrayList<>();
         lore.add("<yellow>Click to toggle categories in order:");
-        for (String cat : ALL_CATEGORIES) {
-            String prefix = categories.contains(cat) ? "     <gray>> <green>" : "         <dark_gray>";
-            lore.add("      " + prefix + cat);
+        for (Category cat : ALL_CATEGORIES) {
+            boolean contains = false;
+            for (Category cat2 : categories) {
+                contains = cat2.name().contains(cat.name());
+            }
+            String prefix = contains ? "     <gray>> <green>" : "         <dark_gray>";
+            lore.add("      " + prefix + cat.name());
         }
+
         inventory.setItem(13, createInfoItem(Material.BOOK, "<gold><bold>Categories", lore));
 
         // Rarities
@@ -165,7 +173,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
             }, "editorcreatemodelid", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 13) {
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
-            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
+            Category cat = ALL_CATEGORIES.get(categoryCycleIndex);
             categories = new ArrayList<>(List.of(cat));
             refresh();
         }
@@ -181,7 +189,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         } else if (slot == 26) {
             Material displayMat = Material.PAPER;
             if (!categories.isEmpty()) {
-                displayMat = switch (categories.get(0)) {
+                displayMat = switch (categories.getFirst().name()) {
                     case "SWORD" -> Material.DIAMOND_SWORD;
                     case "AXE" -> Material.DIAMOND_AXE;
                     case "PICKAXE" -> Material.DIAMOND_PICKAXE;

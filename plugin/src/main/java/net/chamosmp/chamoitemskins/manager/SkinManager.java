@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/manager/SkinManager.java ---
 package net.chamosmp.chamoitemskins.manager;
 
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
@@ -61,14 +62,13 @@ public final class SkinManager implements SkinService {
 
     @Override
     public @NotNull Collection<Skin> getSkinsForMaterial(@NotNull Material material) {
-        String matName = material.name().toUpperCase();
         return skins.values().stream()
-                .filter(skin -> skin.categories().stream().anyMatch(cat -> isMaterialInCategory(matName, cat)))
+                .filter(skin -> skin.categories().stream().anyMatch(cat -> isMaterialInCategory(material, cat)))
                 .toList();
     }
 
     @Override
-    public @NotNull Collection<Skin> getSkinsForCategory(@NotNull String category) {
+    public @NotNull Collection<Skin> getSkinsForCategory(@NotNull Category category) {
         return skins.values().stream()
                 .filter(skin -> skin.categories().contains(category))
                 .toList();
@@ -80,30 +80,8 @@ public final class SkinManager implements SkinService {
      * @param category     The category to check.
      * @return True if the material is in the category.
      */
-    private boolean isMaterialInCategory(String materialName, String category) {
-        return switch (category.toUpperCase()) {
-            case "SWORD", "SWORDS" -> materialName.contains("SWORD") || materialName.equals("MACE");
-            case "AXE", "AXES" -> materialName.contains("_AXE");
-            case "PICKAXE", "PICKAXES" -> materialName.contains("PICKAXE");
-            case "SHOVEL", "SHOVELS" -> materialName.contains("SHOVEL");
-            case "HOE", "HOES" -> materialName.contains("_HOE");
-            case "SHIELD" -> materialName.equals("SHIELD");
-            case "BOW" -> materialName.equals("BOW");
-            case "CROSSBOW" -> materialName.equals("CROSSBOW");
-            case "MACE" -> materialName.equals("MACE");
-            case "SPEAR", "TRIDENT" -> materialName.contains("TRIDENT");
-            case "HELMET", "HELMETS" -> materialName.contains("HELMET");
-            case "CHESTPLATE", "CHESTPLATES" -> materialName.contains("CHESTPLATE");
-            case "LEGGINGS" -> materialName.contains("LEGGINGS");
-            case "BOOTS" -> materialName.contains("BOOTS");
-            case "TOOLS" -> materialName.contains("SWORD") || materialName.contains("_AXE") ||
-                             materialName.contains("PICKAXE") || materialName.contains("SHOVEL") ||
-                             materialName.contains("_HOE");
-            case "ARMOR" -> materialName.contains("HELMET") || materialName.contains("CHESTPLATE") ||
-                             materialName.contains("LEGGINGS") || materialName.contains("BOOTS");
-            case "ALL", "GENERAL" -> true;
-            default -> false;
-        };
+    private boolean isMaterialInCategory(Material materialName, Category category) {
+        return category.isAllowed(materialName);
     }
 
     @Override
@@ -142,7 +120,7 @@ public final class SkinManager implements SkinService {
         skins.clear();
         bundles.clear();
         var config = ConfigUtil.loadDataFile(plugin, "skins.yml");
-        YamlUtil.loadSkins(config, rarityManager).forEach(skin -> skins.put(skin.id(), skin));
+        YamlUtil.loadSkins(config, rarityManager, new CategoryManager(plugin)).forEach(skin -> skins.put(skin.id(), skin));
         YamlUtil.loadBundles(config).forEach(bundle -> bundles.put(bundle.id(), bundle));
     }
 }

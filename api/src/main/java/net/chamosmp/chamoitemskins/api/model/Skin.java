@@ -3,13 +3,14 @@ package net.chamosmp.chamoitemskins.api.model;
 
 import org.bukkit.Material;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 /**
  * Represents a cosmetic item skin.
  *
  * @param id           Unique skin identifier.
  * @param name         MiniMessage display name.
- * @param modelId      BetterModel model id — bare renderer name (e.g. {@code demon_knight})
+ * @param modelId      BetterModel model id - bare renderer name (e.g. {@code demon_knight})
  *                     or explicit item model key ({@code namespace:path}).
  * @param categories   The categories this skin belongs to.
  * @param enabled      Whether the skin is currently active in the plugin.
@@ -24,7 +25,7 @@ public record Skin(
         String name,
         String modelId,
         Rarity rarity,
-        List<String> categories,
+        List<Category> categories,
         boolean enabled,
         Material noteMaterial,
         DisplayItem displayItem,

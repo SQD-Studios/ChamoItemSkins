@@ -1,6 +1,7 @@
 // --- api/src/main/java/net/chamosmp/chamoitemskins/api/service/SkinService.java ---
 package net.chamosmp.chamoitemskins.api.service;
 
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -46,12 +47,7 @@ public interface SkinService {
      */
     @NotNull Collection<Skin> getSkinsForMaterial(@NotNull Material material);
 
-    /**
-     * Gets all skins belonging to a specific category.
-     * @param category The category name.
-     * @return A collection of skins in the category.
-     */
-    @NotNull Collection<Skin> getSkinsForCategory(@NotNull String category);
+    @NotNull Collection<Skin> getSkinsForCategory(@NotNull Category category);
 
     /**
      * Saves a skin definition.

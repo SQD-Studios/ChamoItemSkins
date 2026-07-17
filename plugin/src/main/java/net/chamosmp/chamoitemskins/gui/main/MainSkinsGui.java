@@ -65,20 +65,20 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
 
     private void setupInventory() {
         for (GuiSlotDef def : slots) {
-            if (def.type() instanceof SlotType.ActionSlot action && action.action().equals("ADMIN_GUI")) {
+            if (def.type() instanceof SlotType.ActionSlot(String action2) && action2.equals("ADMIN_GUI")) {
                 if (!player.hasPermission("chamoitemskins.admin")) {
                     continue; // Skip Admin Panel if no permission
                 }
             }
 
-            if (def.type() instanceof SlotType.ActionSlot action && action.action().startsWith("CATEGORY_")) {
-                String category = action.action().substring(9);
+            if (def.type() instanceof SlotType.ActionSlot(String action1) && action1.startsWith("CATEGORY_")) {
+                String category = action1.substring(9);
                 if (category.equalsIgnoreCase("ALL")) {
                     if (skinService.getSkins().stream().noneMatch(Skin::enabled)) continue;
                 } else {
                     if (skinService.getSkins().stream()
                             .filter(Skin::enabled)
-                            .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.equalsIgnoreCase(category)))) {
+                            .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(category)))) {
                         continue;
                     }
                 }
@@ -118,8 +118,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new LanguageManager(plugin))).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
-                if (def.type() instanceof SlotType.ActionSlot action) {
-                    if (action.action().equals("ADMIN_GUI") && player.hasPermission("chamoitemskins.admin")) {
+                if (def.type() instanceof SlotType.ActionSlot(String action1)) {
+                    if (action1.equals("ADMIN_GUI") && player.hasPermission("chamoitemskins.admin")) {
                         player.performCommand("skinsadmin");
                     }
                 }

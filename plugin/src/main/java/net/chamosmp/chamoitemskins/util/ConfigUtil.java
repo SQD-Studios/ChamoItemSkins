@@ -42,11 +42,14 @@ public final class ConfigUtil {
             boolean changed = false;
             for (String key : defaultConfig.getKeys(true)) {
                 if (!config.contains(key)) {
-                    config.set(key, defaultConfig.get(key));
-                    changed = true;
+                    // Skip any key that belongs to the categories or rarities sections
+                    if (!key.startsWith("categories.") && !key.startsWith("rarities.")) {
+                        config.set(key, defaultConfig.get(key));
+                        changed = true;
+                    }
                 }
             }
-            
+
             if (changed) {
                 try {
                     config.save(file);

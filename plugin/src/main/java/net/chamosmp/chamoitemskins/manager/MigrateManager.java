@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.manager;
 
 import de.skyslycer.hmcwraps.HMCWraps;
 import de.skyslycer.hmcwraps.serialization.wrap.Wrap;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
@@ -179,11 +180,11 @@ public class MigrateManager implements MigrateService {
 
 
 
-            List<String> categories = determineCategories(wrap);
+            List<Category> categories = determineCategories(wrap);
 
             // Rarity: Since HMCWraps has no rarity, set to null or a default
             // If you have a RarityManager, you can get "common" or leave null
-            //Rarity rarity = rarityManager.getRarity("common").orElse(null);
+            //Rarity rarity = rarityManager.getCategory("common").orElse(null);
 
 
             // Skin constructor: (id, name, model, rarity, categories, enabled, note, display, animations)
@@ -211,14 +212,15 @@ public class MigrateManager implements MigrateService {
      * @param wrap The wrap to determine the categories of.
      * @return The categorized
      */
-    private List<String> determineCategories(Wrap wrap) {
-        List<String> categories = new ArrayList<>();
+    private List<Category> determineCategories(Wrap wrap) {
+        List<Category> categories = new ArrayList<>();
         if (hmcWraps.getCollectionHelper().getCollection(wrap) != null && !hmcWraps.getCollectionHelper().getCollection(wrap).isEmpty()) {
-            categories.add(hmcWraps.getCollectionHelper().getCollection(wrap));
+            var collection = hmcWraps.getCollectionHelper().getCollection(wrap);
+            //categories.add(new Category(collection, collection));
         }
 
         if (categories.isEmpty()) {
-            categories.add("ALL");
+            categories.add(new Category("ALL", List.of("")));
         }
 
         return categories;

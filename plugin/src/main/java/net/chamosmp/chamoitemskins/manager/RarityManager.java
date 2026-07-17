@@ -39,7 +39,7 @@ public final class RarityManager {
         ConfigurationSection section = config.getConfigurationSection("rarities");
         if (section == null) {
             enabled = false;
-            plugin.getLogger().warning("No rarities block in config.yml — rarity features disabled.");
+            plugin.getLogger().warning("No rarities block in config.yml - rarity features disabled.");
             return;
         }
 
@@ -60,7 +60,7 @@ public final class RarityManager {
 
         if (rarities.isEmpty()) {
             enabled = false;
-            plugin.getLogger().warning("No rarity entries defined in config.yml — rarity features disabled.");
+            plugin.getLogger().warning("No rarity entries defined in config.yml - rarity features disabled.");
         }
     }
 
@@ -110,7 +110,7 @@ public final class RarityManager {
             return getDefaultRarity();
         }
         return getRarity(id).orElseGet(() -> {
-            plugin.getLogger().warning("Unknown rarity '" + id + "' — using default.");
+            plugin.getLogger().warning("Unknown rarity '" + id + "' - using default.");
             return getDefaultRarity();
         });
     }

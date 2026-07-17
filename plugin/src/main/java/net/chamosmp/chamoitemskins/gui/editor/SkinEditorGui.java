@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/editor/SkinEditorGui.java ---
 package net.chamosmp.chamoitemskins.gui.editor;
 
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
@@ -92,10 +93,15 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         ItemStack item = modelService.createPreviewItem(skin);
         var meta = item.getItemMeta();
         if (meta != null) {
+            List<String> categoryNames = new ArrayList<>();
+            for (Category c : skin.categories()) {
+                categoryNames.add(c.getName());
+            }
             meta.displayName(MessageUtil.parse(skin.name()));
             meta.lore(List.of(
                     MessageUtil.parse("<gray>ID: <white>" + skin.id()),
-                    MessageUtil.parse("<gray>Categories: <white>" + String.join(", ", skin.categories())),
+
+                    MessageUtil.parse("<gray>Categories: <white>" + categoryNames),
                     MessageUtil.parse("<gray>Enabled: " + (skin.enabled() ? "<green>Yes" : "<red>No"))
             ));
             item.setItemMeta(meta);

@@ -2,11 +2,13 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
@@ -35,10 +37,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     private Skin skin;
     private final Inventory inventory;
     private final MessageUtil messageUtil;
-
-    private static final List<String> ALL_CATEGORIES = List.of(
-            "SWORD", "AXE", "SHIELD", "PICKAXE", "BOW", "CROSSBOW", "SHOVEL", "SPEAR", "MACE", "HOE"
-    );
+    private final List<Category> CATEGORIES;
 
     public SkinEditDetailGui(Plugin plugin, Player player, SkinService skinService, Skin skin, MessageUtil messageUtil) {
         this.plugin = plugin;
@@ -48,9 +47,12 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         this.skin = skin;
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<gold>Edit Skin: " + skin.id()));
         this.messageUtil = messageUtil;
-
+        CategoryManager categoryManager = new CategoryManager(this.plugin);
+        this.CATEGORIES = categoryManager.getCategories();
         refresh();
     }
+
+
 
     public void refresh() {
         inventory.clear();
@@ -63,9 +65,13 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
 
         List<String> lore = new ArrayList<>();
         lore.add("<yellow>Click to toggle categories in order:");
-        for (String cat : ALL_CATEGORIES) {
-            String prefix = skin.categories().contains(cat) ? "     <gray>> <green>" : "         <dark_gray>";
-            lore.add("      " + prefix + cat);
+        for (Category cat : CATEGORIES) {
+            boolean contains = false;
+            for (Category cat2 : skin.categories()) {
+                contains = cat2.name().contains(cat.name());
+            }
+            String prefix = contains ? "     <gray>> <green>" : "         <dark_gray>";
+            lore.add("      " + prefix + cat.name());
         }
 
         inventory.setItem(14, createInfoItem(Material.BOOK, "<gold><bold>Categories", lore));
@@ -84,7 +90,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         GuiFillerUtil.apply(plugin, inventory, player);
     }
 
-    private int categoryCycleIndex = 0;
+    private int categoryCycleIndex = -1;
 
     private ItemStack createInfoItem(Material mat, String name, String lore) {
         return createInfoItem(mat, name, List.of(lore));
@@ -158,10 +164,10 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                 open();
             }, "editoreditskinid", Component.text(skin.id(), NamedTextColor.LIGHT_PURPLE), skin.id());
         } else if (slot == 14) {
-            categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
-            String cat = ALL_CATEGORIES.get(categoryCycleIndex);
+            categoryCycleIndex = (categoryCycleIndex + 1) % CATEGORIES.size();
+            Category cat = CATEGORIES.get(categoryCycleIndex);
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(),
-                    List.of(cat),  // always exactly one category
+                    List.of(cat),
                     skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 15 && rarityManager.isEnabled()) {

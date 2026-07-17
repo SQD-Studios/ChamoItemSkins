@@ -133,7 +133,7 @@ public final class ModelService extends NexoService {
      * <p>
      * If the modelId already contains a colon (e.g. "mynamespace:mymodel"),
      * it is used as-is. Otherwise, the hardcoded "bettermodel" namespace is used
-     * with the bare model name as the path — no subfolder prefix is added.
+     * with the bare model name as the path - no subfolder prefix is added.
      */
      private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
             int separator = modelId.indexOf(':');

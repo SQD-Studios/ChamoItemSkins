@@ -69,3 +69,45 @@ selfpack: # This is if you want to have self pack hosting for your server. You w
   # This is pre-make only
   pre-make: false # When true, if you put the models in the selfpack/models and the textures into selfpack/models/textures. If false we expect you to put a texture pack in selfpack/resourcepack.zip (The resourcepack.zip should be your pack)
   description: "Server Resource Pack" # The description of the resource pack.
+
+
+categories:
+  sword:
+    name: Sword
+    items: # If it is not a full item id it will just search if it contains it. E.g. for sword it will be applicable on all sword skins. If it is DIAMOND_SWORD it can be only applied to a diamond swor
+      - SWORD
+  picks:
+    name: Pickaxe
+    items:
+      - PICKAXE
+  axes:
+    name: Axe
+    items:
+      - AXE
+  shield:
+    name: Shield
+    items:
+      - SHIELD
+  bow:
+    name: Bow
+    items:
+      - BOW
+  crossbow:
+    name: Crossbow
+    items:
+      - CROSSBOW
+  shovel:
+    name: Shovel
+    items:
+      - SHOVEL
+  spear:
+    name: Spear
+    items:
+      - SPEAR
+  mace:
+    name: Mace
+    items:
+      - MACE
+  hoe: # Peak btw
+    name: Hoe
+    items: HOE

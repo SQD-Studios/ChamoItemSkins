@@ -61,7 +61,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         new MessageUtil(langManager);
 
         NoteUtil.init(this);
-
     }
 
     /**

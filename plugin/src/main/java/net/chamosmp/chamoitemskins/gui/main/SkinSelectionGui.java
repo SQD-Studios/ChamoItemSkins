@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/main/SkinSelectionGui.java ---
 package net.chamosmp.chamoitemskins.gui.main;
 
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
@@ -162,7 +163,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return source.stream()
                 .filter(skin -> baseCategory == null
                         || baseCategory.equalsIgnoreCase("ALL")
-                        || skin.categories().stream().anyMatch(cat -> cat.equalsIgnoreCase(baseCategory)))
+                        || skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(baseCategory)))
                 .filter(skin -> matchesCategoryFilter(skin, filter))
                 .filter(skin -> matchesOwnershipFilter(skin, filter))
                 .filter(skin -> matchesSearchFilter(skin))
@@ -179,7 +180,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         if (filter.equalsIgnoreCase("ALL") || filter.equalsIgnoreCase("OWNED")) {
             return true;
         }
-        return skin.categories().stream().anyMatch(cat -> cat.equalsIgnoreCase(filter));
+        return skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(filter));
     }
 
     private boolean matchesOwnershipFilter(@NotNull Skin skin, @NotNull String filter) {
@@ -276,25 +277,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return item;
     }
 
-    private boolean isMaterialInCategory(String materialName, String category) {
-        return switch (category.toUpperCase()) {
-            case "SWORD", "SWORDS" -> materialName.contains("SWORD");
-            case "AXE", "AXES" -> materialName.contains("_AXE");
-            case "PICKAXE", "PICKAXES" -> materialName.contains("PICKAXE");
-            case "SHOVEL", "SHOVELS" -> materialName.contains("SHOVEL");
-            case "HOE", "HOES" -> materialName.contains("_HOE");
-            case "SHIELD" -> materialName.equals("SHIELD");
-            case "BOW" -> materialName.equals("BOW");
-            case "CROSSBOW" -> materialName.equals("CROSSBOW");
-            case "MACE" -> materialName.equals("MACE");
-            case "TRIDENT", "TRIDENTS" -> materialName.contains("TRIDENT");
-            case "HELMET", "HELMETS" -> materialName.contains("HELMET");
-            case "CHESTPLATE", "CHESTPLATES" -> materialName.contains("CHESTPLATE");
-            case "LEGGINGS" -> materialName.contains("LEGGINGS");
-            case "BOOTS" -> materialName.contains("BOOTS");
-            case "SPEAR", "SPEARS" -> materialName.contains("SPEAR");
-            default -> false;
-        };
+    private boolean isMaterialInCategory(Material materialName, Category category) {
+        return category.isAllowed(materialName);
     }
 
     private @NotNull ItemStack createStaticItem(@NotNull GuiSlotDef def) {
@@ -397,7 +381,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             }
             Material targetMat = handItem.getType();
 
-            if (skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat.name(), cat))) {
+            if (skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat, cat))) {
                 messageUtil.sendLangMessage(player, "cannot-item");
                 return;
             }

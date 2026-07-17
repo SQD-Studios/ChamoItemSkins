@@ -1,9 +1,12 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/YamlUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinBundle;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Material;
@@ -14,18 +17,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Utility for reading and writing skins.yml.
  */
 public final class YamlUtil {
 
-    private YamlUtil() {}
 
-    public static @NotNull List<Skin> loadSkins(@NotNull YamlConfiguration config, @NotNull RarityManager rarityManager) {
+    private YamlUtil() { }
+
+    public static @NotNull List<Skin> loadSkins(@NotNull YamlConfiguration config, @NotNull RarityManager rarityManager, @NotNull CategoryManager categoryManager) {
         List<Skin> skins = new ArrayList<>();
         ConfigurationSection section = config.getConfigurationSection("skins");
         if (section == null) return skins;
@@ -41,7 +44,11 @@ public final class YamlUtil {
             String modelId = skinSection.getString("model-id", "");
             String rarityId = skinSection.getString("rarity", rarityManager.getDefaultRarity().id());
             Rarity rarity = rarityManager.resolve(rarityId);
-            List<String> categories = skinSection.getStringList("categories");
+            List<String> categoryNames = skinSection.getStringList("categories");
+            List<Category> categories = categoryNames.stream()
+                    .map(categoryManager::getCategoryByName)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             boolean enabled = skinSection.getBoolean("enabled", true);
             Material noteMaterial = Optional.ofNullable(skinSection.getString("note-material"))
                     .map(Material::matchMaterial)
@@ -96,7 +103,7 @@ public final class YamlUtil {
                 config.set(path + ".name", skin.name());
                 config.set(path + ".model-id", skin.modelId());
                 config.set(path + ".rarity", skin.rarity().id());
-                config.set(path + ".categories", skin.categories());
+                config.set(path + ".categories", skin.categories().stream().map(Category::name).collect(Collectors.toList()));
                 config.set(path + ".enabled", skin.enabled());
                 config.set(path + ".note-material", skin.noteMaterial() != null ? skin.noteMaterial().name() : null);
                 config.set(path + ".animations", skin.animations());
