@@ -29,6 +29,7 @@ allprojects {
         }
         maven("https://repo.hibiscusmc.com/releases/")
         maven("https://repo.nexomc.com/releases")
+
     }
 }
 

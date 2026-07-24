@@ -92,6 +92,11 @@ publishing {
     }
 }
 
+tasks.withType<JavaCompile>() {
+    options.encoding = "UTF-8"
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+
 dokka {
     pluginsConfiguration.html {
         footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")

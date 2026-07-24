@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LanguageManager {
+public final class LanguageManager {
 
     private final Plugin plugin;
     private final String defaultLang = "en";

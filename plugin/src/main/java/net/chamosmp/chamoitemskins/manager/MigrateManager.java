@@ -8,6 +8,7 @@ import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -17,8 +18,9 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class MigrateManager implements MigrateService {
+public final class MigrateManager implements MigrateService {
 
     private final Plugin plugin;
     private final SkinService skinService;
@@ -44,7 +46,7 @@ public class MigrateManager implements MigrateService {
             return;
         }
 
-        // Get HMCWraps instance – using ServicesManager or plugin manager
+        // Get HMCWraps instance – using ServicesManager
         hmcWraps = Bukkit.getServicesManager().load(HMCWraps.class);
         if (hmcWraps == null) {
             plugin.getLogger().severe("Failed to get HMCWraps instance.");
@@ -215,8 +217,12 @@ public class MigrateManager implements MigrateService {
     private List<Category> determineCategories(Wrap wrap) {
         List<Category> categories = new ArrayList<>();
         if (hmcWraps.getCollectionHelper().getCollection(wrap) != null && !hmcWraps.getCollectionHelper().getCollection(wrap).isEmpty()) {
-            var collection = hmcWraps.getCollectionHelper().getCollection(wrap);
-            //categories.add(new Category(collection, collection));
+            String collection = hmcWraps.getCollectionHelper().getCollection(wrap);
+            List<Material> allowedItems = hmcWraps.getCollectionHelper().getMaterials(collection);
+            List<String> materialNames = allowedItems.stream()
+                    .map(Material::toString)
+                    .collect(Collectors.toList());
+            categories.add(new Category(collection, materialNames));
         }
 
         if (categories.isEmpty()) {
@@ -226,57 +232,4 @@ public class MigrateManager implements MigrateService {
         return categories;
     }
 
-    /**
-     * Maps an HMCWraps item key to a ChamoItemSkins category.
-     */
-    private String mapItemToCategory(String itemKey) {
-        if (itemKey == null) return null;
-        String upper = itemKey.toUpperCase();
-
-        switch (upper) {
-            case "SWORD" -> {
-                return "SWORD";
-            }
-            case "AXE" -> {
-                return "AXE";
-            }
-            case "PICKAXE" -> {
-                return "PICKAXE";
-            }
-            case "SHOVEL" -> {
-                return "SHOVEL";
-            }
-            case "HOE" -> {
-                return "HOE";
-            }
-            case "SHIELD" -> {
-                return "SHIELD";
-            }
-            case "BOW" -> {
-                return "BOW";
-            }
-            case "CROSSBOW" -> {
-                return "CROSSBOW";
-            }
-            case "TRIDENT" -> {
-                return "TRIDENT";
-            }
-            case "HELMET" -> {
-                return "HELMET";
-            }
-            case "CHESTPLATE" -> {
-                return "CHESTPLATE";
-            }
-            case "LEGGINGS" -> {
-                return "LEGGINGS";
-            }
-            case "BOOTS" -> {
-                return "BOOTS";
-            }
-            case "MACE" -> {
-                return "MACE";
-            }
-        }
-        return null;
-    }
 }
