@@ -19,7 +19,7 @@ dependencies {
     compileOnly("de.skyslycer.hmcwraps:api:1.8.2")
 
     // More plugin support
-    compileOnly("com.nexomc:nexo:1.25.0")
+    compileOnly("com.nexomc:nexo:1.26.0")
 
     // Dokka (Better Javadocs)
     dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
