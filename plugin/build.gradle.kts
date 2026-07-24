@@ -9,7 +9,6 @@ dependencies {
     implementation(project(":api"))
 
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
-    compileOnly("me.clip:placeholderapi:2.12.3")
     compileOnly("net.strokkur.commands:annotations-paper:2.1.4")
     annotationProcessor("net.strokkur.commands:processor-paper:2.1.4")
     implementation("com.zaxxer:HikariCP:7.1.0")
@@ -20,6 +19,7 @@ dependencies {
 
     // More plugin support
     compileOnly("com.nexomc:nexo:1.26.0")
+    compileOnly("me.clip:placeholderapi:2.12.3")
 
     // Dokka (Better Javadocs)
     dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
