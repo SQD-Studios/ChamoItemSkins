@@ -174,9 +174,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
         this.dialogUtil = new DialogUtil(this);
-        this.chatInputUtil = new ChatInputUtil(this, dialogUtil, new MessageUtil(langManager));
-
-
         Bukkit.getServicesManager().unregisterAll(this);
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
