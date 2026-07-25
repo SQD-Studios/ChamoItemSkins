@@ -89,7 +89,8 @@ dependencies {
 
 dokka {
     pluginsConfiguration.html {
+        customAssets.from("./assets/ChamoItemSkins.png", "./assets/logo-icon.svg")
+        customStyleSheets.from("./assets/dokka/style.css", "./assets/dokka/prism.css", "./assets/dokka/main.css", "./assets/dokka/logo-styles.css")
         footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
     }
-
 }
