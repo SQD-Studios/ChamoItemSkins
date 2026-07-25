@@ -6,6 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 
 public class UpdateUtil implements Listener {
 
+    private static final Logger log = LoggerFactory.getLogger(UpdateUtil.class);
     private final Plugin plugin;
 
     /**
@@ -89,17 +92,21 @@ public class UpdateUtil implements Listener {
         int maxLength = Math.max(currentParts.length, latestParts.length);
 
         for (int i = 0; i < maxLength; i++) {
+            int currentValue = 0;
+            int latestValue = 0;
+            try {
+                currentValue =
+                        i < currentParts.length
+                                ? Integer.parseInt(currentParts[i])
+                                : 0;
 
-            int currentValue =
-                    i < currentParts.length
-                            ? Integer.parseInt(currentParts[i])
-                            : 0;
-
-            int latestValue =
-                    i < latestParts.length
-                            ? Integer.parseInt(latestParts[i])
-                            : 0;
-
+                latestValue =
+                        i < latestParts.length
+                                ? Integer.parseInt(latestParts[i])
+                                : 0;
+            } catch (NumberFormatException e) {
+                log.error("Had error parsing versions: ", e);
+            }
             if (latestValue > currentValue) {
                 return true;
             }
