@@ -3,6 +3,7 @@ package net.chamosmp.chamoitemskins.models;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +13,15 @@ public class NexoService {
         return modelId.contains("nexo:");
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * Change the {@code itemStack}, to a Nexo Item
+     *
+     * @param itemStack The {@link ItemStack}, to replace
+     * @param nexoId The nexo item id
+     *
+     * @deprecated Use {@link NexoService#getNexoItem(ItemStack, String)}
+     */
+    @Deprecated
     public void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
         if (!isNexoEnabled()) {
             return;
@@ -24,6 +33,17 @@ public class NexoService {
         itemStack.setType(newItem.getType());
         itemStack.setItemMeta(newItem.getItemMeta());
         itemStack.setAmount(amount);
+    }
+
+    public ItemStack getNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
+        if (!isNexoEnabled()) return itemStack;
+
+        ItemBuilder builder = NexoItems.itemFromId(getNexoId(nexoId));
+        if (builder == null) return itemStack;
+
+        ItemStack newItem = builder.build();
+
+        return itemStack.withType(newItem.getType());
     }
 
     public String getNexoId(@NotNull String modelId) {

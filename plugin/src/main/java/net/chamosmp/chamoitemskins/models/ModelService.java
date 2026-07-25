@@ -4,6 +4,7 @@ package net.chamosmp.chamoitemskins.models;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -19,14 +20,11 @@ public final class ModelService extends NexoService {
 
     private static final String NAMESPACE = "chamoitemskins";
 
-    private final NexoService nexoService;
-
     /**
      * Constructs a new ModelService.
      */
     public ModelService() {
 
-        this.nexoService = new NexoService();
     }
 
     /**
@@ -48,7 +46,10 @@ public final class ModelService extends NexoService {
      *
      * @param item    The item stack to apply the model to.
      * @param modelId The ID of the model to apply.
+     *
+     * @deprecated Use {@link ModelService#getItemModel(ItemStack, String)}
      */
+    @Deprecated
     public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
         if (modelId.isBlank() || item.getType().isAir()) {
             return;
@@ -69,6 +70,31 @@ public final class ModelService extends NexoService {
         meta.setItemModel(key);
         item.setItemMeta(meta);
 
+    }
+
+    /**
+     * Returns an item, with a model applied to it.
+     *
+     * @param item    The item stack to apply the model to.
+     * @param modelId The ID of the model to apply.
+     *
+     * @return The itemstack
+     */
+    public ItemStack getItemModel(@NotNull ItemStack item, @NotNull String modelId) {
+        if (modelId.isBlank() || item.getType().isAir()) {
+            return item;
+        }
+
+        if (isNexo(modelId)) return getNexoItem(item, modelId);
+
+        var meta = item.getItemMeta();
+        if (meta == null) return item;
+
+        NamespacedKey key = resolveItemModelKey(modelId);
+        meta.setItemModel(key);
+        item.setItemMeta(meta);
+
+        return item;
     }
 
     /**
