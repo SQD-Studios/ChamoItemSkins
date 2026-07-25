@@ -70,6 +70,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      * Do I need to say a lot? The event when the plugin gets enabled, after the dependencies
      * declared in the {@code plugin.yml}.
      */
+    @Override
     public void onEnable() {
 
         migrateManager = new MigrateManager(this, skinManager);
