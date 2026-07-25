@@ -42,7 +42,7 @@ public class UpdateUtil implements Listener {
 
         if (isNewerVersion(plugin.getPluginMeta().getVersion(), version) && player.hasPermission("chamoitemskins.update")) {
             SchedulerUtil.runForEntity(plugin, player, () -> {
-                player.sendRichMessage("<white>Download plugin update <u><click:open_url:https://github.com/SQD-Studios/ChamoItemSkins/releases>here<r>");
+                player.sendRichMessage("<white>Download the plugin update <u><click:open_url:https://github.com/SQD-Studios/ChamoItemSkins/releases>here<r>");
             }, () -> {
             });
         }
