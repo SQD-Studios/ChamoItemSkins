@@ -14,7 +14,9 @@ public class NexoService {
 
     @SuppressWarnings("deprecation")
     public void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
-        if (!isNexoEnabled()) { return; }
+        if (!isNexoEnabled()) {
+            return;
+        }
         ItemBuilder builder = NexoItems.itemFromId(getNexoId(nexoId));
         if (builder == null) return;
         ItemStack newItem = builder.build();

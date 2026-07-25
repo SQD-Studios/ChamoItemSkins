@@ -69,8 +69,9 @@ public final class MessageUtil {
 
     /**
      * Send a message to an audience, with no placeholders
+     *
      * @param audience The audience to send this message to
-     * @param message The message to send
+     * @param message  The message to send
      */
     public static void sendMessage(@NotNull Audience audience, @NotNull String message) {
         Player player = null;
@@ -82,8 +83,9 @@ public final class MessageUtil {
 
     /**
      * Send a message to a player
-     * @param audience The instance to send a message to (A player or console)
-     * @param message The message to send, with mini message formatting
+     *
+     * @param audience     The instance to send a message to (A player or console)
+     * @param message      The message to send, with mini message formatting
      * @param placeholders The placeholders, forward parameter for parse
      */
     public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<String, String> placeholders) {
@@ -103,11 +105,11 @@ public final class MessageUtil {
         for (var entry : placeholders.entrySet()) {
             resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue());
         }
-        
+
         if (PAPI_PRESENT && player != null) {
             resolved = PlaceholderAPI.setPlaceholders(player, resolved);
         }
-        
+
         return MINI_MESSAGE.deserialize(legacyToMiniMessage(resolved));
     }
 

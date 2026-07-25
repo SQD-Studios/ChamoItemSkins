@@ -186,25 +186,25 @@ public class SelfPackUtil implements Listener {
                 .replace("\n", "\\n")    // Escape newlines
                 .replace("\r", "\\r");   // Escape carriage returns
         String json = String.format("""
-                {
-                  "pack": {
-                    "pack_format": 42,
-                    "supported_formats": [
-                      42,
-                      88
-                    ],
-                    "min_format": [
-                      42,
-                      0
-                    ],
-                    "max_format": [
-                      88,
-                      0
-                    ],
-                    "description": "%s"
-                  }
-                }
-        """, escapedDescription);
+                        {
+                          "pack": {
+                            "pack_format": 42,
+                            "supported_formats": [
+                              42,
+                              88
+                            ],
+                            "min_format": [
+                              42,
+                              0
+                            ],
+                            "max_format": [
+                              88,
+                              0
+                            ],
+                            "description": "%s"
+                          }
+                        }
+                """, escapedDescription);
         ZipEntry entry = new ZipEntry("pack.mcmeta");
         zos.putNextEntry(entry);
         zos.write(json.getBytes());

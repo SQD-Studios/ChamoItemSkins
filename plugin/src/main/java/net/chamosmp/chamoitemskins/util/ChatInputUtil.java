@@ -39,11 +39,12 @@ public final class ChatInputUtil implements Listener {
 
     /**
      * "The util means, the dialog/chat thingy, not to be confused"
-     * @param player The player to open the util to
-     * @param prompt The prompt to give the player
-     * @param callback Callback is the piece of code to be executed
-     * @param key (Dialog Only) The key, the buttons/dialog should have
-     * @param title (Dialog Only) The title in the dialog
+     *
+     * @param player       The player to open the util to
+     * @param prompt       The prompt to give the player
+     * @param callback     Callback is the piece of code to be executed
+     * @param key          (Dialog Only) The key, the buttons/dialog should have
+     * @param title        (Dialog Only) The title in the dialog
      * @param defaultValue (Dialog Only) The value the text prompt should have, useful for editing already defined configs.
      */
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title, String defaultValue) {
@@ -58,11 +59,12 @@ public final class ChatInputUtil implements Listener {
 
     /**
      * "The util means, the dialog/chat thingy, not to be confused"
-     * @param player The player to open the util to
-     * @param prompt The prompt to give the player
+     *
+     * @param player   The player to open the util to
+     * @param prompt   The prompt to give the player
      * @param callback Callback is the piece of code to be executed
-     * @param key (Dialog Only) The key, the buttons/dialog should have
-     * @param title (Dialog Only) The title in the dialog
+     * @param key      (Dialog Only) The key, the buttons/dialog should have
+     * @param title    (Dialog Only) The title in the dialog
      */
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title) {
         if (!dialogUtil.canUseDialogs()) {
@@ -76,10 +78,11 @@ public final class ChatInputUtil implements Listener {
 
     /**
      * The chat thingy doesn't really work. It works only on the dialogs
-     * @param player The player to open the util to
+     *
+     * @param player   The player to open the util to
      * @param callback Callback is the piece of code to be executed
-     * @param key (Dialog Only) The key, the buttons/dialog should have
-     * @param title (Dialog Only) The title in the dialog
+     * @param key      (Dialog Only) The key, the buttons/dialog should have
+     * @param title    (Dialog Only) The title in the dialog
      */
     public void getYesNo(Player player, Consumer<String> callback, String key, Component title) {
         if (!dialogUtil.canUseDialogs()) {

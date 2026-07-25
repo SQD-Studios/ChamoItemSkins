@@ -57,7 +57,7 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
             String matName = params.substring(7);
             Material material = Material.matchMaterial(matName);
             if (material == null) return "";
-            
+
             return grantService.getActiveSkin(player.getUniqueId(), material)
                     .thenApply(id -> id.flatMap(skinService::getSkin).map(Skin::name).orElse(""))
                     .join(); // join() is okay here as PAPI is usually called async or we are on VT
@@ -87,13 +87,13 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
         }
 
         if (params.startsWith("owns_bundle_")) {
-             String bundleId = params.substring(12);
-             return skinService.getBundle(bundleId).map(bundle -> {
-                 for (String id : bundle.skinIds()) {
-                     if (!grantService.hasSkin(player.getUniqueId(), id).join()) return "false";
-                 }
-                 return "true";
-             }).orElse("false");
+            String bundleId = params.substring(12);
+            return skinService.getBundle(bundleId).map(bundle -> {
+                for (String id : bundle.skinIds()) {
+                    if (!grantService.hasSkin(player.getUniqueId(), id).join()) return "false";
+                }
+                return "true";
+            }).orElse("false");
         }
 
         return null;

@@ -24,6 +24,7 @@ public final class RarityManager {
 
     /**
      * Constructs a new RarityManager.
+     *
      * @param plugin The plugin instance.
      */
     public RarityManager(@NotNull Plugin plugin) {
@@ -32,6 +33,7 @@ public final class RarityManager {
 
     /**
      * Loads rarities from the given configuration.
+     *
      * @param config The configuration to load from.
      */
     public void load(@NotNull FileConfiguration config) {
@@ -66,6 +68,7 @@ public final class RarityManager {
 
     /**
      * Checks if rarity features are enabled.
+     *
      * @return True if enabled.
      */
     public boolean isEnabled() {
@@ -74,6 +77,7 @@ public final class RarityManager {
 
     /**
      * Gets all loaded rarities, sorted by priority.
+     *
      * @return A list of rarities.
      */
     public @NotNull List<Rarity> getRarities() {
@@ -84,6 +88,7 @@ public final class RarityManager {
 
     /**
      * Gets a rarity by its ID.
+     *
      * @param id The rarity ID.
      * @return An optional containing the rarity if found.
      */
@@ -93,6 +98,7 @@ public final class RarityManager {
 
     /**
      * Gets the default rarity (the one with the lowest priority).
+     *
      * @return The default rarity.
      */
     public @NotNull Rarity getDefaultRarity() {
@@ -102,6 +108,7 @@ public final class RarityManager {
 
     /**
      * Resolves a rarity ID to a Rarity object, falling back to default if not found.
+     *
      * @param id The rarity ID to resolve.
      * @return The resolved rarity.
      */
@@ -117,6 +124,7 @@ public final class RarityManager {
 
     /**
      * Gets an unmodifiable map of all rarities.
+     *
      * @return The rarity map.
      */
     public @NotNull Map<String, Rarity> getRarityMap() {

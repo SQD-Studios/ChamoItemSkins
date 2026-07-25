@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 public final class YamlUtil {
 
 
-    private YamlUtil() { }
+    private YamlUtil() {
+    }
 
     public static @NotNull List<Skin> loadSkins(@NotNull YamlConfiguration config, @NotNull RarityManager rarityManager, @NotNull CategoryManager categoryManager) {
         List<Skin> skins = new ArrayList<>();

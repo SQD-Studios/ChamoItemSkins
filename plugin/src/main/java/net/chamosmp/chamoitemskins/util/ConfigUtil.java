@@ -15,7 +15,8 @@ import java.nio.charset.StandardCharsets;
  */
 public final class ConfigUtil {
 
-    private ConfigUtil() {}
+    private ConfigUtil() {
+    }
 
     /**
      * Loads a configuration file from the plugin folder, or creates it from defaults.
@@ -32,13 +33,13 @@ public final class ConfigUtil {
         }
 
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        
+
         var resourceStream = plugin.getResource(fileName);
         if (resourceStream != null) {
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
                     new InputStreamReader(resourceStream, StandardCharsets.UTF_8)
             );
-            
+
             boolean changed = false;
             for (String key : defaultConfig.getKeys(true)) {
                 if (!config.contains(key)) {
@@ -58,7 +59,7 @@ public final class ConfigUtil {
                 }
             }
         }
-        
+
         return config;
     }
 

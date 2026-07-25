@@ -43,6 +43,7 @@ public final class GrantManager implements GrantService {
 
     /**
      * Constructs a new GrantManager.
+     *
      * @param plugin       The plugin instance.
      * @param db           The database manager.
      * @param cache        The cache manager.
@@ -73,7 +74,7 @@ public final class GrantManager implements GrantService {
     @Override
     public @NotNull CompletableFuture<Boolean> hasSkin(@NotNull UUID playerUuid, @NotNull String skinId) {
         return getGrants(playerUuid).thenApply(grants ->
-            grants.stream().anyMatch(g -> g.skinId().equals(skinId))
+                grants.stream().anyMatch(g -> g.skinId().equals(skinId))
         );
     }
 
@@ -217,6 +218,7 @@ public final class GrantManager implements GrantService {
 
     /**
      * Refreshes all skins in a player's inventory based on their active skins in the database.
+     *
      * @param player The player to refresh.
      */
     public void refreshPlayerSkins(@NotNull Player player) {
@@ -233,14 +235,16 @@ public final class GrantManager implements GrantService {
 
             Map<Material, Skin> loaded = Map.copyOf(activeSkins);
             SchedulerUtil.runForEntity(plugin, player, () ->
-                    modelService.refreshInventory(player, loaded), () -> {});
+                    modelService.refreshInventory(player, loaded), () -> {
+            });
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
     public @NotNull CompletableFuture<Void> grantBundle(@NotNull UUID playerUuid, @NotNull String bundleId, @NotNull String source) {
         Optional<SkinBundle> bundleOpt = skinManager.getBundle(bundleId);
-        if (bundleOpt.isEmpty()) return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
+        if (bundleOpt.isEmpty())
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
         SkinBundle bundle = bundleOpt.get();
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -255,7 +259,8 @@ public final class GrantManager implements GrantService {
     @Override
     public @NotNull CompletableFuture<Void> revokeBundle(@NotNull UUID playerUuid, @NotNull String bundleId) {
         Optional<SkinBundle> bundleOpt = skinManager.getBundle(bundleId);
-        if (bundleOpt.isEmpty()) return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
+        if (bundleOpt.isEmpty())
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
         SkinBundle bundle = bundleOpt.get();
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();

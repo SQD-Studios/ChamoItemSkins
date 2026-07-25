@@ -157,9 +157,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
         saveDefaultConfig();
         reloadConfig();
-        
+
         initManagers();
-        
+
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
         this.dialogUtil = new DialogUtil(this);
         this.chatInputUtil = new ChatInputUtil(this, dialogUtil, new MessageUtil(langManager));
@@ -173,7 +173,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         SchedulerUtil.runAsync(this, () -> grantManager.checkAndRevokeExpiredGrants());
 
-        SchedulerUtil.runDelayed(this, () -> grantManager.checkAndRevokeExpiredGrants(),  6000L);
+        SchedulerUtil.runDelayed(this, () -> grantManager.checkAndRevokeExpiredGrants(), 6000L);
 
         // Periodically Reload the plugin (And maybe break some things :D)
         SchedulerUtil.runDelayed(this, this::reloadPlugin, 7000L);

@@ -30,8 +30,9 @@ public final class SkinManager implements SkinService {
 
     /**
      * Constructs a new SkinManager.
-     * @param plugin         The plugin instance.
-     * @param rarityManager  The rarity manager.
+     *
+     * @param plugin          The plugin instance.
+     * @param rarityManager   The rarity manager.
      * @param databaseManager The database manager.
      */
     public SkinManager(@NotNull Plugin plugin, @NotNull RarityManager rarityManager, DatabaseManager databaseManager) {
@@ -76,6 +77,7 @@ public final class SkinManager implements SkinService {
 
     /**
      * Determines if a material belongs to a specific category.
+     *
      * @param materialName The name of the material.
      * @param category     The category to check.
      * @return True if the material is in the category.
@@ -105,6 +107,7 @@ public final class SkinManager implements SkinService {
     @Override
     public void changeId(@NotNull String oldId, Skin newSkin) {
         databaseManager.migrateSkinId(oldId, newSkin.id());
+
         deleteSkin(oldId);
         saveSkin(newSkin);
     }

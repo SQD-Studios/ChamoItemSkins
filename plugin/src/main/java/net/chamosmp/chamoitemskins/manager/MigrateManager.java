@@ -7,6 +7,7 @@ import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.YamlUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -180,14 +181,7 @@ public final class MigrateManager implements MigrateService {
 
             NamespacedKey modelData = wrap.getItemModel();
 
-
-
             List<Category> categories = determineCategories(wrap);
-
-            // Rarity: Since HMCWraps has no rarity, set to null or a default
-            // If you have a RarityManager, you can get "common" or leave null
-            //Rarity rarity = rarityManager.getCategory("common").orElse(null);
-
 
             // Skin constructor: (id, name, model, rarity, categories, enabled, note, display, animations)
             return new Skin(
@@ -222,7 +216,8 @@ public final class MigrateManager implements MigrateService {
             List<String> materialNames = allowedItems.stream()
                     .map(Material::toString)
                     .collect(Collectors.toList());
-            categories.add(new Category(collection, materialNames));
+            Category category = new Category(collection, materialNames);
+            categories.add(category);
         }
 
         if (categories.isEmpty()) {

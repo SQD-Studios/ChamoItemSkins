@@ -27,7 +27,8 @@ public final class NoteUtil {
     }
 
 
-    private NoteUtil() {}
+    private NoteUtil() {
+    }
 
     public static @NotNull ItemStack createNote(
             @NotNull Plugin plugin,
@@ -37,8 +38,6 @@ public final class NoteUtil {
     ) {
         return createNote(plugin, skin, defaultMaterial, loreTemplate, -1);
     }
-
-
 
 
     public static boolean isNote(ItemStack item) {

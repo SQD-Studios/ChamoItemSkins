@@ -25,6 +25,7 @@ public final class CategoryManager {
 
     /**
      * Constructs a new CategoryManager.
+     *
      * @param plugin The plugin instance.
      */
     public CategoryManager(@NotNull Plugin plugin) {
@@ -64,6 +65,7 @@ public final class CategoryManager {
 
     /**
      * Gets all loaded categories.
+     *
      * @return A list of categories.
      */
     public @NotNull List<Category> getCategories() {
@@ -73,6 +75,7 @@ public final class CategoryManager {
 
     /**
      * Gets an unmodifiable map of all categories.
+     *
      * @return The rarity map.
      */
     public @NotNull Map<String, Category> getCategoryMap() {

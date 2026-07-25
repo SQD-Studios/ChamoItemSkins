@@ -31,6 +31,7 @@ public final class ModelService extends NexoService {
 
     /**
      * Builds a GUI preview item using the skin model when available, otherwise the display material.
+     *
      * @param skin The model, of the skin to apply
      */
     public @NotNull ItemStack createPreviewItem(@NotNull Skin skin) {
@@ -44,6 +45,7 @@ public final class ModelService extends NexoService {
 
     /**
      * Applies a custom item model to an {@link ItemStack}.
+     *
      * @param item    The item stack to apply the model to.
      * @param modelId The ID of the model to apply.
      */
@@ -135,16 +137,16 @@ public final class ModelService extends NexoService {
      * it is used as-is. Otherwise, the hardcoded "bettermodel" namespace is used
      * with the bare model name as the path - no subfolder prefix is added.
      */
-     private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
-            int separator = modelId.indexOf(':');
-            if (separator >= 0 && separator < modelId.length() - 1) {
-                return new NamespacedKey(
-                        modelId.substring(0, separator).toLowerCase(),
-                        modelId.substring(separator + 1).toLowerCase()
-                );
-            }
-            // Use the fixed namespace; BetterModel registers models at bettermodel:<modelId>
-            return new NamespacedKey(NAMESPACE, modelId.toLowerCase());
+    private static @NotNull NamespacedKey resolveItemModelKey(@NotNull String modelId) {
+        int separator = modelId.indexOf(':');
+        if (separator >= 0 && separator < modelId.length() - 1) {
+            return new NamespacedKey(
+                    modelId.substring(0, separator).toLowerCase(),
+                    modelId.substring(separator + 1).toLowerCase()
+            );
+        }
+        // Use the fixed namespace; BetterModel registers models at bettermodel:<modelId>
+        return new NamespacedKey(NAMESPACE, modelId.toLowerCase());
     }
 
     private static @NotNull Iterable<ItemStack> collectItems(@NotNull Player player) {
@@ -157,7 +159,7 @@ public final class ModelService extends NexoService {
         combined[offset++] = inventory.getChestplate();
         combined[offset++] = inventory.getLeggings();
         combined[offset++] = inventory.getBoots();
-        combined[offset]   = inventory.getItemInOffHand();
+        combined[offset] = inventory.getItemInOffHand();
         return java.util.Arrays.asList(combined);
     }
 }

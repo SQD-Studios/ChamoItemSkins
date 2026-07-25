@@ -17,7 +17,8 @@ public final class SchedulerUtil {
     private static final boolean IS_FOLIA = Bukkit.getServer().getClass().getSimpleName().contains("Folia");
     private static final Executor VIRTUAL_THREAD_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
-    private SchedulerUtil() {}
+    private SchedulerUtil() {
+    }
 
     public static Executor getVirtualThreadExecutor() {
         return VIRTUAL_THREAD_EXECUTOR;

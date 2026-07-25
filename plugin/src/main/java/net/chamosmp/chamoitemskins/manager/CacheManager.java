@@ -38,5 +38,6 @@ public final class CacheManager {
         grantCache.remove(playerUuid);
     }
 
-    private record CacheEntry<T>(T data, long expiry) {}
+    private record CacheEntry<T>(T data, long expiry) {
+    }
 }
