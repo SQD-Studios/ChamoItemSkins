@@ -47,7 +47,7 @@ tasks {
         inputs.properties(props)
         filteringCharset = "UTF-8"
 
-        filesMatching("plugin.yml") {
+        filesMatching("paper-plugin.yml") {
             expand(props)
         }
     }
@@ -58,9 +58,10 @@ tasks {
     runServer {
         downloadPlugins {
             modrinth("lKEzGugV", "2.12.3")
+            modrinth("Vebnzrzj", "v5.5.53-bukkit")
         }
 
-        minecraftVersion("26.1.2")
+        minecraftVersion("26.2")
     }
     // runFolia
     runPaper.folia.registerTask()

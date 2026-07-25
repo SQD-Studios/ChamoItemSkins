@@ -1,11 +1,30 @@
 name: ChamoItemSkins
 version: ${version}
 main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
-api-version: '1.21.4'
+api-version: '1.21.11'
+loader: net.chamosmp.chamoitemskins.ChamoItemSkinsLoader
+bootstrapper: net.chamosmp.chamoitemskins.ChamoItemSkinsBootstrap
+
+folia-supported: true
+
 authors: ["SQD Studios", Chamogelastos]
 
 softdepend: [PlaceholderAPI, HMCWraps, Nexo]
 
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    HMCWarps:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Nexo:
+      load: BEFORE
+      required: false
+      join-classpath: true
 
 permissions:
   chamoitemskins.use:
@@ -37,6 +56,9 @@ permissions:
     default: op
   chamoitemskins.admin.help:
     description: Allows using /skinsadmin help
+    default: op
+  chamoitemskins.update:
+    description: Get the plugin update notification
     default: op
 
 libraries:

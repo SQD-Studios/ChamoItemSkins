@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemSkinsApi {
+
     private DatabaseManager databaseManager;
     private SkinManager skinManager;
     private GrantManager grantManager;
@@ -51,6 +52,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private DialogUtil dialogUtil;
     private MigrateManager migrateManager;
     private LanguageManager langManager;
+    private UpdateUtil updateUtil;
 
 
     /**
@@ -81,7 +83,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), new MessageUtil(langManager)), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
         Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
-
+        Bukkit.getPluginManager().registerEvents(new UpdateUtil(this), this);
         try {
             getServer().getPluginManager().registerEvents(new SelfPackUtil(this), this);
         } catch (IOException e) {
@@ -124,6 +126,14 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         );
 
         getLogger().info("Successfully loaded metrics.");
+
+        updateUtil = new UpdateUtil(this);
+        try {
+            updateUtil.versionCheck();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         getLogger().info("ChamoItemSkins enabled successfully.");
     }
 
