@@ -23,6 +23,7 @@ public class SkinRevokeEvent extends PlayerEvent implements Cancellable {
 
     /**
      * Gets the skin being revoked.
+     *
      * @return The skin.
      */
     public @NotNull Skin getSkin() {

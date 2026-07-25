@@ -14,4 +14,5 @@ public record SkinBundle(
         String id,
         String name,
         List<String> skinIds
-) {}
+) {
+}

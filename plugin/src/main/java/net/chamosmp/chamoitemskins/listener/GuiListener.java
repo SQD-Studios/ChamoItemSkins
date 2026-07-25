@@ -17,7 +17,9 @@ public final class GuiListener implements Listener {
      */
     public interface ChamoGui extends InventoryHolder {
         void handleClick(InventoryClickEvent event);
-        default void handleClose(InventoryCloseEvent event) {}
+
+        default void handleClose(InventoryCloseEvent event) {
+        }
     }
 
     @EventHandler

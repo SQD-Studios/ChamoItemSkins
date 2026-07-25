@@ -110,7 +110,8 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     }
 
     public void open() {
-        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+        });
     }
 
     @Override

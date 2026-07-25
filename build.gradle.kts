@@ -15,7 +15,7 @@ allprojects {
         mavenCentral {
             name = "Maven Central (HikariCP, BetterModel)"
         }
-        maven{
+        maven {
             name = "PaperMC"
             url = uri("https://repo.papermc.io/repository/maven-public/")
         }
@@ -23,7 +23,7 @@ allprojects {
             name = "Eldonexus"
             url = uri("https://eldonexus.de/repository/maven-public/")
         }
-        maven{
+        maven {
             name = "PlaceholderAPI"
             url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
         }

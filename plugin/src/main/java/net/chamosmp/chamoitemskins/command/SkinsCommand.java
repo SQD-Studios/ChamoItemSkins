@@ -47,7 +47,6 @@ public final class SkinsCommand {
     }
 
 
-
     @Permission("chamoitemskins.use")
     @Executes
     public void onSkins(@Executor Player player) {

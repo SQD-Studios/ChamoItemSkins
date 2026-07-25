@@ -53,7 +53,6 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     }
 
 
-
     public void refresh() {
         inventory.clear();
 
@@ -121,7 +120,8 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     }
 
     public void open() {
-        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+        });
     }
 
     @Override

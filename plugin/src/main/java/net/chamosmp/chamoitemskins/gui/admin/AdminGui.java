@@ -40,7 +40,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
         this.dialogUtil = dialogUtil;
         this.messageUtil = messageUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of()));
-        
+
         setupInventory();
     }
 
@@ -59,7 +59,8 @@ public final class AdminGui implements GuiListener.ChamoGui {
     }
 
     public void open() {
-        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+        });
     }
 
     @Override
@@ -92,21 +93,30 @@ public final class AdminGui implements GuiListener.ChamoGui {
             }
             case "GIVE" -> {
                 ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to GIVE note:", NamedTextColor.YELLOW), skinId -> {
-                    if (skinId == null) { open(); return; }
+                    if (skinId == null) {
+                        open();
+                        return;
+                    }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin give " + player.getName() + " " + skinId);
                     open();
                 }, "adminguigiveskinid", Component.text("Give Note", NamedTextColor.YELLOW));
             }
             case "GRANT" -> {
                 ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to GRANT access:", NamedTextColor.YELLOW), skinId -> {
-                    if (skinId == null) { open(); return; }
+                    if (skinId == null) {
+                        open();
+                        return;
+                    }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access give " + player.getName() + " " + skinId);
                     open();
                 }, "adminguigrant", Component.text("Grant Access", NamedTextColor.YELLOW));
             }
             case "REVOKE" -> {
                 ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to REVOKE access:", NamedTextColor.YELLOW), skinId -> {
-                    if (skinId == null) { open(); return; }
+                    if (skinId == null) {
+                        open();
+                        return;
+                    }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access revoke " + player.getName() + " " + skinId);
                     open();
                 }, "adminguirevokeskinid", Component.text("Revoke Access", NamedTextColor.YELLOW));

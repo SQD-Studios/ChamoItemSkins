@@ -2,6 +2,7 @@
 package net.chamosmp.chamoitemskins.gui.config;
 
 import org.bukkit.Material;
+
 import java.util.List;
 
 /**
@@ -21,4 +22,5 @@ public record GuiSlotDef(
         String name,
         List<String> lore,
         boolean glow
-) {}
+) {
+}

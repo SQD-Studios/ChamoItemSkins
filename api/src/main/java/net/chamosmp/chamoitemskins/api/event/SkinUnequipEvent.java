@@ -23,6 +23,7 @@ public class SkinUnequipEvent extends PlayerEvent implements Cancellable {
 
     /**
      * Gets the skin being unequipped.
+     *
      * @return The skin.
      */
     public @NotNull Skin getSkin() {

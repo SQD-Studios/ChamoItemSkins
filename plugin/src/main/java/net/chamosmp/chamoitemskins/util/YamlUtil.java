@@ -1,7 +1,6 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/YamlUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Rarity;
 import net.chamosmp.chamoitemskins.api.model.Skin;

@@ -13,7 +13,8 @@ import java.util.concurrent.CompletableFuture;
 public final class skinIdSuggestionsImpl {
     private static SkinManager skinManager;
 
-    private skinIdSuggestionsImpl() {}
+    private skinIdSuggestionsImpl() {
+    }
 
     public static void init(SkinManager manager) {
         skinManager = manager;

@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public interface GrantService {
     /**
      * Gets all skin grants for a player.
+     *
      * @param playerUuid The player's UUID.
      * @return A future that completes with all skin grants for this player.
      */
@@ -25,6 +25,7 @@ public interface GrantService {
 
     /**
      * Checks if a player owns a specific skin.
+     *
      * @param playerUuid The player's UUID.
      * @param skinId     The skin ID.
      * @return A future that completes with whether the player owns the skin.
@@ -33,6 +34,7 @@ public interface GrantService {
 
     /**
      * Grants a skin to a player.
+     *
      * @param playerUuid The player's UUID.
      * @param skinId     The skin ID.
      * @param source     The source of the grant.
@@ -42,6 +44,7 @@ public interface GrantService {
 
     /**
      * Revokes a skin from a player.
+     *
      * @param playerUuid The player's UUID.
      * @param skinId     The skin ID.
      * @return A future that completes when the revoke is persisted.
@@ -50,6 +53,7 @@ public interface GrantService {
 
     /**
      * Gets the active skin ID for a player and material.
+     *
      * @param playerUuid The player's UUID.
      * @param material   The item material.
      * @return A future that completes with the ID of the active skin for this material, if any.
@@ -58,6 +62,7 @@ public interface GrantService {
 
     /**
      * Sets the active skin for a material.
+     *
      * @param playerUuid The player's UUID.
      * @param material   The item material.
      * @param skinId     The skin ID, or null to remove.
@@ -67,6 +72,7 @@ public interface GrantService {
 
     /**
      * Grants a bundle to a player.
+     *
      * @param playerUuid The player's UUID.
      * @param bundleId   The bundle ID.
      * @param source     The source of the grant.
@@ -76,6 +82,7 @@ public interface GrantService {
 
     /**
      * Revokes a bundle from a player.
+     *
      * @param playerUuid The player's UUID.
      * @param bundleId   The bundle ID.
      * @return A future that completes when the bundle is revoked.

@@ -5,7 +5,6 @@ import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -16,18 +15,21 @@ import java.util.Optional;
 public interface SkinService {
     /**
      * Gets all registered skins.
+     *
      * @return A collection of all skins.
      */
     @NotNull Collection<Skin> getSkins();
 
     /**
      * Gets all registered bundles.
+     *
      * @return A collection of all bundles.
      */
     @NotNull Collection<net.chamosmp.chamoitemskins.api.model.SkinBundle> getBundles();
 
     /**
      * Gets a skin by its ID.
+     *
      * @param id The skin ID.
      * @return An optional containing the skin if found.
      */
@@ -35,6 +37,7 @@ public interface SkinService {
 
     /**
      * Gets a bundle by its ID.
+     *
      * @param id The bundle ID.
      * @return An optional containing the bundle if found.
      */
@@ -42,6 +45,7 @@ public interface SkinService {
 
     /**
      * Gets all skins applicable to a specific material or its categories.
+     *
      * @param material The item material.
      * @return A collection of applicable skins.
      */
@@ -51,24 +55,28 @@ public interface SkinService {
 
     /**
      * Saves a skin definition.
+     *
      * @param skin The skin to save.
      */
     void saveSkin(@NotNull Skin skin);
 
     /**
      * Saves a bundle definition.
+     *
      * @param bundle The bundle to save.
      */
     void saveBundle(@NotNull net.chamosmp.chamoitemskins.api.model.SkinBundle bundle);
 
     /**
      * Deletes a skin definition.
+     *
      * @param id The skin ID.
      */
     void deleteSkin(@NotNull String id);
 
     /**
      * Deletes a bundle definition.
+     *
      * @param id The bundle ID.
      */
     void deleteBundle(@NotNull String id);
@@ -82,7 +90,8 @@ public interface SkinService {
      * This is meant for the gui, after changing the skinid, to change in the database too.
      * It deletes the old skin, and you must define it again like this:
      * {@code new Skin(id, name, modelId, rarity, categories, enabled, noteMaterial, displayItem, animations)}
-     * @param oldId The old id of the skin
+     *
+     * @param oldId   The old id of the skin
      * @param newSkin The new skin definition
      */
     void changeId(@NotNull String oldId, Skin newSkin);

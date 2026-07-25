@@ -1,7 +1,6 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/database/DatabaseManager.java ---
 package net.chamosmp.chamoitemskins.database;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +60,7 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
 
     /**
      * Grants a skin with an optional expiration date.
+     *
      * @param playerUuid the player UUID
      * @param skinId     the skin ID
      * @param source     the grant source
@@ -76,6 +76,7 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
 
     /**
      * Retrieves all grants that have expired (expires_at is not null and <= now).
+     *
      * @return a CompletableFuture containing a collection of expired grant entries
      */
     @NotNull CompletableFuture<Collection<ExpiredGrant>> getExpiredGrants();
@@ -83,5 +84,6 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
     /**
      * Simple record representing an expired grant entry.
      */
-    record ExpiredGrant(@NotNull UUID playerUuid, @NotNull String skinId) {}
+    record ExpiredGrant(@NotNull UUID playerUuid, @NotNull String skinId) {
+    }
 }

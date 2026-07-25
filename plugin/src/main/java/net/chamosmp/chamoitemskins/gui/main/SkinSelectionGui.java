@@ -319,7 +319,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 if (openAfter) {
                     player.openInventory(inventory);
                 }
-            }, () -> {});
+            }, () -> {
+            });
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
@@ -357,8 +358,9 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
                     isSearching = true;
                     refresh();
-                    SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
-                    }, "selectionsearch", Component.text("Search for a skin"));
+                    SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+                    });
+                }, "selectionsearch", Component.text("Search for a skin"));
             } else {
                 isSearching = false;
                 search = null;
@@ -392,14 +394,16 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                         SchedulerUtil.runForEntity(plugin, player, () -> {
                             messageUtil.sendLangMessage(player, "skin-unequipped", Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, null);
-                        }, () -> {})
+                        }, () -> {
+                        })
                 );
             } else {
                 grantService.setActiveSkin(player.getUniqueId(), targetMat, skin.id()).thenRun(() ->
                         SchedulerUtil.runForEntity(plugin, player, () -> {
-                            messageUtil.sendLangMessage(player,"skin-equipped",  Map.of("skin_name", skin.name()));
+                            messageUtil.sendLangMessage(player, "skin-equipped", Map.of("skin_name", skin.name()));
                             updateAfterEquip(targetMat, skin.id());
-                        }, () -> {})
+                        }, () -> {
+                        })
                 );
             }
             return;

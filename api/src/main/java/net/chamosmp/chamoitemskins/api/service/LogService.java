@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 public interface LogService {
     /**
      * Logs an action.
+     *
      * @param playerUuid The player's UUID.
      * @param action     The action name (e.g., GRANT, REVOKE, EQUIP, UNEQUIP).
      * @param target     The target of the action (e.g., skin ID, bundle ID).

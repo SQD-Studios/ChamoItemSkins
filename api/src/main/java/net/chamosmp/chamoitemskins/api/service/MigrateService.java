@@ -1,11 +1,10 @@
 package net.chamosmp.chamoitemskins.api.service;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /**
  * Service to migrate skin data from other plugins.
- * Currently supports HMCWarps and ItemSkins.
+ * Currently, supports HMCWarps and ItemSkins.
  */
 public interface MigrateService {
 
@@ -20,5 +19,5 @@ public interface MigrateService {
      * @param player The player to send notification to.
      */
     void migrateHMC(CommandSender player);
-    
+
 }

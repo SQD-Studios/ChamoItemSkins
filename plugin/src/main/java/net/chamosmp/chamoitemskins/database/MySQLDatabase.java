@@ -47,31 +47,31 @@ public final class MySQLDatabase implements DatabaseManager {
 
         try (Connection conn = dataSource.getConnection()) {
             conn.createStatement().execute("""
-                CREATE TABLE IF NOT EXISTS player_skin_grants (
-                    grant_id    VARCHAR(36) PRIMARY KEY,
-                    player_uuid VARCHAR(36) NOT NULL,
-                    skin_id     VARCHAR(64) NOT NULL,
-                    granted_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    source      VARCHAR(32) NOT NULL,
-                    expires_at  TIMESTAMP   NULL
-                )""");
+                    CREATE TABLE IF NOT EXISTS player_skin_grants (
+                        grant_id    VARCHAR(36) PRIMARY KEY,
+                        player_uuid VARCHAR(36) NOT NULL,
+                        skin_id     VARCHAR(64) NOT NULL,
+                        granted_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        source      VARCHAR(32) NOT NULL,
+                        expires_at  TIMESTAMP   NULL
+                    )""");
             conn.createStatement().execute("""
-                CREATE TABLE IF NOT EXISTS player_active_skins (
-                    player_uuid VARCHAR(36) NOT NULL,
-                    item_type   VARCHAR(64) NOT NULL,
-                    skin_id     VARCHAR(64) NOT NULL,
-                    PRIMARY KEY (player_uuid, item_type)
-                )""");
+                    CREATE TABLE IF NOT EXISTS player_active_skins (
+                        player_uuid VARCHAR(36) NOT NULL,
+                        item_type   VARCHAR(64) NOT NULL,
+                        skin_id     VARCHAR(64) NOT NULL,
+                        PRIMARY KEY (player_uuid, item_type)
+                    )""");
             conn.createStatement().execute("""
-                CREATE TABLE IF NOT EXISTS player_skin_logs (
-                    log_id      VARCHAR(36) PRIMARY KEY,
-                    player_uuid VARCHAR(36) NOT NULL,
-                    action      VARCHAR(32) NOT NULL,
-                    target      VARCHAR(64) NOT NULL,
-                    metadata    TEXT,
-                    timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    INDEX (player_uuid)
-                )""");
+                    CREATE TABLE IF NOT EXISTS player_skin_logs (
+                        log_id      VARCHAR(36) PRIMARY KEY,
+                        player_uuid VARCHAR(36) NOT NULL,
+                        action      VARCHAR(32) NOT NULL,
+                        target      VARCHAR(64) NOT NULL,
+                        metadata    TEXT,
+                        timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        INDEX (player_uuid)
+                    )""");
             try (Statement stmt = conn.createStatement()) {
                 stmt.execute("ALTER TABLE player_skin_grants ADD COLUMN expires_at TIMESTAMP NULL");
             } catch (SQLException ignored) {
@@ -91,9 +91,9 @@ public final class MySQLDatabase implements DatabaseManager {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement("""
-                     INSERT INTO player_skin_grants (grant_id, player_uuid, skin_id, source)
-                     VALUES (?, ?, ?, ?)
-                 """)) {
+                             INSERT INTO player_skin_grants (grant_id, player_uuid, skin_id, source)
+                             VALUES (?, ?, ?, ?)
+                         """)) {
                 ps.setString(1, UUID.randomUUID().toString());
                 ps.setString(2, playerUuid.toString());
                 ps.setString(3, skinId);
@@ -110,8 +110,8 @@ public final class MySQLDatabase implements DatabaseManager {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement("""
-                     DELETE FROM player_skin_grants WHERE player_uuid = ? AND skin_id = ?
-                 """)) {
+                             DELETE FROM player_skin_grants WHERE player_uuid = ? AND skin_id = ?
+                         """)) {
                 ps.setString(1, playerUuid.toString());
                 ps.setString(2, skinId);
                 ps.executeUpdate();
@@ -194,9 +194,9 @@ public final class MySQLDatabase implements DatabaseManager {
     public void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement("""
-                 INSERT INTO player_skin_logs (log_id, player_uuid, action, target, metadata)
-                 VALUES (?, ?, ?, ?, ?)
-             """)) {
+                         INSERT INTO player_skin_logs (log_id, player_uuid, action, target, metadata)
+                         VALUES (?, ?, ?, ?, ?)
+                     """)) {
             ps.setString(1, UUID.randomUUID().toString());
             ps.setString(2, playerUuid.toString());
             ps.setString(3, action);
@@ -245,9 +245,9 @@ public final class MySQLDatabase implements DatabaseManager {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement("""
-                     INSERT INTO player_skin_grants (grant_id, player_uuid, skin_id, source, expires_at)
-                     VALUES (?, ?, ?, ?, ?)
-                 """)) {
+                             INSERT INTO player_skin_grants (grant_id, player_uuid, skin_id, source, expires_at)
+                             VALUES (?, ?, ?, ?, ?)
+                         """)) {
                 ps.setString(1, UUID.randomUUID().toString());
                 ps.setString(2, playerUuid.toString());
                 ps.setString(3, skinId);
@@ -267,10 +267,10 @@ public final class MySQLDatabase implements DatabaseManager {
             Collection<ExpiredGrant> expired = new ArrayList<>();
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement ps = conn.prepareStatement("""
-                     SELECT player_uuid, skin_id
-                     FROM player_skin_grants
-                     WHERE expires_at IS NOT NULL AND expires_at <= NOW()
-                 """)) {
+                             SELECT player_uuid, skin_id
+                             FROM player_skin_grants
+                             WHERE expires_at IS NOT NULL AND expires_at <= NOW()
+                         """)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         expired.add(new ExpiredGrant(

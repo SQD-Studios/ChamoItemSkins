@@ -28,6 +28,7 @@ import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import net.chamosmp.chamoitemskins.manager.LanguageManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         this.skinManager = skinManager;
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
-        
+
         setupInventory();
     }
 
@@ -99,7 +100,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     }
 
     public void open() {
-        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {});
+        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+        });
     }
 
     @Override
@@ -112,7 +114,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
-            
+
             RarityManager rarityManager = pluginInstance.getRarityManager();
             ModelService modelService = pluginInstance.getModelService();
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new LanguageManager(plugin))).open();
@@ -133,7 +135,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
             if (s == null) continue;
-            
+
             SlotType type = parseSlotType(s.getString("type", "Decorative"), s);
             slotsList.add(new GuiSlotDef(
                     type,
