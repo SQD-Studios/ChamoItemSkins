@@ -1,5 +1,5 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/suggestions/skinIdSuggestionsImpl.java ---
-package net.chamosmp.chamoitemskins.command.suggestions;
+package net.chamosmp.chamoitemskins.command.suggestions.skinId;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;

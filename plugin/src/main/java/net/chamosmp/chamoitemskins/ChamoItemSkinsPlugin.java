@@ -5,12 +5,13 @@ import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.command.suggestions.bundles.bundleSuggestionsImpl;
 import net.chamosmp.chamoitemskins.manager.LanguageManager;
 import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
-import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestionsImpl;
+import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestionsImpl;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.database.MySQLDatabase;
 import net.chamosmp.chamoitemskins.database.SQLiteDatabase;
@@ -95,6 +96,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         }
 
         skinIdSuggestionsImpl.init(skinManager);
+        bundleSuggestionsImpl.init(skinManager);
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
                 if (skinManager == null || grantManager == null) {

@@ -4,7 +4,6 @@ package net.chamosmp.chamoitemskins.models;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;

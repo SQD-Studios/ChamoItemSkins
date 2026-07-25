@@ -70,3 +70,9 @@ skins:
       name: <gradient:blue:aqua>Sky Meteor
       lore:
         - <i>To blend with the skies...
+bundles:
+  sky_bundle:
+    id: sky_bundle
+    name: "Sky Bundle"
+    skins:
+      - sky_meteor

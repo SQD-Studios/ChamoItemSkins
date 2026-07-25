@@ -4,7 +4,7 @@ package net.chamosmp.chamoitemskins.command;
 import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.command.suggestions.skinIdSuggestions;
+import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.manager.MigrateManager;
@@ -67,51 +67,19 @@ public final class AdminCommand {
         new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil, messageUtil).open();
     }
 
-    @Permission("chamoitemskins.admin.reload")
-    @Executes("reload")
-    public void onReload(CommandSender sender) {
-        try {
-            plugin.reloadConfig();
-            sender.sendRichMessage("<aqua>Reloaded config.");
-        } catch (Exception e) {
-            sender.sendRichMessage("<aqua>Failed to reload config." + e);
-        }
-    }
-
-    @Permission("chamoitemskins.admin.give")
-    @Executes("give")
-    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
-        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, 1, -1);
-        }, () -> {
-            Map<String, String> placeholders = Map.of("skin_id", skinId);
-            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
-        });
-    }
-
-
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
     public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
-        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
-                if (has) {
-                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("skin_id", skinId, "target", target.getName()));
-                    return;
-                }
-                grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND").thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("skin_id", skinId, "target", target.getName()));
-                });
-            });
-        }, () -> {
-            Map<String, String> placeholders = Map.of("skin_id", skinId);
-            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
-        });
+        giveAccess(sender, target, skinId, -1);
     }
 
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
     public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int days) {
+        giveAccess(sender, target, skinId, days);
+    }
+
+    private void giveAccess(CommandSender sender, Player target, String skinId, int days) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
@@ -147,57 +115,75 @@ public final class AdminCommand {
         });
     }
 
-    @Permission("chamoitemskins.admin.help")
-    @Executes("help")
-    public void onHelp(CommandSender sender) {
-        sender.sendRichMessage("List of commands:");
-        sender.sendRichMessage(" ");
-        sender.sendRichMessage("<red>Admin");
-        sender.sendRichMessage("access give <player> <skinid> - Gives direct access to a skin");
-        sender.sendRichMessage("access revoke <player> <skinid> - Revokes access to a skin");
-        sender.sendRichMessage("give <player> <skinid> [amount] [time] - Gives a physical note, to get access to a skin");
-        sender.sendRichMessage("access editor - Opens the skin editor");
-        sender.sendRichMessage("skinsadmin/sa/skinadmin - Opens the skin editor");
-        sender.sendRichMessage(" ");
-        sender.sendRichMessage("<gold>User");
-        sender.sendRichMessage("skins/skin - Opens the skin gui");
-    }
-
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount, int time) {
-        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, amount, time);
-        }, () -> {
-            Map<String, String> placeholders = Map.of("skin_id", skinId);
-            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
-        });
+        giveSkinNotes(sender, target, skinId, amount, time);
     }
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
     public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
+        giveSkinNotes(sender, target, skinId, amount, -1);
+    }
+
+    @Permission("chamoitemskins.admin.give")
+    @Executes("give")
+    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
+        giveSkinNotes(sender, target, skinId, 1, -1);
+    }
+
+    private void giveSkinNotes(CommandSender sender, Player target, String skinId, int amount, int time) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            giveSkinNotes(sender, target, skin, amount, -1);
+            Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
+            List<String> loreTmpl = config.getStringList("note.lore");
+            for (int i = 0; i < amount; i++) {
+                if (defMat == null) return;
+                target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
+            }
+            messageUtil.sendLangMessage(sender, "admin-give-note", Map.of("skin_id", skin.id(), "target", target.getName(), "amount", String.valueOf(amount)));
         }, () -> {
             Map<String, String> placeholders = Map.of("skin_id", skinId);
             messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
         });
     }
 
-    private void giveSkinNotes(CommandSender sender, Player target, Skin skin, int amount, int time) {
-        Material defMat = Material.matchMaterial(config.getString("note.default-material", "PAPER"));
-        List<String> loreTmpl = config.getStringList("note.lore");
-        for (int i = 0; i < amount; i++) {
-            if (defMat == null) return;
-            target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
-        }
-        messageUtil.sendLangMessage(sender, "admin-give-note", Map.of("skin_id", skin.id(), "target", target.getName(), "amount", String.valueOf(amount)));
-    }
+
 
     @Permission("chamoitemskins.admin.migrate")
     @Executes("migrate hmcwarps")
     public void onMigrate(CommandSender sender) {
         migrateManager.migrateHMC(sender);
+    }
+
+    @Permission("chamoitemskins.admin.reload")
+    @Executes("reload")
+    public void onReload(CommandSender sender) {
+        try {
+            plugin.reloadConfig();
+            sender.sendRichMessage("<aqua>Reloaded config.");
+        } catch (Exception e) {
+            sender.sendRichMessage("<aqua>Failed to reload config." + e);
+        }
+    }
+
+    @Permission("chamoitemskins.admin.help")
+    @Executes("help")
+    public void onHelp(CommandSender sender) {
+        sender.sendRichMessage("""
+                ------- <light_purple>ChamoItemSkins</light_purple> | List Of Commands -------
+                <red>Admin</red>
+                <yellow>/sa</yellow> - <green>Opens the admin gui</green>
+                <yellow>/sa access give </yellow><aqua><player> <skinid> [time]</aqua> - <green>Gives direct access to a skin</green>
+                <yellow>/sa access revoke </yellow><aqua><player> <skinid></aqua> - <green>Revokes access to a skin</green>
+                <yellow>/sa give </yellow><aqua><player> <skinid> [amount] [time]</aqua> - <green>Gives a physical note, to get access to a skin</green>
+                <yellow>/sa editor - <green>Opens the skin editor
+                <yellow>/sa help</yellow> - <green>This message</green>
+                <yellow>/sa migrate</yellow> <aqua><hmcwarps></aqua> - <green>Starts the migration of HMCWarps</green>
+                <yellow>/sa reload</yellow> - <green>Reloads the plugin</green>
+                
+                <light_purple>User</light_purple>
+                <yellow>/skin</yellow> - <green>Opens the skin gui
+                """);
     }
 }
