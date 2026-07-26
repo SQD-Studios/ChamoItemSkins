@@ -1,6 +1,7 @@
 // --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/ConfigUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ public final class ConfigUtil {
      * @param fileName The name of the file (e.g., "config.yml").
      * @return The loaded YamlConfiguration.
      */
-    public static @NotNull YamlConfiguration loadOrAdapt(@NotNull Plugin plugin, @NotNull String fileName) {
+    public static @NotNull YamlConfiguration loadOrAdapt(@NotNull ChamoItemSkinsPlugin plugin, @NotNull String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
         if (!file.exists()) {
             plugin.saveResource(fileName, false);
@@ -36,28 +37,30 @@ public final class ConfigUtil {
 
         var resourceStream = plugin.getResource(fileName);
         if (resourceStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(resourceStream, StandardCharsets.UTF_8)
-            );
-
-            boolean changed = false;
-            for (String key : defaultConfig.getKeys(true)) {
-                if (!config.contains(key)) {
-                    // Skip any key that belongs to the categories or rarities sections
-                    if (!key.startsWith("categories.") && !key.startsWith("rarities.")) {
-                        config.set(key, defaultConfig.get(key));
-                        changed = true;
+            try (InputStreamReader reader = new InputStreamReader(resourceStream, StandardCharsets.UTF_8)) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(reader);
+                boolean changed = false;
+                for (String key : defaultConfig.getKeys(true)) {
+                    if (!config.contains(key)) {
+                        // Skip any key that belongs to the categories or rarities sections
+                        if (!key.startsWith("categories.") && !key.startsWith("rarities.")) {
+                            config.set(key, defaultConfig.get(key));
+                            changed = true;
+                        }
                     }
                 }
+
+                if (changed) {
+                    try {
+                        config.save(file);
+                    } catch (IOException e) {
+                        plugin.getLogger().severe("Could not save adapted config " + fileName + ": " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not read default config: " + e.getMessage());
             }
 
-            if (changed) {
-                try {
-                    config.save(file);
-                } catch (IOException e) {
-                    plugin.getLogger().severe("Could not save adapted config " + fileName + ": " + e.getMessage());
-                }
-            }
         }
 
         return config;
