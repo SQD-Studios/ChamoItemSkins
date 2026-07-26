@@ -77,7 +77,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         for (Category cat : ALL_CATEGORIES) {
             boolean contains = false;
             for (Category cat2 : categories) {
-                contains = cat2.name().contains(cat.name());
+                contains = cat2.name().equalsIgnoreCase(cat.name());
             }
             String prefix = contains ? "     <gray>> <green>" : "         <dark_gray>";
             lore.add("      " + prefix + cat.name());
