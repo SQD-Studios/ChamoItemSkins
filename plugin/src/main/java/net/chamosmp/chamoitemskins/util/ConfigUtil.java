@@ -27,7 +27,7 @@ public final class ConfigUtil {
      * @param fileName The name of the file (e.g., "config.yml").
      * @return The loaded YamlConfiguration.
      */
-    public static @NotNull YamlConfiguration loadOrAdapt(@NotNull ChamoItemSkinsPlugin plugin, @NotNull String fileName) {
+    public static @NotNull YamlConfiguration loadOrAdapt(@NotNull Plugin plugin, @NotNull String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
         if (!file.exists()) {
             plugin.saveResource(fileName, false);
