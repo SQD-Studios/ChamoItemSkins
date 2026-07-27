@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/listener/GuiListener.java ---
 package net.chamosmp.chamoitemskins.listener;
 
 import org.bukkit.event.EventHandler;

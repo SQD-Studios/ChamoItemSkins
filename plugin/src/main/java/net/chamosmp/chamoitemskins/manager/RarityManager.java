@@ -1,7 +1,7 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/manager/RarityManager.java ---
 package net.chamosmp.chamoitemskins.manager;
 
-import net.chamosmp.chamoitemskins.api.model.Rarity;
+import net.chamosmp.chamoitemskins.api.objects.Rarity;
+import net.chamosmp.chamoitemskins.api.service.RarityService;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Loads and serves user-defined rarity tiers from config.yml.
  */
-public final class RarityManager {
+public final class RarityManager implements RarityService {
     private final Plugin plugin;
     private final Map<String, Rarity> rarities = new LinkedHashMap<>();
     private boolean enabled;
@@ -27,8 +27,9 @@ public final class RarityManager {
      *
      * @param plugin The plugin instance.
      */
-    public RarityManager(@NotNull Plugin plugin) {
+    public RarityManager(@NotNull Plugin plugin, @NotNull FileConfiguration config) {
         this.plugin = plugin;
+        load(config);
     }
 
     /**
@@ -36,7 +37,7 @@ public final class RarityManager {
      *
      * @param config The configuration to load from.
      */
-    public void load(@NotNull FileConfiguration config) {
+    private void load(@NotNull FileConfiguration config) {
         rarities.clear();
         ConfigurationSection section = config.getConfigurationSection("rarities");
         if (section == null) {
@@ -66,52 +67,30 @@ public final class RarityManager {
         }
     }
 
-    /**
-     * Checks if rarity features are enabled.
-     *
-     * @return True if enabled.
-     */
+    @Override
     public boolean isEnabled() {
         return enabled && !rarities.isEmpty();
     }
 
-    /**
-     * Gets all loaded rarities, sorted by priority.
-     *
-     * @return A list of rarities.
-     */
+    @Override
     public @NotNull List<Rarity> getRarities() {
         return rarities.values().stream()
                 .sorted((a, b) -> Integer.compare(a.priority(), b.priority()))
                 .toList();
     }
 
-    /**
-     * Gets a rarity by its ID.
-     *
-     * @param id The rarity ID.
-     * @return An optional containing the rarity if found.
-     */
+    @Override
     public @NotNull Optional<Rarity> getRarity(@NotNull String id) {
         return Optional.ofNullable(rarities.get(id.toLowerCase()));
     }
 
-    /**
-     * Gets the default rarity (the one with the lowest priority).
-     *
-     * @return The default rarity.
-     */
+    @Override
     public @NotNull Rarity getDefaultRarity() {
         return getRarities().stream().findFirst()
                 .orElse(new Rarity("common", "Common", "<gray>", 0));
     }
 
-    /**
-     * Resolves a rarity ID to a Rarity object, falling back to default if not found.
-     *
-     * @param id The rarity ID to resolve.
-     * @return The resolved rarity.
-     */
+    @Override
     public @NotNull Rarity resolve(@Nullable String id) {
         if (id == null || id.isBlank()) {
             return getDefaultRarity();
@@ -122,11 +101,7 @@ public final class RarityManager {
         });
     }
 
-    /**
-     * Gets an unmodifiable map of all rarities.
-     *
-     * @return The rarity map.
-     */
+    @Override
     public @NotNull Map<String, Rarity> getRarityMap() {
         return Collections.unmodifiableMap(rarities);
     }

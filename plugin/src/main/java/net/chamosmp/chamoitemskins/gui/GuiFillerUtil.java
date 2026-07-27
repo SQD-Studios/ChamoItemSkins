@@ -1,6 +1,6 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/GuiFillerUtil.java ---
 package net.chamosmp.chamoitemskins.gui;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,8 +97,8 @@ public final class GuiFillerUtil {
     /**
      * Applies filler to an inventory using the plugin's cached config, or loads directly as fallback.
      */
-    public static void apply(@NotNull org.bukkit.plugin.Plugin plugin, @NotNull Inventory inventory, @Nullable Player player) {
-        if (plugin instanceof net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin chamo) {
+    public static void apply(@NotNull Plugin plugin, @NotNull Inventory inventory, @Nullable Player player) {
+        if (plugin instanceof ChamoItemSkinsPlugin chamo) {
             chamo.getGuiFillerUtil().fillEmpty(inventory, player);
         } else {
             load(plugin.getConfig()).fillEmpty(inventory, player);

@@ -1,5 +1,6 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/service/LogService.java ---
 package net.chamosmp.chamoitemskins.api.service;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -7,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Service for logging skin-related actions.
  */
+@ApiStatus.Internal
 public interface LogService {
     /**
      * Logs an action.

@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.manager;
 
+import net.chamosmp.chamoitemskins.api.service.LanguageService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -8,7 +9,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class LanguageManager {
+public final class LanguageManager implements LanguageService {
 
     private final Plugin plugin;
     private final String defaultLang = "en";
@@ -29,7 +30,7 @@ public final class LanguageManager {
      * Loads a language file from lang/<code >.yml</code><br>
      * Falls back to default language if the file is missing or invalid.
      */
-    public void loadLanguage(String langCode) {
+    private void loadLanguage(String langCode) {
         File langFile = new File(plugin.getDataFolder(), "lang/" + langCode + ".yml");
         if (!langFile.exists()) {
             plugin.getLogger().warning("Language file 'lang/" + langCode + ".yml' not found. Using default: " + defaultLang);

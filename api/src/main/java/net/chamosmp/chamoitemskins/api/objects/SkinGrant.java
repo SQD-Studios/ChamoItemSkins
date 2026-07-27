@@ -1,5 +1,4 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/model/SkinGrant.java ---
-package net.chamosmp.chamoitemskins.api.model;
+package net.chamosmp.chamoitemskins.api.objects;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -2,10 +2,10 @@ package net.chamosmp.chamoitemskins;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
-import net.chamosmp.chamoitemskins.api.service.GrantService;
-import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.api.models.Model;
+import net.chamosmp.chamoitemskins.api.service.*;
 import net.chamosmp.chamoitemskins.command.suggestions.bundles.bundleSuggestionsImpl;
+import net.chamosmp.chamoitemskins.command.CommandRegisterException;
 import net.chamosmp.chamoitemskins.manager.LanguageManager;
 import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
@@ -32,11 +32,11 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,22 +48,24 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private CacheManager cacheManager;
     private LogManager logManager;
     private RarityManager rarityManager;
-    private GuiFillerUtil guiFillerUtil;
-    private ModelService modelService;
-    private ChatInputUtil chatInputUtil;
-    private DialogUtil dialogUtil;
     private MigrateManager migrateManager;
     private LanguageManager langManager;
+    private CategoryManager categoryManager;
+
     private UpdateUtil updateUtil;
+    private ChatInputUtil chatInputUtil;
+    private DialogUtil dialogUtil;
+    private GuiFillerUtil guiFillerUtil;
+    private MessageUtil messageUtil;
+
+    private ModelService modelService;
 
     /**
      * When the plugins load, at the very start of your server
      */
     @Override
     public void onLoad() {
-        new MessageUtil(langManager);
 
-        NoteUtil.init(this);
     }
 
     /**
@@ -72,21 +74,12 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
-
-        migrateManager = new MigrateManager(this, skinManager);
-        Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
-
         reloadPlugin();
 
-        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), new MessageUtil(langManager)), this);
-        Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
-        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
-        Bukkit.getPluginManager().registerEvents(new UpdateUtil(this), this);
+        registerClasses();
+
         try {
-            getServer().getPluginManager().registerEvents(new SelfPackUtil(this), this);
+            registerEvents();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -95,14 +88,25 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
             new ChamoItemSkinsExpansion(skinManager, grantManager, rarityManager, this).register();
         }
 
+        registerCommands();
+
+        registerMetrics();
+
+        try {
+            updateUtil.versionCheck();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        getLogger().info("ChamoItemSkins enabled successfully.");
+    }
+
+    private void registerCommands() {
         skinIdSuggestionsImpl.init(skinManager);
         bundleSuggestionsImpl.init(skinManager);
+
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
-                if (skinManager == null || grantManager == null) {
-                    initManagers();
-                }
-
                 var guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
                 var adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
@@ -114,37 +118,51 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 String adminTitle = adminGuiConfig.getString("title", "Admin");
                 int adminSize = adminGuiConfig.getInt("size", 54);
 
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, new MessageUtil(langManager));
-                getLogger().info("Successfully registered commands.");
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
+                getLogger().info("Registered commands.");
             } catch (Exception e) {
-                getLogger().severe("Failed to register commands: " + e.getMessage());
-                e.printStackTrace();
+                throw new CommandRegisterException("Failed to register commands: ", e);
             }
         }));
+    }
+
+    private void registerMetrics() {
         Metrics metrics = new Metrics(this, 31970);
         metrics.addCustomChart(
                 new SingleLineChart("totalskins", () -> getSkinService().getSkins().size())
         );
-
         getLogger().info("Successfully loaded metrics.");
+    }
 
-        updateUtil = new UpdateUtil(this);
-        try {
-            updateUtil.versionCheck();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    private void registerClasses() {
+        Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.High);
 
-        getLogger().info("ChamoItemSkins enabled successfully.");
+        Bukkit.getServicesManager().register(CacheService.class, getCacheService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(CategoryService.class, getCategoryService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(LanguageService.class, getLanguageService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(MigrateService.class, getMigrateService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(RarityService.class, getRarityService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
+
+        Bukkit.getServicesManager().register(Model.class, getModelClass(), this, ServicePriority.Normal);
+    }
+
+    private void registerEvents() throws IOException {
+        Bukkit.getPluginManager().registerEvents(new SelfPackUtil(this), this);
+        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), messageUtil), this);
+        Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
+        Bukkit.getPluginManager().registerEvents(new UpdateUtil(this), this);
     }
 
     private void initManagers() {
         var config = getConfig();
         if (this.databaseManager == null) setupDatabase(config);
         if (this.rarityManager == null) {
-            this.rarityManager = new RarityManager(this);
-            this.rarityManager.load(config);
+            this.rarityManager = new RarityManager(this, config);
         }
         if (this.skinManager == null) {
             this.skinManager = new SkinManager(this, rarityManager, databaseManager);
@@ -153,15 +171,34 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         if (this.modelService == null) this.modelService = new ModelService();
         if (this.cacheManager == null) this.cacheManager = new CacheManager(config.getLong("cache.ttl-seconds", 300));
         if (this.logManager == null) this.logManager = new LogManager(this, databaseManager);
-        if (this.grantManager == null) {
+        if (this.grantManager == null)
             this.grantManager = new GrantManager(this, databaseManager, cacheManager, skinManager, logManager, modelService);
-        }
         if (this.langManager == null) this.langManager = new LanguageManager(this);
+        if (this.migrateManager == null) migrateManager = new MigrateManager(this, skinManager);
+        if (this.categoryManager == null) this.categoryManager = new CategoryManager(this);
     }
 
     /**
-     * The method to reload the plugin
+     * Always run after the managers have been initialized
      */
+    private void initElse() {
+        this.messageUtil = new MessageUtil(langManager);
+        this.guiFillerUtil = GuiFillerUtil.load(getConfig());
+        this.dialogUtil = new DialogUtil(this);
+        this.chatInputUtil = new ChatInputUtil(this, dialogUtil, messageUtil);
+        this.updateUtil = new UpdateUtil(this);
+        NoteUtil.init(this);
+    }
+
+    /// 1. Config<br>
+    /// 1.1 Saves the configs<br>
+    /// 1.2 Reloads the config<br>
+    /// 2. Init<br>
+    /// 2.2 Inits the managers<br>
+    /// 2.3 Inits everything else<br>
+    /// 3. Check grants<br>
+    /// 4. Schedule grants in 6000 ticks<br>
+    /// 5. Schedule this task in 7000 ticks
     public void reloadPlugin() {
 
         ConfigUtil.loadOrAdapt(this, "config.yml");
@@ -171,17 +208,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         reloadConfig();
 
         initManagers();
-
-        this.guiFillerUtil = GuiFillerUtil.load(getConfig());
-        this.dialogUtil = new DialogUtil(this);
-        this.chatInputUtil = new ChatInputUtil(this, dialogUtil, new MessageUtil(langManager));
-
-
-        Bukkit.getServicesManager().unregisterAll(this);
-        Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
+        initElse();
 
         SchedulerUtil.runAsync(this, () -> grantManager.checkAndRevokeExpiredGrants());
 
@@ -245,9 +272,19 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         };
     }
 
+    public @NotNull GuiFillerUtil getGuiFillerUtil() {
+        return guiFillerUtil != null ? guiFillerUtil : GuiFillerUtil.load(getConfig());
+    }
+
+
     @Override
-    public @NotNull SkinService getSkinService() {
-        return skinManager;
+    public @NotNull CacheService getCacheService() {
+        return cacheManager;
+    }
+
+    @Override
+    public @NotNull CategoryService getCategoryService() {
+        return categoryManager;
     }
 
     @Override
@@ -256,24 +293,32 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     @Override
+    public @NotNull LanguageService getLanguageService() {
+        return langManager;
+    }
+
+    @Override
     public @NotNull LogService getLogService() {
         return logManager;
     }
 
-    public @NotNull RarityManager getRarityManager() {
+    @Override
+    public @NotNull MigrateService getMigrateService() {
+        return migrateManager;
+    }
+
+    @Override
+    public @NotNull RarityService getRarityService() {
         return rarityManager;
     }
 
-    public @NotNull GuiFillerUtil getGuiFillerUtil() {
-        return guiFillerUtil != null ? guiFillerUtil : GuiFillerUtil.load(getConfig());
+    @Override
+    public @NotNull SkinService getSkinService() {
+        return skinManager;
     }
 
-    public ChatInputUtil getChatInputUtil() {
-        return chatInputUtil;
-    }
-
-    public @NotNull ModelService getModelService() {
+    @Override
+    public @NotNull Model getModelClass() {
         return modelService;
     }
-
 }

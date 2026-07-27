@@ -1,10 +1,9 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/YamlUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Rarity;
-import net.chamosmp.chamoitemskins.api.model.Skin;
-import net.chamosmp.chamoitemskins.api.model.SkinBundle;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Rarity;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;

@@ -1,8 +1,7 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/MainSkinsGui.java ---
 package net.chamosmp.chamoitemskins.gui.main;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.models.ModelService;
@@ -48,9 +47,11 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final Map<Integer, String> categorySlots = new HashMap<>();
     private final SkinManager skinManager;
     private final ChatInputUtil chatInputUtil;
+    private final ModelService modelService;
+    private final RarityManager rarityManager;
 
 
-    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil) {
+    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager) {
         this.plugin = plugin;
         this.pluginInstance = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
@@ -59,6 +60,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         this.slots = slots;
         this.skinManager = skinManager;
         this.chatInputUtil = chatInputUtil;
+        this.modelService = modelService;
+        this.rarityManager = rarityManager;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
 
         setupInventory();
@@ -115,8 +118,6 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
 
-            RarityManager rarityManager = pluginInstance.getRarityManager();
-            ModelService modelService = pluginInstance.getModelService();
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new LanguageManager(plugin))).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {

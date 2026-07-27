@@ -1,5 +1,4 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/model/Skin.java ---
-package net.chamosmp.chamoitemskins.api.model;
+package net.chamosmp.chamoitemskins.api.objects;
 
 import org.bukkit.Material;
 

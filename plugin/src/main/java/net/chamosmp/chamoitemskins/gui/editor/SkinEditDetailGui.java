@@ -1,16 +1,17 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/editor/SkinEditDetailGui.java ---
 package net.chamosmp.chamoitemskins.gui.editor;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Rarity;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Rarity;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,18 +38,24 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     private Skin skin;
     private final Inventory inventory;
     private final MessageUtil messageUtil;
+    private final CategoryManager categoryManager;
+    private final ModelService modelService;
+    private final ChatInputUtil chatInputUtil;
+
     private final List<Category> CATEGORIES;
 
-    public SkinEditDetailGui(Plugin plugin, Player player, SkinService skinService, Skin skin, MessageUtil messageUtil) {
+    public SkinEditDetailGui(Plugin plugin, Player player, SkinService skinService, Skin skin, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
-        this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
+        this.rarityManager = rarityManager;
         this.skin = skin;
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<gold>Edit Skin: " + skin.id()));
         this.messageUtil = messageUtil;
-        CategoryManager categoryManager = new CategoryManager(this.plugin);
+        this.categoryManager = categoryManager;
+        this.modelService = modelService;
         this.CATEGORIES = categoryManager.getCategories();
+        this.chatInputUtil = chatInputUtil;
         refresh();
     }
 
@@ -128,7 +135,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
                 skin = new Skin(skin.id(), input, skin.modelId(), skin.rarity(), skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
                 saveAndRefresh();
                 open();
@@ -137,13 +144,13 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), skin.rarity(), skin.categories(), !skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 12) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
                 skin = new Skin(skin.id(), skin.name(), input, skin.rarity(), skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
                 saveAndRefresh();
                 open();
             }, "editoreditmodelid", Component.text(skin.id(), NamedTextColor.LIGHT_PURPLE), skin.modelId());
         } else if (slot == 13) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter NEW skin ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter NEW skin ID:", NamedTextColor.YELLOW), input -> {
                 String oldId = skin.id();
                 String newId = input.toLowerCase().replace(" ", "_");
                 if (oldId.equals(newId)) {
@@ -175,18 +182,17 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             skin = new Skin(skin.id(), skin.name(), skin.modelId(), nextRarity, skin.categories(), skin.enabled(), skin.noteMaterial(), skin.displayItem(), skin.animations());
             saveAndRefresh();
         } else if (slot == 25) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getYesNo(player, input -> {
+            chatInputUtil.getYesNo(player, input -> {
                 if (input.equalsIgnoreCase("true")) {
                     skinService.deleteSkin(skin.id());
                     ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
-                    new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
+                    new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
 
                 } else {
-                    return;
                 }
             }, "editoreditdeleteconf", Component.text("Are you sure you want to delete this skin?"));
         } else if (slot == 26) {
-            new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         }
     }
 

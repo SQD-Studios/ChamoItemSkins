@@ -1,7 +1,7 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/bettermodel/BetterModelService.java ---
 package net.chamosmp.chamoitemskins.models;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.models.Model;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Service for applying BetterModel item models to {@link ItemStack}s.
  */
-public final class ModelService extends NexoService {
+public final class ModelService extends NexoService implements Model {
 
     private static final String NAMESPACE = "chamoitemskins";
 
@@ -26,11 +26,7 @@ public final class ModelService extends NexoService {
 
     }
 
-    /**
-     * Builds a GUI preview item using the skin model when available, otherwise the display material.
-     *
-     * @param skin The model, of the skin to apply
-     */
+    @Override
     public @NotNull ItemStack createPreviewItem(@NotNull Skin skin) {
         Material material = skin.displayItem() != null ? skin.displayItem().material() : Material.BARRIER;
         ItemStack item = new ItemStack(material);
@@ -40,15 +36,7 @@ public final class ModelService extends NexoService {
         return item;
     }
 
-    /**
-     * Applies a custom item model to an {@link ItemStack}.
-     *
-     * @param item    The item stack to apply the model to.
-     * @param modelId The ID of the model to apply.
-     *
-     * @deprecated Use {@link ModelService#getItemModel(ItemStack, String)}
-     */
-    @Deprecated
+    @Override
     public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
         if (modelId.isBlank() || item.getType().isAir()) {
             return;
@@ -71,14 +59,7 @@ public final class ModelService extends NexoService {
 
     }
 
-    /**
-     * Returns an item, with a model applied to it.
-     *
-     * @param item    The item stack to apply the model to.
-     * @param modelId The ID of the model to apply.
-     *
-     * @return The itemstack
-     */
+    @Override
     public ItemStack getItemModel(@NotNull ItemStack item, @NotNull String modelId) {
         if (modelId.isBlank() || item.getType().isAir()) {
             return item;
@@ -96,9 +77,7 @@ public final class ModelService extends NexoService {
         return item;
     }
 
-    /**
-     * Removes a custom item model from a stack.
-     */
+    @Override
     public void clearItemModel(@NotNull ItemStack item) {
         if (item.getType().isAir()) {
             return;
@@ -111,9 +90,7 @@ public final class ModelService extends NexoService {
         item.setItemMeta(meta);
     }
 
-    /**
-     * Updates every inventory stack of {@code material} for the player.
-     */
+    @Override
     public void refreshMaterial(@NotNull Player player, @NotNull Material material, @Nullable Skin skin) {
         for (ItemStack item : collectItems(player)) {
             if (item != null && item.getType() == material) {
@@ -126,9 +103,7 @@ public final class ModelService extends NexoService {
         }
     }
 
-    /**
-     * Re-applies active skin models across the player's entire inventory.
-     */
+    @Override
     public void refreshInventory(@NotNull Player player, @NotNull Map<Material, Skin> activeSkins) {
         for (ItemStack item : collectItems(player)) {
             if (item == null || item.getType().isAir()) {

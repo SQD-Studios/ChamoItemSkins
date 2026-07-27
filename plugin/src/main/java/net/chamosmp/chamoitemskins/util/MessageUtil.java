@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/MessageUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;

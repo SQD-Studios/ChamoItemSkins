@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/listener/SkinApplyListener.java ---
 package net.chamosmp.chamoitemskins.listener;
 
 import net.chamosmp.chamoitemskins.manager.GrantManager;

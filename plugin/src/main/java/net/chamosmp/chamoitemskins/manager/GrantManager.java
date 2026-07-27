@@ -1,17 +1,16 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/manager/GrantManager.java ---
 package net.chamosmp.chamoitemskins.manager;
 
-import net.chamosmp.chamoitemskins.api.event.SkinEquipEvent;
+import  net.chamosmp.chamoitemskins.api.event.SkinEquipEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinGrantEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinRevokeEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinUnequipEvent;
-import net.chamosmp.chamoitemskins.api.model.Skin;
-import net.chamosmp.chamoitemskins.api.model.SkinBundle;
-import net.chamosmp.chamoitemskins.api.model.SkinGrant;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
+import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,13 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**

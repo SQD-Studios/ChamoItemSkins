@@ -1,9 +1,8 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/database/SQLiteDatabase.java ---
 package net.chamosmp.chamoitemskins.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.chamosmp.chamoitemskins.api.model.SkinGrant;
+import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;

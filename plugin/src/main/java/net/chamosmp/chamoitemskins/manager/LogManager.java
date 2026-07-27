@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/manager/LogManager.java ---
 package net.chamosmp.chamoitemskins.manager;
 
 import net.chamosmp.chamoitemskins.api.service.LogService;

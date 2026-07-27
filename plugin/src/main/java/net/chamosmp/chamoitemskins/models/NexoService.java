@@ -2,25 +2,18 @@ package net.chamosmp.chamoitemskins.models;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
+import net.chamosmp.chamoitemskins.api.models.Nexo;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class NexoService {
+public class NexoService implements Nexo {
 
     public boolean isNexo(@NotNull String modelId) {
         return modelId.contains("nexo:");
     }
 
-    /**
-     * Change the {@code itemStack}, to a Nexo Item
-     *
-     * @param itemStack The {@link ItemStack}, to replace
-     * @param nexoId The nexo item id
-     *
-     * @deprecated Use {@link NexoService#getNexoItem(ItemStack, String)}
-     */
-    @Deprecated
+    @Override
     public void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
         if (!isNexoEnabled()) {
             return;
@@ -34,6 +27,7 @@ public class NexoService {
         itemStack.setAmount(amount);
     }
 
+    @Override
     public ItemStack getNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
         if (!isNexoEnabled()) return itemStack;
 
@@ -45,10 +39,12 @@ public class NexoService {
         return itemStack.withType(newItem.getType());
     }
 
+    @Override
     public String getNexoId(@NotNull String modelId) {
         return modelId.split("nexo:")[1];
     }
 
+    @Override
     public boolean isNexoEnabled() {
         return Bukkit.getServer().getPluginManager().getPlugin("Nexo") != null;
     }

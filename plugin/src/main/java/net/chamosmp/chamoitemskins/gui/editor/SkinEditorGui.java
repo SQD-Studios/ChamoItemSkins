@@ -1,13 +1,15 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/editor/SkinEditorGui.java ---
 package net.chamosmp.chamoitemskins.gui.editor;
 
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,7 +19,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import net.chamosmp.chamoitemskins.manager.LanguageManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,13 +39,21 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final List<Skin> skins;
     private final List<Integer> skinSlots;
     private final Map<Integer, Skin> slotToSkin = new HashMap<>();
+    private final CategoryManager categoryManager;
+    private final MessageUtil messageUtil;
+    private final RarityManager rarityManager;
+    private final ChatInputUtil chatInputUtil;
 
-    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService) {
+    public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.modelService = modelService;
         this.skins = new ArrayList<>(skinService.getSkins());
+        this.categoryManager = categoryManager;
+        this.messageUtil = messageUtil;
+        this.rarityManager = rarityManager;
+        this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<gold>Skin Editor"));
         this.skinSlots = computeSkinSlots(inventory.getSize());
 
@@ -118,13 +127,13 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == NEW_SKIN_SLOT) {
-            new SkinCreationGui(plugin, player, skinService, new MessageUtil(new LanguageManager(plugin))).open();
+            new SkinCreationGui(plugin, player, skinService, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil).open();
             return;
         }
 
         Skin skin = slotToSkin.get(slot);
         if (skin != null) {
-            new SkinEditDetailGui(plugin, player, skinService, skin, new MessageUtil(new LanguageManager(plugin))).open();
+            new SkinEditDetailGui(plugin, player, skinService, skin, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
         }
     }
 

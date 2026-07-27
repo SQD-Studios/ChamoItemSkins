@@ -1,7 +1,6 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/event/SkinUnequipEvent.java ---
 package net.chamosmp.chamoitemskins.api.event;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;

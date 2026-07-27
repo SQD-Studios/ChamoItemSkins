@@ -2,8 +2,8 @@ package net.chamosmp.chamoitemskins.manager;
 
 import de.skyslycer.hmcwraps.HMCWraps;
 import de.skyslycer.hmcwraps.serialization.wrap.Wrap;
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;

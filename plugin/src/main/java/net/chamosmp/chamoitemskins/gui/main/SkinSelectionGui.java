@@ -1,8 +1,7 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/main/SkinSelectionGui.java ---
 package net.chamosmp.chamoitemskins.gui.main;
 
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.models.ModelService;

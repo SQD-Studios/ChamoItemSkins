@@ -1,7 +1,6 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/NoteUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;

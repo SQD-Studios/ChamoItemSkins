@@ -1,7 +1,6 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/database/DatabaseManager.java ---
 package net.chamosmp.chamoitemskins.database;
 
-import net.chamosmp.chamoitemskins.api.model.SkinGrant;
+import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/AdminGui.java ---
 package net.chamosmp.chamoitemskins.gui.admin;
 
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
@@ -6,7 +5,11 @@ import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.gui.editor.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
@@ -32,13 +35,21 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final List<GuiSlotDef> slots;
     private final DialogUtil dialogUtil;
     private final MessageUtil messageUtil;
+    private final CategoryManager categoryManager;
+    private final ModelService modelService;
+    private final RarityManager rarityManager;
+    private final ChatInputUtil chatInputUtil;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, DialogUtil dialogUtil, MessageUtil messageUtil) {
+    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, DialogUtil dialogUtil, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
         this.dialogUtil = dialogUtil;
         this.messageUtil = messageUtil;
+        this.categoryManager = categoryManager;
+        this.modelService = modelService;
+        this.rarityManager = rarityManager;
+        this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of()));
 
         setupInventory();
@@ -67,8 +78,8 @@ public final class AdminGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            if (def.type() instanceof SlotType.ActionSlot action) {
-                handleAction(action.action());
+            if (def.type() instanceof SlotType.ActionSlot(String action1)) {
+                handleAction(action1);
             }
         });
     }
@@ -89,10 +100,10 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 if (service == null) {
                     service = net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi.get().getSkinService();
                 }
-                new SkinEditorGui(plugin, player, service, ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getModelService()).open();
+                new SkinEditorGui(plugin, player, service, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
             }
             case "GIVE" -> {
-                ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to GIVE note:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, Component.text("Enter skin ID to GIVE note:", NamedTextColor.YELLOW), skinId -> {
                     if (skinId == null) {
                         open();
                         return;
@@ -102,7 +113,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 }, "adminguigiveskinid", Component.text("Give Note", NamedTextColor.YELLOW));
             }
             case "GRANT" -> {
-                ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to GRANT access:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, Component.text("Enter skin ID to GRANT access:", NamedTextColor.YELLOW), skinId -> {
                     if (skinId == null) {
                         open();
                         return;
@@ -112,7 +123,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 }, "adminguigrant", Component.text("Grant Access", NamedTextColor.YELLOW));
             }
             case "REVOKE" -> {
-                ((net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID to REVOKE access:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, Component.text("Enter skin ID to REVOKE access:", NamedTextColor.YELLOW), skinId -> {
                     if (skinId == null) {
                         open();
                         return;

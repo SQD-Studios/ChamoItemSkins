@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/listener/NoteListener.java ---
 package net.chamosmp.chamoitemskins.listener;
 
 import net.chamosmp.chamoitemskins.api.service.GrantService;
@@ -46,7 +45,7 @@ public final class NoteListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         ItemStack item = event.getItem();
-        if (item == null || !NoteUtil.isNote(item)) return;
+        if (!NoteUtil.isNote(item)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();

@@ -1,8 +1,7 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/service/SkinService.java ---
 package net.chamosmp.chamoitemskins.api.service;
 
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +24,7 @@ public interface SkinService {
      *
      * @return A collection of all bundles.
      */
-    @NotNull Collection<net.chamosmp.chamoitemskins.api.model.SkinBundle> getBundles();
+    @NotNull Collection<net.chamosmp.chamoitemskins.api.objects.SkinBundle> getBundles();
 
     /**
      * Gets a skin by its ID.
@@ -41,7 +40,7 @@ public interface SkinService {
      * @param id The bundle ID.
      * @return An optional containing the bundle if found.
      */
-    @NotNull Optional<net.chamosmp.chamoitemskins.api.model.SkinBundle> getBundle(@NotNull String id);
+    @NotNull Optional<net.chamosmp.chamoitemskins.api.objects.SkinBundle> getBundle(@NotNull String id);
 
     /**
      * Gets all skins applicable to a specific material or its categories.
@@ -65,7 +64,7 @@ public interface SkinService {
      *
      * @param bundle The bundle to save.
      */
-    void saveBundle(@NotNull net.chamosmp.chamoitemskins.api.model.SkinBundle bundle);
+    void saveBundle(@NotNull net.chamosmp.chamoitemskins.api.objects.SkinBundle bundle);
 
     /**
      * Deletes a skin definition.

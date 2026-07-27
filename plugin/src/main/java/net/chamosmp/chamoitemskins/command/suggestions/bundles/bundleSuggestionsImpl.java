@@ -4,7 +4,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.chamosmp.chamoitemskins.api.model.SkinBundle;
+import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
 
 import java.util.concurrent.CompletableFuture;

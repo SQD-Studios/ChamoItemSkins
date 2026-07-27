@@ -1,9 +1,8 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/placeholder/ChamoItemSkinsExpansion.java ---
 package net.chamosmp.chamoitemskins.placeholder;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.manager.RarityManager;

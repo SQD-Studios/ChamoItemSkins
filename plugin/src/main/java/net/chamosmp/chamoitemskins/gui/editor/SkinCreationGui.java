@@ -1,16 +1,16 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/editor/SkinCreationGui.java ---
 package net.chamosmp.chamoitemskins.gui.editor;
 
-import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.model.Category;
-import net.chamosmp.chamoitemskins.api.model.Rarity;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.objects.Rarity;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,11 +35,14 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final RarityManager rarityManager;
     private final MessageUtil messageUtil;
+    private final ModelService modelService;
+    private final CategoryManager categoryManager;
+    private final ChatInputUtil chatInputUtil;
 
     private String id = "new_skin";
     private String name = "New Skin";
     private String modelId = "model_id";
-    private Material itemType = Material.DIAMOND_SWORD;
+    private final Material itemType = Material.DIAMOND_SWORD;
     private List<Category> categories = new ArrayList<>();
     private boolean enabled = true;
 
@@ -49,15 +52,17 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
 
     private final List<Category> ALL_CATEGORIES;
 
-    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil) {
+    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
-        this.rarityManager = ((ChamoItemSkinsPlugin) plugin).getRarityManager();
+        this.rarityManager = rarityManager;
         this.messageUtil = messageUtil;
-        CategoryManager categoryManager = new CategoryManager(this.plugin);
+        this.modelService = modelService;
+        this.categoryManager = categoryManager;
         this.ALL_CATEGORIES = categoryManager.getCategories();
         this.rarity = rarityManager.getDefaultRarity();
+        this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<green>Create New Skin"));
 
         refresh();
@@ -152,7 +157,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter skin ID:", NamedTextColor.YELLOW), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -162,7 +167,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 refresh();
             }, "editorcreateskinid", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 11) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -172,7 +177,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 refresh();
             }, "editorcreateskinname", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 12) {
-            ((ChamoItemSkinsPlugin) plugin).getChatInputUtil().getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -193,7 +198,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
             enabled = !enabled;
             refresh();
         } else if (slot == 25) {
-            new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         } else if (slot == 26) {
             Material displayMat = Material.PAPER;
             if (!categories.isEmpty()) {
@@ -215,7 +220,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                     new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
             skinService.saveSkin(skin);
             messageUtil.sendLangMessage(player, "<green>Skin created!");
-            new SkinEditorGui(plugin, player, skinService, ((ChamoItemSkinsPlugin) plugin).getModelService()).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         }
     }
 

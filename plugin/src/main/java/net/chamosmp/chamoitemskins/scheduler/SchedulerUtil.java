@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/scheduler/SchedulerUtil.java ---
 package net.chamosmp.chamoitemskins.scheduler;
 
 import org.bukkit.Bukkit;

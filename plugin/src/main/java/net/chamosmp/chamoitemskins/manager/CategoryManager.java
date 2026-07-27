@@ -1,7 +1,7 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/manager/RarityManager.java ---
 package net.chamosmp.chamoitemskins.manager;
 
-import net.chamosmp.chamoitemskins.api.model.Category;
+import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.service.CategoryService;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Loads and serves user-defined rarity tiers from config.yml.
  */
-public final class CategoryManager {
+public final class CategoryManager implements CategoryService {
     private final Plugin plugin;
     private final Map<String, Category> categories = new LinkedHashMap<>();
 
@@ -28,19 +28,18 @@ public final class CategoryManager {
      */
     public CategoryManager(@NotNull Plugin plugin) {
         this.plugin = plugin;
-
         load();
     }
 
     /**
      * Loads categories from the given configuration.
      */
-    public void load() {
+    private void load() {
         FileConfiguration config = plugin.getConfig();
         categories.clear();
         ConfigurationSection section = config.getConfigurationSection("categories");
         if (section == null) {
-            plugin.getLogger().warning(DISABLE_MESSAGE);
+            plugin.getLogger().severe(DISABLE_MESSAGE);
             return;
         }
         for (String key : section.getKeys(false)) {
@@ -61,25 +60,19 @@ public final class CategoryManager {
         }
     }
 
-    /**
-     * Gets all loaded categories.
-     *
-     * @return A list of categories.
-     */
+    @Override
     public @NotNull List<Category> getCategories() {
         return categories.values().stream()
                 .toList();
     }
 
-    /**
-     * Gets an unmodifiable map of all categories.
-     *
-     * @return The rarity map.
-     */
+
+    @Override
     public @NotNull Map<String, Category> getCategoryMap() {
         return Collections.unmodifiableMap(categories);
     }
 
+    @Override
     public Category getCategoryByName(String name) {
         return categories.values().stream()
                 .filter(cat -> cat.name().equalsIgnoreCase(name))

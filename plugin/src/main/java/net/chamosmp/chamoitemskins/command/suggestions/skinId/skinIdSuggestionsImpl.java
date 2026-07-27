@@ -1,11 +1,10 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/suggestions/skinIdSuggestionsImpl.java ---
 package net.chamosmp.chamoitemskins.command.suggestions.skinId;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
 
 import java.util.concurrent.CompletableFuture;

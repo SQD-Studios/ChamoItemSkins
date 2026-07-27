@@ -1,10 +1,9 @@
-// --- api/src/main/java/net/chamosmp/chamoitemskins/api/ChamoItemSkinsApi.java ---
 package net.chamosmp.chamoitemskins.api;
 
-import net.chamosmp.chamoitemskins.api.service.GrantService;
-import net.chamosmp.chamoitemskins.api.service.LogService;
-import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.api.models.Model;
+import net.chamosmp.chamoitemskins.api.service.*;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,24 +24,33 @@ public interface ChamoItemSkinsApi {
         return instance;
     }
 
-    /**
-     * Get the skin service
-     *
-     * @return The skin service.
-     */
-    @NotNull SkinService getSkinService();
+    /// Get the {@link CacheService} class
+    @ApiStatus.Internal
+    @NotNull CacheService getCacheService();
 
-    /**
-     * Get the grant service
-     *
-     * @return The grant service.
-     */
+    /// Get the {@link CategoryService} class
+    @NotNull CategoryService getCategoryService();
+
+    /// Get the {@link GrantService} class
     @NotNull GrantService getGrantService();
 
-    /**
-     * Get the log service
-     *
-     * @return The log service.
-     */
+    /// Get the {@link LanguageService} class
+    @ApiStatus.Internal
+    @NotNull LanguageService getLanguageService();
+
+    /// Get the {@link LogService} class
+    @ApiStatus.Internal
     @NotNull LogService getLogService();
+
+    /// Get the {@link MigrateService} class
+    @NotNull MigrateService getMigrateService();
+
+    /// Get the {@link RarityService} class
+    @NotNull RarityService getRarityService();
+
+    /// Get the {@link SkinService} class
+    @NotNull SkinService getSkinService();
+
+    /// Get the {@link Model} class
+    @NotNull Model getModelClass();
 }

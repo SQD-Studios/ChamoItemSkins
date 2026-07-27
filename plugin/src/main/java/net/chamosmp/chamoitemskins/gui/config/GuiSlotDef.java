@@ -1,4 +1,3 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/gui/config/GuiSlotDef.java ---
 package net.chamosmp.chamoitemskins.gui.config;
 
 import org.bukkit.Material;

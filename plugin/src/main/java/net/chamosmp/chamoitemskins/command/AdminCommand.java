@@ -1,13 +1,15 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/command/AdminCommand.java ---
 package net.chamosmp.chamoitemskins.command;
 
-import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.MigrateManager;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
+import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
@@ -40,9 +42,13 @@ public final class AdminCommand {
     private final DialogUtil dialogUtil;
     private final MigrateManager migrateManager;
     private final MessageUtil messageUtil;
+    private final ModelService modelService;
+    private final CategoryManager categoryManager;
+    private final RarityManager rarityManager;
+    private final ChatInputUtil chatInputUtil;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil, MigrateManager migrateManager, MessageUtil messageUtil) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil, MigrateManager migrateManager, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -53,6 +59,10 @@ public final class AdminCommand {
         this.dialogUtil = dialogUtil;
         this.migrateManager = migrateManager;
         this.messageUtil = messageUtil;
+        this.modelService = modelService;
+        this.categoryManager = categoryManager;
+        this.rarityManager = rarityManager;
+        this.chatInputUtil = chatInputUtil;
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -64,7 +74,7 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.editor")
     @Executes("editor")
     public void onEditor(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil, messageUtil).open();
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
     }
 
     @Permission("chamoitemskins.admin.access.give")

@@ -1,7 +1,5 @@
-// --- plugin/src/main/java/net/chamosmp/chamoitemskins/util/ConfigUtil.java ---
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
