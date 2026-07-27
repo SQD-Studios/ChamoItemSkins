@@ -167,9 +167,13 @@ if (api != null) {
 }
 ```
 ---
+
 *Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid excuse) it is. I've personally checked every file to
 maintain the quality. There aren't a lot of things (except unperformed code) that could go wrong right? If I have time, I may 
 recode this as some people actually need it_
+
+---
+
 ---
 All the assets are made by real humans, without any assistance of AI.
 
@@ -179,3 +183,5 @@ Credits:
 - assets/ChamoItemSkins ad.png - Chamogelastos, made with Affinity ([Project Files](https://drive.google.com/file/d/1mv-8KJExXF2AoQSd2A2fVQrtaHTmzmZc/view?usp=sharing))
 
 Want to contribute assets yourself? DM me on discord (chamogelastos)
+
+---
