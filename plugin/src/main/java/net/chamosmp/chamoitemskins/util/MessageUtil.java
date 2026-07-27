@@ -26,7 +26,7 @@ public final class MessageUtil {
         this.langManager = langManager;
     }
 
-    public void sendLangMessage(Audience player, String key, Map<String, String> placeholders) {
+    public void sendLangMessage(Audience player, String key, Map<?, ?> placeholders) {
         sendMessage(player, legacyToMiniMessage(langManager.getMessage(key, placeholders)));
     }
 
@@ -87,7 +87,7 @@ public final class MessageUtil {
      * @param message      The message to send, with mini message formatting
      * @param placeholders The placeholders, forward parameter for parse
      */
-    public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<String, String> placeholders) {
+    public static void sendMessage(@NotNull Audience audience, @NotNull String message, @NotNull Map<?, ?> placeholders) {
         Player player = null;
         if (audience instanceof Player p) {
             player = p;
@@ -99,10 +99,10 @@ public final class MessageUtil {
         return MINI_MESSAGE.deserialize(legacyToMiniMessage(message));
     }
 
-    public static @NotNull Component parse(Player player, @NotNull String message, @NotNull Map<String, String> placeholders) {
+    public static @NotNull Component parse(Player player, @NotNull String message, @NotNull Map<?, ?> placeholders) {
         String resolved = message;
         for (var entry : placeholders.entrySet()) {
-            resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue());
+            resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue().toString());
         }
 
         if (PAPI_PRESENT && player != null) {
@@ -112,20 +112,20 @@ public final class MessageUtil {
         return MINI_MESSAGE.deserialize(legacyToMiniMessage(resolved));
     }
 
-    public static @NotNull List<String> placeholder(@NotNull List<String> message, @NotNull Map<String, String> placeholders) {
-        List<String> resolved = new ArrayList<>(message); // copy to avoid altering input
+    public static @NotNull List<String> placeholder(@NotNull List<String> message, @NotNull Map<?, ?> placeholders) {
+        List<String> resolved = new ArrayList<>(message);
         for (var entry : placeholders.entrySet()) {
             String key = "{" + entry.getKey() + "}";
-            String value = entry.getValue();
+            String value = entry.getValue().toString();
             resolved.replaceAll(s -> s.replace(key, value));
         }
         return resolved;
     }
 
-    public static @NotNull String placeholder(@NotNull String message, @NotNull Map<String, String> placeholders) {
+    public static @NotNull String placeholder(@NotNull String message, @NotNull Map<?, ?> placeholders) {
         String resolved = message;
         for (var entry : placeholders.entrySet()) {
-            resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue());
+            resolved = resolved.replace("{" + entry.getKey() + "}", entry.getValue().toString());
         }
 
         return resolved;

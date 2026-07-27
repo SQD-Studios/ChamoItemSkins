@@ -59,11 +59,11 @@ public final class LanguageManager implements LanguageService {
     }
 
     @Override
-    public String getMessage(String key, Map<String, String> placeholders) {
+    public String getMessage(String key, Map<?, ?> placeholders) {
         String template = messages.getOrDefault(key, key);
         if (placeholders != null) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                template = template.replace("{" + entry.getKey() + "}", entry.getValue());
+            for (Map.Entry<?, ?> entry : placeholders.entrySet()) {
+                template = template.replace("{" + entry.getKey().toString() + "}", entry.getValue().toString());
             }
         }
         return template;

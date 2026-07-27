@@ -12,7 +12,7 @@ public interface LanguageService {
     /// @param key          The config key to get the message of
     /// @param placeholders The placeholders, you make a {@code Map<The User Placeholder, What to replace it with>}. If it is like {@code Map.of("skin_name", skin.name()}, if the user puts in the message {skin_name}, it will replace it with the contents of skin.name()
     /// @return The parsed string from the lang file key
-    String getMessage(String key, Map<String, String> placeholders);
+    String getMessage(String key, Map<?, ?> placeholders);
 
     /// Gets the message from they key of the current lang file
     ///
