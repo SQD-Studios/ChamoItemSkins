@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.api.service;
 
-import org.bukkit.command.CommandSender;
+import net.kyori.adventure.audience.Audience;
 
 /**
  * Service to migrate skin data from other plugins.
@@ -16,8 +16,7 @@ public interface MigrateService {
     /**
      * Migrates data from HMCWarps
      *
-     * @param player The player to send notification to.
+     * @param audience The audience to send messages to
      */
-    void migrateHMC(CommandSender player);
-
+    void migrateHMC(Audience audience);
 }
