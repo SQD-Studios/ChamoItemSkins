@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -46,9 +47,19 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
     @NotNull CompletableFuture<Optional<String>> getActiveSkin(@NotNull UUID playerUuid, @NotNull Material material);
 
     /**
+     * Gets all the active skins for a player uuid
+     */
+    @NotNull CompletableFuture<Map<Material, String>> getAllActiveSkins(@NotNull UUID playerUuid);
+
+    /**
      * Sets the active skin for a specific item type.
      */
     @NotNull CompletableFuture<Void> setActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId);
+
+    /**
+     * Upserts a skin
+     */
+    @NotNull CompletableFuture<Void> upsertActiveSkin(@NotNull UUID playerUuid, @NotNull Material material,  @Nullable String skinId);
 
     /**
      * Logs an action to the database.

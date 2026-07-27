@@ -5,6 +5,7 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
+import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
 import org.bukkit.Material;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -105,7 +107,9 @@ public final class SkinManager implements SkinService {
 
     @Override
     public void changeId(@NotNull String oldId, Skin newSkin) {
-        databaseManager.migrateSkinId(oldId, newSkin.id());
+        CompletableFuture.runAsync(() -> {
+            databaseManager.migrateSkinId(oldId, newSkin.id());
+        }, SchedulerUtil.getVirtualThreadExecutor());
 
         deleteSkin(oldId);
         saveSkin(newSkin);

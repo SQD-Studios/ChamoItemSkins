@@ -23,8 +23,6 @@ public final class LogManager implements LogService {
     @Override
     public CompletableFuture<Void> log(UUID playerUuid, String action, String target, String metadata) {
         if (target == null) {
-
-            plugin.getLogger().warning("Skipping log: target is null for action " + action);
             return CompletableFuture.completedFuture(null);
         }
         return CompletableFuture.runAsync(() -> {

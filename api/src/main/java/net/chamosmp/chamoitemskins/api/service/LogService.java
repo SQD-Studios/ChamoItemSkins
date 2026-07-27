@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Service for logging skin-related actions.
  */
-@ApiStatus.Internal
 public interface LogService {
     /**
      * Logs an action.

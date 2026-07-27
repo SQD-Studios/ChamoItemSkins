@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.manager;
 
-import  net.chamosmp.chamoitemskins.api.event.SkinEquipEvent;
+import net.chamosmp.chamoitemskins.api.event.SkinEquipEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinGrantEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinRevokeEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinUnequipEvent;
@@ -166,7 +166,6 @@ public final class GrantManager implements GrantService {
 
         if (player != null) {
             CompletableFuture<Void> future = new CompletableFuture<>();
-
             db.getActiveSkin(playerUuid, material).thenAccept(previousSkinId -> {
                 Skin previousSkin = previousSkinId.flatMap(skinManager::getSkin).orElse(null);
 
@@ -186,27 +185,35 @@ public final class GrantManager implements GrantService {
                             return;
                         }
                     }
-
-                    db.setActiveSkin(playerUuid, material, skinId).thenRun(() -> {
-                        logService.log(playerUuid, newSkin != null ? "EQUIP" : "UNEQUIP", skinId, material.name());
-                        SchedulerUtil.runForEntity(plugin, player, () -> {
-                            modelService.refreshMaterial(player, material, newSkin);
-                            future.complete(null);
-                        }, () -> future.complete(null));
-                    });
+                    db.upsertActiveSkin(playerUuid, material, skinId)
+                            .thenRun(() -> {
+                                logService.log(playerUuid, newSkin != null ? "EQUIP" : "UNEQUIP", skinId, material.name());
+                                SchedulerUtil.runForEntity(plugin, player, () -> {
+                                    modelService.refreshMaterial(player, material, newSkin);
+                                    future.complete(null);
+                                }, () -> future.complete(null));
+                            })
+                            .exceptionally(ex -> {
+                                future.completeExceptionally(ex);
+                                return null;
+                            });
                 };
+
 
                 if (Bukkit.isPrimaryThread()) {
                     equipLogic.run();
                 } else {
                     SchedulerUtil.runSync(plugin, equipLogic);
                 }
+                
+            }).exceptionally(ex -> {
+                future.completeExceptionally(ex);
+                return null;
             });
 
             return future;
         }
-
-        return db.setActiveSkin(playerUuid, material, skinId);
+        return db.upsertActiveSkin(playerUuid, material, skinId);
     }
 
     /**
@@ -215,22 +222,22 @@ public final class GrantManager implements GrantService {
      * @param player The player to refresh.
      */
     public void refreshPlayerSkins(@NotNull Player player) {
-        CompletableFuture.runAsync(() -> {
+        db.getAllActiveSkins(player.getUniqueId()).thenAccept(skinIdMap -> {
             Map<Material, Skin> activeSkins = new HashMap<>();
-            for (Material material : Material.values()) {
-                if (material.isAir() || !material.isItem()) {
-                    continue;
+            for (Map.Entry<Material, String> entry : skinIdMap.entrySet()) {
+                Material material = entry.getKey();
+                String skinId = entry.getValue();
+                if (material != null && !material.isAir() && material.isItem()) {
+                    skinManager.getSkin(skinId).ifPresent(skin -> activeSkins.put(material, skin));
                 }
-                db.getActiveSkin(player.getUniqueId(), material).join()
-                        .flatMap(skinManager::getSkin)
-                        .ifPresent(skin -> activeSkins.put(material, skin));
             }
-
-            Map<Material, Skin> loaded = Map.copyOf(activeSkins);
             SchedulerUtil.runForEntity(plugin, player, () ->
-                    modelService.refreshInventory(player, loaded), () -> {
+                    modelService.refreshInventory(player, Map.copyOf(activeSkins)), () -> {
             });
-        }, SchedulerUtil.getVirtualThreadExecutor());
+        }).exceptionally(ex -> {
+            plugin.getLogger().warning("Failed to refresh player skins: " + ex.getMessage());
+            return null;
+        });
     }
 
     @Override

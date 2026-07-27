@@ -11,10 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class MySQLDatabase implements DatabaseManager {
@@ -282,6 +279,58 @@ public final class MySQLDatabase implements DatabaseManager {
                 plugin.getLogger().severe("Failed to get expired grants: " + e.getMessage());
             }
             return expired;
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> upsertActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection()) {
+                if (skinId == null) {
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "DELETE FROM player_active_skins WHERE player_uuid = ? AND item_type = ?")) {
+                        ps.setString(1, playerUuid.toString());
+                        ps.setString(2, material.name());
+                        ps.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "INSERT INTO player_active_skins (player_uuid, item_type, skin_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE skin_id = ?")) {
+                        ps.setString(1, playerUuid.toString());
+                        ps.setString(2, material.name());
+                        ps.setString(3, skinId);
+                        ps.setString(4, skinId);
+                        ps.executeUpdate();
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to upsert active skin: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Map<Material, String>> getAllActiveSkins(@NotNull UUID playerUuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            Map<Material, String> activeSkins = new HashMap<>();
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                         "SELECT item_type, skin_id FROM player_active_skins WHERE player_uuid = ?")) {
+                ps.setString(1, playerUuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String itemTypeStr = rs.getString("item_type");
+                        Material material = Material.getMaterial(itemTypeStr);
+                        if (material != null) {
+                            activeSkins.put(material, rs.getString("skin_id"));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to get all active skins: " + e.getMessage());
+            }
+            return activeSkins;
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
 }
