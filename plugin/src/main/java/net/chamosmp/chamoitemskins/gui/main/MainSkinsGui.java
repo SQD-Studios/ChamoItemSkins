@@ -49,9 +49,10 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final ChatInputUtil chatInputUtil;
     private final ModelService modelService;
     private final RarityManager rarityManager;
+    private final MessageUtil messageUtil;
 
 
-    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager) {
+    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.pluginInstance = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
@@ -62,6 +63,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         this.chatInputUtil = chatInputUtil;
         this.modelService = modelService;
         this.rarityManager = rarityManager;
+        this.messageUtil = messageUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
 
         setupInventory();
@@ -118,7 +120,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
 
-            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, new MessageUtil(new LanguageManager(plugin))).open();
+            new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, messageUtil).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
                 if (def.type() instanceof SlotType.ActionSlot(String action1)) {

@@ -124,7 +124,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminTitle = adminGuiConfig.getString("title", "Admin");
                 adminSize = adminGuiConfig.getInt("size", 54);
 
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager);
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager, messageUtil);
                 AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
                 getLogger().info("Registered commands.");
             } catch (Exception e) {
