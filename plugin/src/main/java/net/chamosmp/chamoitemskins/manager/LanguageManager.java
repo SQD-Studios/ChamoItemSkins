@@ -68,9 +68,7 @@ public final class LanguageManager implements LanguageService {
         }
     }
 
-    /**
-     * Gets a message by key. Supports placeholders like {player}.
-     */
+    @Override
     public String getMessage(String key, Map<String, String> placeholders) {
         String template = messages.getOrDefault(key, /*"<red>Missing: " +*/ key); // If it ain't broke don't fix it (I won't go and create messages for everything lal
         if (placeholders != null) {
@@ -81,6 +79,7 @@ public final class LanguageManager implements LanguageService {
         return template;
     }
 
+    @Override
     public String getMessage(String key) {
         return getMessage(key, null);
     }
