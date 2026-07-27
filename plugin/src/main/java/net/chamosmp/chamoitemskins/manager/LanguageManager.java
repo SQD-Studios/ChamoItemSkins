@@ -60,7 +60,7 @@ public final class LanguageManager implements LanguageService {
 
     @Override
     public String getMessage(String key, Map<String, String> placeholders) {
-        String template = messages.getOrDefault(key, /*"<red>Missing: " +*/ key); // If it ain't broke don't fix it (I won't go and create messages for everything lal
+        String template = messages.getOrDefault(key, key);
         if (placeholders != null) {
             for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 template = template.replace("{" + entry.getKey() + "}", entry.getValue());
