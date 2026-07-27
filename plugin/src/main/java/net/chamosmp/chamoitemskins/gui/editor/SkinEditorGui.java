@@ -104,7 +104,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         if (meta != null) {
             List<String> categoryNames = new ArrayList<>();
             for (Category c : skin.categories()) {
-                categoryNames.add(c.getName());
+                categoryNames.add(c.name());
             }
             meta.displayName(MessageUtil.parse(skin.name()));
             meta.lore(List.of(
