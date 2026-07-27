@@ -31,24 +31,14 @@ public final class LanguageManager implements LanguageService {
      * Falls back to default language if the file is missing or invalid.
      */
     private void loadLanguage(String langCode) {
-        File langFile = new File(plugin.getDataFolder(), "lang/" + langCode + ".yml");
-        if (!langFile.exists()) {
-            plugin.getLogger().warning("Language file 'lang/" + langCode + ".yml' not found. Using default: " + defaultLang);
-            langFile = new File(plugin.getDataFolder(), "lang/" + defaultLang + ".yml");
-            if (!langFile.exists()) {
-                plugin.getLogger().severe("Default language file 'lang/" + defaultLang + ".yml' missing! Creating one...");
-                createLanguageFile(defaultLang);
-                langFile = new File(plugin.getDataFolder(), "lang/" + defaultLang + ".yml");
-            }
-        }
         try {
-            YamlConfiguration yaml = YamlConfiguration.loadConfiguration(langFile);
+            YamlConfiguration yaml = ConfigUtil.loadOrAdapt(plugin, "lang/" + langCode + ".yml");
             messages.clear();
             flatten("", yaml.getValues(true));
             currentLang = langCode;
             plugin.getLogger().info("Loaded language: " + currentLang + " (" + messages.size() + " messages)");
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to load language file: " + langFile.getName());
+            plugin.getLogger().severe("Failed to load language file: " + langCode);
             e.printStackTrace();
         }
     }
