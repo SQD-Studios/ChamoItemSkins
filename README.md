@@ -11,18 +11,19 @@ ChamoItemSkins is a Minecraft skin plugin built for **Paper 26.1.2** and **Folia
 
 ##  Features
 
-- **Folia & Paper Support**: Fully compatible with multithreaded server environments.
-- **Dynamic Skin System**: Define skins in `skins.yml` with custom display items, names, and lore.
-- **Physical Unlockables**: Give players "Skin Notes" that they can right-click to permanently unlock a cosmetic.
+- **Folia & Paper Support**: Fully compatible with Folia servers.
+- **Skin Notes**: Give players "Skin Notes" that they can use to unlock a skin.
 - **Multiple GUIs**:
   - **Main Menu**: Browse skin categories by item type.
   - **Skin Selection**: Equippable skins for owned items.
-  - **Admin GUI**: Manage grants, revoke skins, and reload configurations in-game.
-  - **Live Skin Editor**: Modify existing skins directly from a GUI.
-  - **Skin Creation GUI** Create new skins from a GUI
-- **Database Support**: Choose between **SQLite** (local) or **MySQL** (multiserver sync).
+  - **Admin**: Access the editor and reload configurations in-game.
+    - **Editor** Access the Bundle Editor and Skin Editor GUI
+    - **Skin Editor**: Modify existing skins directly from a GUI.
+    - **Skin Creation** Create new skins from a GUI
+    - **Bundle Editor** Edit the bundles (Not finished yet)
+- **Database Support**: Choose between **SQLite** (local) or **MySQL** (multiserver sync (Not tested. MAY NOT WORK)).
 - **PlaceholderAPI Support**: Custom placeholders for active skins, ownership status, and totals.
-- **Developer API**: Clean, event-driven API for third-party integrations.
+- **Developer API**: Good API for third-party integrations.
 - **Nexo Items Support** Instead of vanilla models use Nexo Items
 - **HMCWarps Migration** Migrate from HMCWarps to us
 
@@ -44,15 +45,13 @@ ChamoItemSkins is a Minecraft skin plugin built for **Paper 26.1.2** and **Folia
 ##  Configuration
 **Keep in mind that our documentation has a more detailed guide, so we recommend checking that instead :D**
 
-The plugin uses several YAML configuration files:
-
 - **`config.yml`**: Database settings, default Note item settings, selfpack hosting, filler gui items, rarities and more!
-- **`skins.yml`**: Define all available skins, their model IDs, and associated item types.
+- **`skins.yml`**: Define all available skins (their model IDs, names, etc.) and bundles.
 - **`gui.yml`**: GUI for the `/skins` command and skin selection.
 - **`admin-gui.yml`**: Configuration for the admin GUI.
 - **`lang\(language code)`** Stores all the messages in the specified language
 
-### Example Skin Definition (`skins.yml`)
+### Example Skin (`skins.yml`)
 ```yaml
 skins:
   infernal_blade:
@@ -66,6 +65,15 @@ skins:
       name: "<gradient:red:dark_red>Infernal Blade"
       lore: ["<gray>A blade forged in hellfire."]
       glow: true
+```
+### Example Bundle (`skins.yml`)
+```yaml
+bundles:
+  sky_bundle:
+    id: sky_bundle
+    name: "Sky Bundle"
+    skins:
+      - sky_meteor
 ```
 
 ##  Commands & Permissions
@@ -99,7 +107,7 @@ Use these with **PlaceholderAPI**:
 
 ##  Developer API
 
-Developers can hook into ChamoItemSkins using the `:api` submodule.
+Developers can hook into ChamoItemSkins' `:api` submodule.
 
 ### Repository
 The repository for the API can be accessed here:
@@ -157,6 +165,9 @@ implementation "net.chamosmp.chamoitemskins:api:version"
 - `SkinUnequipEvent`: Fired when a player unequips a skin.
 - `SkinGrantEvent`: Fired when a player unlocks a skin via a Note or Admin command.
 - `SkinRevokeEvent`: Fired when a skin is removed from a player.
+
+### Javadocs
+Don't forget to see our Javadocs for more information
 
 ### Accessing the API
 ```java
