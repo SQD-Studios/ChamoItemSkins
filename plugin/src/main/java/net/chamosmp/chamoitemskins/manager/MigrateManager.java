@@ -7,6 +7,7 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.YamlUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,7 +18,10 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class MigrateManager implements MigrateService {
@@ -215,12 +219,13 @@ public final class MigrateManager implements MigrateService {
             List<String> materialNames = allowedItems.stream()
                     .map(Material::toString)
                     .collect(Collectors.toList());
-            Category category = new Category(collection, materialNames);
+            Category category = new Category(collection, materialNames, collection.toLowerCase());
+            YamlUtil.saveCategory(plugin, category);
             categories.add(category);
         }
 
         if (categories.isEmpty()) {
-            categories.add(new Category("ALL", List.of("")));
+            categories.add(new Category("ALL", List.of(""), "all"));
         }
 
         return categories;

@@ -196,4 +196,48 @@ public final class YamlUtil {
             }
         });
     }
+
+    public static void saveCategory(@NotNull Plugin plugin, @NotNull Category category) {
+        SchedulerUtil.runAsync(plugin, () -> {
+            File file = new File(plugin.getDataFolder(), "config.yml");
+            File tempFile = new File(plugin.getDataFolder(), "config.yml.tmp");
+
+            synchronized (YamlUtil.class) {
+                YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+                String path = "categories." + category.id();
+                config.set(path + ".name", category.name());
+                config.set(path + ".items", category.allowedItems());
+
+                try {
+                    config.save(tempFile);
+                    if (file.exists() && !file.delete()) throw new IOException("Could not delete existing config.yml");
+                    if (!tempFile.renameTo(file)) throw new IOException("Could not rename config.yml.tmp to config.yml");
+                } catch (IOException e) {
+                    plugin.getLogger().severe("Could not save category " + category.id() + " to config.yml: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    public static void deleteCategory(@NotNull Plugin plugin, @NotNull String id) {
+        SchedulerUtil.runAsync(plugin, () -> {
+            File file = new File(plugin.getDataFolder(), "config.yml");
+            File tempFile = new File(plugin.getDataFolder(), "config.yml.tmp");
+
+            synchronized (YamlUtil.class) {
+                YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+                config.set("categories." + id, null);
+
+                try {
+                    config.save(tempFile);
+                    if (file.exists() && !file.delete()) throw new IOException("Could not delete existing config.yml");
+                    if (!tempFile.renameTo(file)) throw new IOException("Could not rename config.yml.tmp to config.yml");
+                } catch (IOException e) {
+                    plugin.getLogger().severe("Could not delete category " + id + " to config.yml: " + e.getMessage());
+                }
+            }
+        });
+    }
 }

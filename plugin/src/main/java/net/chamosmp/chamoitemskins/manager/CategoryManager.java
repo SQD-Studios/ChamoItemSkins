@@ -52,7 +52,7 @@ public final class CategoryManager implements CategoryService {
             }
             String name = entry.getString("name", key);
             List<String> allowedItems = entry.getStringList("items");
-            categories.put(key.toLowerCase(), new Category(name, allowedItems));
+            categories.put(key.toLowerCase(), new Category(name, allowedItems, name.toLowerCase()));
         }
 
         if (categories.isEmpty()) {

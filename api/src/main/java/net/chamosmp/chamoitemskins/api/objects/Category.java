@@ -9,7 +9,8 @@ import java.util.List;
 
 public record Category(
         @NotNull String name,
-        List<String> allowedItems
+        List<String> allowedItems,
+        String id
 ) {
     public List<Material> getAllowedMaterials() {
         List<Material> materials = new ArrayList<>();
@@ -37,13 +38,5 @@ public record Category(
 
     public boolean isAllowed(@NotNull Material material) {
         return getAllowedMaterials().contains(material);
-    }
-
-    public @NotNull String getName() {
-        return name;
-    }
-
-    public @NotNull List<String> getAllowedItems() {
-        return allowedItems;
     }
 }
