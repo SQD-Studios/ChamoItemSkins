@@ -74,7 +74,7 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.editor")
     @Executes("editor")
     public void onEditor(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, dialogUtil, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
     }
 
     @Permission("chamoitemskins.admin.access.give")

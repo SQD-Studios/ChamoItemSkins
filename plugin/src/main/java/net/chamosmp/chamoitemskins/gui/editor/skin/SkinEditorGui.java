@@ -1,7 +1,10 @@
-package net.chamosmp.chamoitemskins.gui.editor;
+package net.chamosmp.chamoitemskins.gui.editor.skin;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
+import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
@@ -17,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,9 +33,10 @@ import java.util.Map;
  * GUI for editing skins.
  */
 public final class SkinEditorGui implements GuiListener.ChamoGui {
-    private static final int NEW_SKIN_SLOT = 49;
+    private static final int NEW_SKIN_SLOT = 46;
+    private static final int BACK_SLOT = 45;
 
-    private final Plugin plugin;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
     private final ModelService modelService;
@@ -45,7 +50,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final ChatInputUtil chatInputUtil;
 
     public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
-        this.plugin = plugin;
+        this.plugin = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
         this.skinService = skinService;
         this.modelService = modelService;
@@ -88,13 +93,21 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
             placed++;
         }
 
-        ItemStack newSkin = new ItemStack(Material.NETHER_STAR);
+        ItemStack newSkin = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         var meta = newSkin.getItemMeta();
         if (meta != null) {
             meta.displayName(MessageUtil.parse("<green><bold>Create New Skin"));
             newSkin.setItemMeta(meta);
         }
         inventory.setItem(NEW_SKIN_SLOT, newSkin);
+
+        ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta metaBack = back.getItemMeta();
+        if (metaBack != null) {
+            metaBack.displayName(MessageUtil.parse("<red><b>Go Back"));
+            back.setItemMeta(metaBack);
+        }
+        inventory.setItem(BACK_SLOT, back);
         GuiFillerUtil.apply(plugin, inventory, player);
     }
 
@@ -129,6 +142,9 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         if (slot == NEW_SKIN_SLOT) {
             new SkinCreationGui(plugin, player, skinService, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil).open();
             return;
+        }
+        if (slot == BACK_SLOT) {
+            new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
         }
 
         Skin skin = slotToSkin.get(slot);

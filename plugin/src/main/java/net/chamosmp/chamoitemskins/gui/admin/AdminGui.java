@@ -3,14 +3,14 @@ package net.chamosmp.chamoitemskins.gui.admin;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
-import net.chamosmp.chamoitemskins.gui.editor.SkinEditorGui;
+import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
+import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
-import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -33,18 +33,16 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final Player player;
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
-    private final DialogUtil dialogUtil;
     private final MessageUtil messageUtil;
     private final CategoryManager categoryManager;
     private final ModelService modelService;
     private final RarityManager rarityManager;
     private final ChatInputUtil chatInputUtil;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, DialogUtil dialogUtil, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
-        this.dialogUtil = dialogUtil;
         this.messageUtil = messageUtil;
         this.categoryManager = categoryManager;
         this.modelService = modelService;
@@ -100,7 +98,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 if (service == null) {
                     service = net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi.get().getSkinService();
                 }
-                new SkinEditorGui(plugin, player, service, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+                new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
             }
             case "GIVE" -> {
                 chatInputUtil.getInput(player, Component.text("Enter skin ID to GIVE note:", NamedTextColor.YELLOW), skinId -> {

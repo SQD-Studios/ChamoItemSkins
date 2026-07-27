@@ -1,4 +1,4 @@
-package net.chamosmp.chamoitemskins.gui.editor;
+package net.chamosmp.chamoitemskins.gui.editor.skin;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Category;

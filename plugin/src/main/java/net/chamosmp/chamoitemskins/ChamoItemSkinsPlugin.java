@@ -4,13 +4,10 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
 import net.chamosmp.chamoitemskins.api.models.Model;
 import net.chamosmp.chamoitemskins.api.service.*;
-import net.chamosmp.chamoitemskins.command.suggestions.bundles.bundleSuggestionsImpl;
-import net.chamosmp.chamoitemskins.command.CommandRegisterException;
-import net.chamosmp.chamoitemskins.manager.LanguageManager;
-import net.chamosmp.chamoitemskins.manager.*;
-import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
+import net.chamosmp.chamoitemskins.command.CommandRegisterException;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
+import net.chamosmp.chamoitemskins.command.suggestions.bundles.bundleSuggestionsImpl;
 import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestionsImpl;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.database.MySQLDatabase;
@@ -21,6 +18,8 @@ import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.listener.NoteListener;
 import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
+import net.chamosmp.chamoitemskins.manager.*;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.*;
@@ -28,11 +27,10 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.jetbrains.annotations.ApiStatus;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -59,6 +57,14 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private MessageUtil messageUtil;
 
     private ModelService modelService;
+
+    private String adminTitle;
+    private int adminSize;
+    private List<GuiSlotDef> adminSlots;
+
+    private List<GuiSlotDef> mainSlots;
+    private String skinsTitle;
+    private int skinsSize;
 
     /**
      * When the plugins load, at the very start of your server
@@ -110,13 +116,13 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 var guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
                 var adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
-                List<GuiSlotDef> mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
-                String skinsTitle = guiConfig.getString("title", "Skins");
-                int skinsSize = guiConfig.getInt("size", 54);
+                mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
+                skinsTitle = guiConfig.getString("title", "Skins");
+                skinsSize = guiConfig.getInt("size", 54);
 
-                List<GuiSlotDef> adminSlots = parseSlots(adminGuiConfig.getConfigurationSection("slots"));
-                String adminTitle = adminGuiConfig.getString("title", "Admin");
-                int adminSize = adminGuiConfig.getInt("size", 54);
+                adminSlots = parseSlots(adminGuiConfig.getConfigurationSection("slots"));
+                adminTitle = adminGuiConfig.getString("title", "Admin");
+                adminSize = adminGuiConfig.getInt("size", 54);
 
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager);
                 AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
@@ -276,6 +282,17 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         return guiFillerUtil != null ? guiFillerUtil : GuiFillerUtil.load(getConfig());
     }
 
+    public String adminGuiTitle() {
+        return adminTitle != null ? adminTitle : "Admin";
+    }
+
+    public int adminSize() {
+        return adminSize;
+    }
+
+    public List<GuiSlotDef> adminSlots() {
+        return adminSlots;
+    }
 
     @Override
     public @NotNull CacheService getCacheService() {
