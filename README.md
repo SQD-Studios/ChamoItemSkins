@@ -1,4 +1,4 @@
-![ChamoItemSkins](assets/ChamoItemSKins%20ad.png)
+![ChamoItemSkins](assets/ChamoItemSkins%20ad.png)
 
 [![Build](https://img.shields.io/github/actions/workflow/status/SQD-Studios/ChamoItemSkins/gradle.yml?style=flat-square)](https://github.com/SQD-Studios/ChamoItemSkins/actions)
 [![Documentation](https://img.shields.io/badge/Documentation-8A2BE2?style=flat-square)](https://sqd-studios.github.io/docs/chamoitemskins/administration/introduction/installing/)
@@ -166,8 +166,16 @@ if (api != null) {
             // Your logic here
 }
 ```
-
 ---
 *Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid excuse) it is. I've personally checked every file to
 maintain the quality. There aren't a lot of things (except unperformed code) that could go wrong right? If I have time, I may 
 recode this as some people actually need it_
+---
+All the assets are made by real humans, without any assistance of AI.
+
+Credits:
+- assets/ChamoItemSkins.png - Chamogelastos, made with Affinity ([Project Files](https://drive.google.com/file/d/1Nss96bDYgBvlbML-1XOsDvFQxYXJ-jK5/view?usp=sharing))
+- assets/logo-icon.svg - Black and white convertion of assets/ChamoItemSkins.png to an svg
+- assets/ChamoItemSkins ad.png - Chamogelastos, made with Affinity ([Project Files](https://drive.google.com/file/d/1mv-8KJExXF2AoQSd2A2fVQrtaHTmzmZc/view?usp=sharing))
+
+Want to contribute assets yourself? DM me on discord (chamogelastos)
