@@ -71,24 +71,30 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
 
     private void setupInventory() {
         for (GuiSlotDef def : slots) {
-            if (def.type() instanceof SlotType.ActionSlot(String action2) && action2.equals("ADMIN_GUI")) {
-                if (!player.hasPermission("chamoitemskins.admin")) {
-                    continue; // Skip Admin Panel if no permission
-                }
-            }
+            switch (def.type()) {
+                case SlotType.ActionSlot(String action) -> {
+                    if (action.equals("ADMIN_GUI")) {
+                        if (!player.hasPermission("chamoitemskins.admin")) {
+                            continue; // Skip Admin Panel if no permission
+                        }
+                    }
 
-            if (def.type() instanceof SlotType.ActionSlot(String action1) && action1.startsWith("CATEGORY_")) {
-                String category = action1.substring(9);
-                if (category.equalsIgnoreCase("ALL")) {
-                    if (skinService.getSkins().stream().noneMatch(Skin::enabled)) continue;
-                } else {
-                    if (skinService.getSkins().stream()
-                            .filter(Skin::enabled)
-                            .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(category)))) {
-                        continue;
+                    if (action.startsWith("CATEGORY_")) {
+                        String category = action.substring(9);
+                        if (category.equalsIgnoreCase("ALL")) {
+                            if (skinService.getSkins().stream().noneMatch(Skin::enabled)) continue;
+                        } else {
+                            if (skinService.getSkins().stream()
+                                    .filter(Skin::enabled)
+                                    .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(category)))) {
+                                continue;
+                            }
+                        }
+                        categorySlots.put(def.slot(), category);
                     }
                 }
-                categorySlots.put(def.slot(), category);
+                default -> {
+                }
             }
 
             ItemStack item = new ItemStack(def.material());
@@ -123,9 +129,13 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             new SkinSelectionGui(plugin, player, category, skinService, grantService, rarityManager, modelService, selectionTitle, selectionSize, selectionSlots, chatInputUtil, messageUtil).open();
         } else {
             slots.stream().filter(s -> s.slot() == slotIdx).findFirst().ifPresent(def -> {
-                if (def.type() instanceof SlotType.ActionSlot(String action1)) {
-                    if (action1.equals("ADMIN_GUI") && player.hasPermission("chamoitemskins.admin")) {
-                        player.performCommand("skinsadmin");
+                switch (def.type()) {
+                    case SlotType.ActionSlot(String action) -> {
+                        if (action.equals("ADMIN_GUI") && player.hasPermission("chamoitemskins.admin")) {
+                            player.performCommand("skinsadmin");
+                        }
+                    }
+                    default -> {
                     }
                 }
             });

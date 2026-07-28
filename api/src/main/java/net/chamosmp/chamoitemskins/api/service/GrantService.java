@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -58,6 +59,14 @@ public interface GrantService {
      * @return A future that completes with the ID of the active skin for this material, if any.
      */
     @NotNull CompletableFuture<Optional<String>> getActiveSkin(@NotNull UUID playerUuid, @NotNull Material material);
+
+    /**
+     * Gets all active skins for a player.
+     *
+     * @param playerUuid The player's UUID.
+     * @return A future that completes with a map of material to active skin ID.
+     */
+    @NotNull CompletableFuture<Map<Material, String>> getAllActiveSkins(@NotNull UUID playerUuid);
 
     /**
      * Sets the active skin for a material.

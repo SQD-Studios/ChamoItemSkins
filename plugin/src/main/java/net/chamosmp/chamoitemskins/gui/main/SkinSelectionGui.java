@@ -101,14 +101,6 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 filterSlotCategories.put(def.slot(), "category");
             }
         }
-        if (!filterSlotCategories.isEmpty()) {
-            filterSlotCategories.entrySet().stream()
-                    .filter(e -> e.getValue().equalsIgnoreCase(category))
-                    .findFirst()
-                    .ifPresent(e -> {
-
-                    });
-        }
 
         this.pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
     }
@@ -125,15 +117,13 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         skinMap.clear();
 
         for (GuiSlotDef def : slots) {
-            if (def.type() instanceof SlotType.SkinSlot) {
-                continue;
-            }
-            if (def.type() instanceof SlotType.FilterSlot) {
-                inventory.setItem(def.slot(), createFilterItem(def));
-            } else if (def.type() instanceof SlotType.SearchSlot) {
-                inventory.setItem(def.slot(), createSearchItem(def));
-            } else {
-                inventory.setItem(def.slot(), createStaticItem(def));
+            switch (def.type()) {
+                case SlotType.SkinSlot ignored -> {
+                }
+                case SlotType.FilterSlot ignored -> inventory.setItem(def.slot(), createFilterItem(def));
+                case SlotType.SearchSlot ignored -> inventory.setItem(def.slot(), createSearchItem(def));
+                case SlotType.Decorative ignored -> inventory.setItem(def.slot(), createStaticItem(def));
+                default -> inventory.setItem(def.slot(), createStaticItem(def));
             }
         }
 
@@ -299,28 +289,26 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private void loadPlayerData(boolean openAfter) {
-        CompletableFuture.runAsync(() -> {
-            Map<Material, String> loadedActive = new HashMap<>();
-            for (Material material : Material.values()) {
-                if (material.isAir() || !material.isItem()) continue;
-                grantService.getActiveSkin(player.getUniqueId(), material).join()
-                        .ifPresent(id -> loadedActive.put(material, id));
-            }
+        grantService.getAllActiveSkins(player.getUniqueId()).thenAccept(loadedActive -> {
+            grantService.getGrants(player.getUniqueId()).thenAccept(grants -> {
+                Set<String> loadedOwned = grants.stream()
+                        .map(grant -> grant.skinId())
+                        .collect(Collectors.toSet());
 
-            Set<String> loadedOwned = grantService.getGrants(player.getUniqueId()).join().stream()
-                    .map(grant -> grant.skinId())
-                    .collect(Collectors.toSet());
-
-            SchedulerUtil.runForEntity(plugin, player, () -> {
-                activeSkins = loadedActive;
-                ownedSkinIds = loadedOwned;
-                refresh();
-                if (openAfter) {
-                    player.openInventory(inventory);
-                }
-            }, () -> {
+                SchedulerUtil.runForEntity(plugin, player, () -> {
+                    activeSkins = loadedActive;
+                    ownedSkinIds = loadedOwned;
+                    refresh();
+                    if (openAfter) {
+                        player.openInventory(inventory);
+                    }
+                }, () -> {
+                });
             });
-        }, SchedulerUtil.getVirtualThreadExecutor());
+        }).exceptionally(ex -> {
+            plugin.getLogger().severe("Failed to load player data: " + ex.getMessage());
+            return null;
+        });
     }
 
     private void updateAfterEquip(@NotNull Material targetMat, @Nullable String skinId) {
@@ -409,8 +397,10 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         }
 
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            if (def.type() instanceof SlotType.BackSlot) {
-                player.performCommand("skins");
+            switch (def.type()) {
+                case SlotType.BackSlot ignored -> player.performCommand("skins");
+                default -> {
+                }
             }
         });
     }

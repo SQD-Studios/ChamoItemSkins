@@ -25,8 +25,6 @@ public final class LogManager implements LogService {
         if (target == null) {
             return CompletableFuture.completedFuture(null);
         }
-        return CompletableFuture.runAsync(() -> {
-            databaseManager.logAction(playerUuid, action, target, metadata);
-        }, SchedulerUtil.getVirtualThreadExecutor());
+        return databaseManager.logAction(playerUuid, action, target, metadata);
     }
 }

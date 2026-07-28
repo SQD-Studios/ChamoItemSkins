@@ -1,13 +1,13 @@
 package net.chamosmp.chamoitemskins.listener;
 
 import net.chamosmp.chamoitemskins.manager.GrantManager;
-import org.bukkit.entity.Player;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,26 +15,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class SkinApplyListener implements Listener {
     private final GrantManager grantManager;
+    private final Plugin plugin;
+    private final ModelService modelService;
 
-    public SkinApplyListener(@NotNull GrantManager grantManager) {
+    public SkinApplyListener(@NotNull GrantManager grantManager, Plugin plugin, ModelService modelService) {
         this.grantManager = grantManager;
+        this.plugin = plugin;
+        this.modelService = modelService;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(@NotNull PlayerJoinEvent event) {
         grantManager.refreshPlayerSkins(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onItemHeld(@NotNull PlayerItemHeldEvent event) {
-        grantManager.refreshPlayerSkins(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClick(@NotNull InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) {
-            return;
-        }
-        grantManager.refreshPlayerSkins(player);
     }
 }

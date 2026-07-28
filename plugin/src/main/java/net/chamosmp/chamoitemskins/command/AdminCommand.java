@@ -2,7 +2,7 @@ package net.chamosmp.chamoitemskins.command;
 
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestions;
+import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
@@ -79,13 +79,13 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
-    public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
+    public void onAccessGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
         giveAccess(sender, target, skinId, -1);
     }
 
     @Permission("chamoitemskins.admin.access.give")
     @Executes("access give")
-    public void onAccessGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int days) {
+    public void onAccessGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int days) {
         giveAccess(sender, target, skinId, days);
     }
 
@@ -108,7 +108,7 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin.access.revoke")
     @Executes("access revoke")
-    public void onAccessRevoke(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
+    public void onAccessRevoke(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (!has) {
@@ -127,19 +127,19 @@ public final class AdminCommand {
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount, int time) {
+    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int amount, int time) {
         giveSkinNotes(sender, target, skinId, amount, time);
     }
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId, int amount) {
+    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int amount) {
         giveSkinNotes(sender, target, skinId, amount, -1);
     }
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, @skinIdSuggestions String skinId) {
+    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
         giveSkinNotes(sender, target, skinId, 1, -1);
     }
 

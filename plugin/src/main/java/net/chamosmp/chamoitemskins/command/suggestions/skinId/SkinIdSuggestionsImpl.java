@@ -9,17 +9,17 @@ import net.chamosmp.chamoitemskins.manager.SkinManager;
 
 import java.util.concurrent.CompletableFuture;
 
-public final class skinIdSuggestionsImpl {
+public final class SkinIdSuggestionsImpl {
     private static SkinManager skinManager;
 
-    private skinIdSuggestionsImpl() {
+    private SkinIdSuggestionsImpl() {
     }
 
     public static void init(SkinManager manager) {
         skinManager = manager;
     }
 
-    @skinIdSuggestions
+    @SkinIdSuggestions
     public static CompletableFuture<Suggestions> provide(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         if (skinManager == null) return builder.buildFuture();
         skinManager.getSkins().stream()

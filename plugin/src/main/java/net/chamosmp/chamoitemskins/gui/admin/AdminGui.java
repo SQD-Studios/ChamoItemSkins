@@ -76,8 +76,10 @@ public final class AdminGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            if (def.type() instanceof SlotType.ActionSlot(String action1)) {
-                handleAction(action1);
+            switch (def.type()) {
+                case SlotType.ActionSlot(String action) -> handleAction(action);
+                default -> {
+                }
             }
         });
     }

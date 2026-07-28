@@ -3,12 +3,15 @@ package net.chamosmp.chamoitemskins.api.models;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+@ApiStatus.Internal
 public interface Model extends Nexo {
 
     /**
@@ -35,28 +38,34 @@ public interface Model extends Nexo {
      * @param item    The item stack to apply the model to.
      * @param modelId The ID of the model to apply.
      * @return The {@link ItemStack}
-     * @apiNote This currently hasn't been implemented. It currently does nothing so you must use {@link Model#applyItemModel(ItemStack, String)}. I will update the API Note on there so you can see
      */
     ItemStack getItemModel(@NotNull ItemStack item, @NotNull String modelId);
 
     /**
+     *
+     * Replaces an item in an inventory
+     *
+     * @param oldItem   The item to be replaced
+     * @param newItem   The item that should replace {@code oldItem}
+     * @param inventory The inventory which this is happening at
+     */
+    void swapItemStack(@NotNull ItemStack oldItem, @NotNull ItemStack newItem, @NotNull Inventory inventory);
+
+    /**
      * Removes a custom item model from a stack.
      *
-     * @apiNote This doesn't work with {@link Model#getItemModel(ItemStack, String)}
      */
-    void clearItemModel(@NotNull ItemStack item);
+    void clearItemModel(@NotNull ItemStack item, @NotNull Inventory inventory);
 
     /**
      * Updates every inventory stack of {@code material} for the player.
      *
-     * @apiNote This doesn't work with {@link Model#getItemModel(ItemStack, String)}
      */
     void refreshMaterial(@NotNull Player player, @NotNull Material material, @Nullable Skin skin);
 
     /**
      * Re-applies active skin models across the player's entire inventory.
      *
-     * @apiNote This doesn't work with {@link Model#getItemModel(ItemStack, String)}
      */
     void refreshInventory(@NotNull Player player, @NotNull Map<Material, Skin> activeSkins);
 }

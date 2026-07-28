@@ -160,6 +160,11 @@ public final class GrantManager implements GrantService {
     }
 
     @Override
+    public @NotNull CompletableFuture<Map<Material, String>> getAllActiveSkins(@NotNull UUID playerUuid) {
+        return db.getAllActiveSkins(playerUuid);
+    }
+
+    @Override
     public @NotNull CompletableFuture<Void> setActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId) {
         Player player = Bukkit.getPlayer(playerUuid);
         Skin newSkin = skinId != null ? skinManager.getSkin(skinId).orElse(null) : null;
@@ -205,7 +210,7 @@ public final class GrantManager implements GrantService {
                 } else {
                     SchedulerUtil.runSync(plugin, equipLogic);
                 }
-                
+
             }).exceptionally(ex -> {
                 future.completeExceptionally(ex);
                 return null;

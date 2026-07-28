@@ -24,17 +24,18 @@ You are a senior Minecraft plugin developer with deep expertise in **Java 25**, 
 - **Java 25** — use records, sealed interfaces, pattern-matching switch expressions, text blocks, virtual threads, `var`. No Kotlin source files anywhere.
 - **Gradle Kotlin DSL only.** Every build file is `*.gradle.kts`. Zero Groovy, zero `build.gradle` / `settings.gradle`.
 - Root `build.gradle.kts` sets shared repos in `allprojects {}` and Java 25 toolchain in `subprojects {}`.
-- Shadow plugin: `com.gradleup.shadow` version `9.4.2`. The plugin submodule produces a fat jar; HikariCP is relocated.
+- Shadow plugin: `com.gradleup.shadow` version `9.6.1`. Relocates bStats
 
 ### Minecraft
-- **Paper API:** `io.papermc.paper:paper-api:26.1.2.build.+` (compileOnly in plugin)
-- **folia:** full support. **Never call `BukkitScheduler`.** See Scheduling section below.
+- **Paper API:** `io.papermc.paper:paper-api:26.2.build.+` (compileOnly in plugin)
+- **Folia:** full support. **Never call `BukkitScheduler`.** See Scheduling section below.
 - **StrokkCommands:** `net.strokkur.commands:annotations-paper:2.1.1` (compileOnly) + annotation processor `processor-paper:2.1.1`. Commands registered via `LifecycleEvents.COMMANDS`.
 - **Adventure + MiniMessage** everywhere. Zero legacy `ChatColor`.
 - **PlaceholderAPI:** `me.clip:placeholderapi:2.11.6` (compileOnly, soft-depend). Register expansion only if PAPI is present at runtime.
+- **Nexo** `com.nexomc:nexo:1.26.0` (compileOnly, soft-depend). Allow support for Nexo items
 
 ### Database
-- **HikariCP** `6.2.1` (implementation, relocated to `net.chamosmp.chamoitemskins.libs.hikari`).
+- **HikariCP** `7.1.0` (implementation, loaded by the Paper Plugin Loader).
 - All DB I/O on virtual threads via `CompletableFuture.runAsync(task, Executors.newVirtualThreadPerTaskExecutor())`.
 - MySQL uses `HikariDataSource` with pool size 10; SQLite uses pool size 1.
 
@@ -98,23 +99,159 @@ All DB `CompletableFuture` `.thenAccept()` callbacks that touch Bukkit API must 
 
 ### `Skin` (record)
 ```java
+/**
+ * Represents a cosmetic item skin.
+ *
+ * @param id           Unique skin identifier.
+ * @param name         MiniMessage display name.
+ * @param modelId      BetterModel model id - bare renderer name (e.g. {@code demon_knight})
+ *                     or explicit item model key ({@code namespace:path}).
+ * @param categories   The categories this skin belongs to.
+ * @param enabled      Whether the skin is currently active in the plugin.
+ * @param noteMaterial Optional override for the physical note item material.
+ * @param displayItem  Configuration for the item shown in GUIs.
+ * @param rarity       The rarity of the skin
+ * @param animations   The animations to apply to the skin
+ */
 public record Skin(
-    String id,           // unique identifier (UUID string or human-readable slug)
-    String name,         // MiniMessage display name
-    String modelId,      // model ID, e.g. "chamoitemskins:infernal_blade"
-    Material itemType,   // Bukkit Material this skin applies to
-    boolean enabled,
-    Material noteMaterial,        // nullable — overrides config default
-    DisplayItem displayItem       // GUI item config
+        String id,
+        String name,
+        String modelId,
+        Rarity rarity,
+        List<Category> categories,
+        boolean enabled,
+        Material noteMaterial,
+        DisplayItem displayItem,
+        List<String> animations
 ) {
-    public record DisplayItem(Material material, String name, List<String> lore, boolean glow) {}
+  /**
+   * Represents an item to be displayed in the GUI.
+   *
+   * @param material The item material to display.
+   * @param name     The name of the item to display.
+   * @param lore     The lore of the item to display.
+   * @param glow     Whether the item should glow.
+   */
+  public record DisplayItem(
+          Material material,
+          String name,
+          List<String> lore,
+          boolean glow
+  ) {
+  }
 }
+
 ```
 
 ### `SkinGrant` (record)
 ```java
-public record SkinGrant(UUID grantId, UUID playerUuid, String skinId, Instant grantedAt, String source) {}
+/**
+ * Represents a player's ownership of a specific skin.
+ *
+ * @param grantId    Unique ID of the grant.
+ * @param playerUuid UUID of the player who owns the skin.
+ * @param skinId     ID of the skin owned.
+ * @param grantedAt  Timestamp when the skin was granted.
+ * @param source     Source of the grant (e.g., "NOTE", "ADMIN").
+ */
+public record SkinGrant(
+        UUID grantId,
+        UUID playerUuid,
+        String skinId,
+        Instant grantedAt,
+        String source
+) {
+
+}
+
 ```
+
+### `SkinBundle` (record)
+```java
+/**
+* Represents a bundle of multiple skins.
+*
+* @param id      Unique bundle identifier.
+* @param name    MiniMessage display name.
+* @param skinIds List of skin IDs included in this bundle.
+  */
+  public record SkinBundle(
+  String id,
+  String name,
+  List<String> skinIds
+  ) {
+  }
+```
+
+### `Rarity` (record)
+```java
+/**
+ * Represents a user-defined rarity tier for skins.
+ *
+ * @param id       Config key identifier.
+ * @param name     MiniMessage display name.
+ * @param color    MiniMessage color prefix applied before the name.
+ * @param priority Sort order; lower values appear first.
+ */
+public record Rarity(
+        @NotNull String id,
+        @NotNull String name,
+        @NotNull String color,
+        int priority
+) {
+    /**
+     * Returns the combined MiniMessage display string for this rarity.
+     *
+     * @return Returns the colorized name of the rarity, configured from the config
+     */
+    public @NotNull String getDisplayName() {
+        if (color.isBlank()) {
+            return name;
+        }
+        return color + name;
+    }
+}
+
+```
+
+### `Category` (record)
+```java
+public record Category(
+        @NotNull String name,
+        List<String> allowedItems,
+        String id
+) {
+  public List<Material> getAllowedMaterials() {
+    List<Material> materials = new ArrayList<>();
+    if (allowedItems == null) {
+      materials.addAll(Arrays.asList(Material.values()));
+      return materials;
+    }
+
+    for (String item : allowedItems) {
+      Material exact = Material.matchMaterial(item);
+      if (exact != null) {
+        materials.add(exact);
+        continue;
+      }
+      String upperItem = item.toUpperCase();
+      for (Material m : Material.values()) {
+        if (m.name().contains(upperItem)) {
+          materials.add(m);
+        }
+      }
+    }
+
+    return materials;
+  }
+
+  public boolean isAllowed(@NotNull Material material) {
+    return getAllowedMaterials().contains(material);
+  }
+}
+
+```
+
 
 ---
 
@@ -126,18 +263,31 @@ CREATE TABLE IF NOT EXISTS player_skin_grants (
     player_uuid VARCHAR(36) NOT NULL,
     skin_id     VARCHAR(64) NOT NULL,
     granted_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    source      VARCHAR(32) NOT NULL
-);
--- MySQL adds: INDEX (player_uuid)
--- SQLite adds: CREATE INDEX IF NOT EXISTS idx_player_uuid ON player_skin_grants(player_uuid)
+    source      VARCHAR(32) NOT NULL,
+    expires_at  TIMESTAMP   NULL
+  
+    )
+
 
 CREATE TABLE IF NOT EXISTS player_active_skins (
     player_uuid VARCHAR(36) NOT NULL,
     item_type   VARCHAR(64) NOT NULL,
     skin_id     VARCHAR(64) NOT NULL,
     PRIMARY KEY (player_uuid, item_type)
-);
+    )
+
+CREATE TABLE IF NOT EXISTS player_skin_logs (
+    log_id      VARCHAR(36) PRIMARY KEY,
+    player_uuid VARCHAR(36) NOT NULL,
+    action      VARCHAR(32) NOT NULL,
+    target      VARCHAR(64) NOT NULL,
+    metadata    TEXT,
+    timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX (player_uuid)
+    )
 ```
+MySQL adds: INDEX (player_uuid)
+SQLite adds: CREATE INDEX IF NOT EXISTS idx_player_uuid ON player_skin_grants(player_uuid)
 
 MySQL upsert uses `ON DUPLICATE KEY UPDATE skin_id = ?`. SQLite uses `INSERT OR REPLACE`.
 
@@ -169,17 +319,38 @@ On `onEnable`, call `ConfigUtil.loadOrAdapt(plugin, filename)` for every config 
 ### `SlotType` (sealed interface)
 ```java
 public sealed interface SlotType {
-    record Decorative()                 implements SlotType {}
-    record SkinSlot(int index)          implements SlotType {}
-    record FilterSlot()                 implements SlotType {}
-    record BackSlot()                   implements SlotType {}
-    record ActionSlot(String action)    implements SlotType {}
+  record Decorative() implements SlotType { }
+  record SkinSlot(int index) implements SlotType { }
+  record FilterSlot() implements SlotType { }
+  record BackSlot() implements SlotType { }
+  record ActionSlot(String action) implements SlotType { }
+  record SearchSlot() implements SlotType { }
 }
+
 ```
 
 ### `GuiSlotDef` (record)
 ```java
-public record GuiSlotDef(SlotType type, int slot, Material material, String name, List<String> lore, boolean glow) {}
+/**
+ * Definition of a GUI slot from configuration.
+ *
+ * @param type     The type of the slot.
+ * @param slot     The slot index (0-53).
+ * @param material The material of the item in this slot.
+ * @param name     The display name (MiniMessage).
+ * @param lore     The lore (MiniMessage list).
+ * @param glow     Whether the item should glow.
+ */
+public record GuiSlotDef(
+        SlotType type,
+        int slot,
+        Material material,
+        String name,
+        List<String> lore,
+        boolean glow
+) {
+}
+
 ```
 
 ### `GuiListener`
@@ -203,13 +374,13 @@ All custom GUIs implement `GuiListener.ChamoGui extends InventoryHolder`. The li
 **`AdminGui` action strings** (from `admin-gui.yml`):
 - `RELOAD` — reloads plugin sync, closes inventory.
 - `EDITOR` — opens `SkinEditorGui`.
-- `GRANT`, `REVOKE`, `GIVE` — require player/skin input (anvil/sign input flow or command fallback).
+- `GRANT`, `REVOKE`, `GIVE` — require player/skin input (dialog input flow).
 - `BROWSE_GRANTS` — paginated list of a player's grants.
 
 **`SkinEditorGui` screens:**
 1. **List screen** — paginated, one icon per skin. Buttons: New Skin, Prev, Next, Back.
 2. **Detail screen** — toggle enabled, edit name/model-id/item-type/note material/display, delete.
-3. **New Skin flow** — step-by-step anvil input: name → model-id → item-type picker → review → confirm & save.
+3. **New Skin flow** — step-by-step dialog input: name → model-id → item-type picker → review → confirm & save.
 
 ---
 
@@ -219,7 +390,7 @@ All custom GUIs implement `GuiListener.ChamoGui extends InventoryHolder`. The li
 - Skin ID stored in `PersistentDataContainer` under key `chamoitemskins:skin_id`.
 - Name/lore from `config.yml note.*`, MiniMessage with `{skin_name}` resolved at give-time.
 - Consumed on `PlayerInteractEvent` RIGHT_CLICK_AIR or RIGHT_CLICK_BLOCK.
-- Flow: check already-owned → fire `SkinGrantEvent` (cancellable) → if not cancelled: consume item, `GrantManager.grantSkin(uuid, skinId, "NOTE")`, send `grant-received`.
+- Flow: check already-owned → fire `SkinGrantEvent` (cancellable) → if not canceled: consume item, `GrantManager.grantSkin(uuid, skinId, "NOTE")`, send `grant-received`.
 
 ---
 
@@ -253,7 +424,7 @@ Identifier: `chamoitemskins`. `persist()` returns `true`. Registered only if PAP
 | `%chamoitemskins_total_owned%`       | Total grants count for player               |
 | `%chamoitemskins_total_skins%`       | Total enabled skin count                    |
 
-Return `null` for unrecognised placeholders.
+Return `null` for unrecognized placeholders.
 
 ---
 
@@ -276,10 +447,6 @@ All public types in `:api` must have Javadoc.
 
 ## Coding Conventions
 
-- **File headers:** every file begins with a path comment:
-    - Java: `// --- path/to/FileName.java ---`
-    - YAML: `# --- path/to/filename.yml ---`
-    - Gradle: `// --- path/to/file.gradle.kts ---`
 - Inline `//` comments for non-obvious logic. No prose outside Javadoc.
 - `MessageUtil` must run MiniMessage deserialization AND `PlaceholderAPI.setPlaceholders()` (if PAPI present) before sending to player.
 - `:api` must compile cleanly without HikariCP, or StrokkCommands on the classpath.
@@ -291,7 +458,7 @@ All public types in `:api` must have Javadoc.
 ## What NOT to Do
 
 - ❌ Never call `Bukkit.getScheduler()` — use `SchedulerUtil`.
-- ❌ Never use `ChatColor` or legacy colour codes — use MiniMessage.
+- ❌ Never use `ChatColor` or legacy color codes — use MiniMessage.
 - ❌ Never create Groovy Gradle files (`build.gradle`, `settings.gradle`).
 - ❌ Never put HikariCP, or StrokkCommands imports in `:api`.
 - ❌ Never write to `skins.yml` without going through `YamlUtil.saveSkin` / `YamlUtil.deleteSkin` (atomic write + sync reload).
@@ -425,4 +592,4 @@ Beyond OOP, there are universal Java standards and conventions that must be foll
 - **Code Duplication**  
   If you repeat logic, extract it into a reusable method rather than copy-pasting.
 
-**Bottom line**: Adhering to Oracle's code conventions and basic Java idioms is non-negotiable for serious development. Failing these standards—whether for a premium resource or an internal tool—results in low readability, high technical debt.
+**Bottom line**: Adhering to Oracle's code conventions and basic Java idioms is non-negotiable for serious development. Failing these standards—whether for  an internal tool—results in low readability, high technical debt.

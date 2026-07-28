@@ -7,8 +7,8 @@ import net.chamosmp.chamoitemskins.api.service.*;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.CommandRegisterException;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
-import net.chamosmp.chamoitemskins.command.suggestions.bundles.bundleSuggestionsImpl;
-import net.chamosmp.chamoitemskins.command.suggestions.skinId.skinIdSuggestionsImpl;
+import net.chamosmp.chamoitemskins.command.suggestions.bundles.BundleSuggestionsImpl;
+import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestionsImpl;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.database.MySQLDatabase;
 import net.chamosmp.chamoitemskins.database.SQLiteDatabase;
@@ -108,8 +108,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     private void registerCommands() {
-        skinIdSuggestionsImpl.init(skinManager);
-        bundleSuggestionsImpl.init(skinManager);
+        SkinIdSuggestionsImpl.init(skinManager);
+        BundleSuggestionsImpl.init(skinManager);
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
@@ -160,7 +160,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getPluginManager().registerEvents(new SelfPackUtil(this), this);
         Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), messageUtil), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
-        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
+        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager, this, modelService), this);
         Bukkit.getPluginManager().registerEvents(new UpdateUtil(this), this);
     }
 

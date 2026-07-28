@@ -5,10 +5,12 @@ import com.nexomc.nexo.items.ItemBuilder;
 import net.chamosmp.chamoitemskins.api.models.Nexo;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 public class NexoService implements Nexo {
 
+    @Override
     public boolean isNexo(@NotNull String modelId) {
         return modelId.contains("nexo:");
     }
@@ -21,9 +23,17 @@ public class NexoService implements Nexo {
         ItemBuilder builder = NexoItems.itemFromId(getNexoId(nexoId));
         if (builder == null) return;
         ItemStack newItem = builder.build();
+
+        ItemMeta originalMeta = itemStack.getItemMeta();
+        ItemMeta nexoMeta = newItem.getItemMeta();
+
+        if (originalMeta != null && nexoMeta != null) {
+            mergeMeta(originalMeta, nexoMeta);
+        }
+
         int amount = itemStack.getAmount();
         itemStack.setType(newItem.getType());
-        itemStack.setItemMeta(newItem.getItemMeta());
+        itemStack.setItemMeta(nexoMeta);
         itemStack.setAmount(amount);
     }
 
@@ -35,8 +45,23 @@ public class NexoService implements Nexo {
         if (builder == null) return itemStack;
 
         ItemStack newItem = builder.build();
+        ItemMeta originalMeta = itemStack.getItemMeta();
+        ItemMeta nexoMeta = newItem.getItemMeta();
 
+        if (originalMeta != null && nexoMeta != null) {
+            mergeMeta(originalMeta, nexoMeta);
+        }
+
+        itemStack.setItemMeta(nexoMeta);
         return itemStack.withType(newItem.getType());
+    }
+
+    private void mergeMeta(ItemMeta source, ItemMeta target) {
+        source.getEnchants().forEach((enchant, level) -> target.addEnchant(enchant, level, true));
+        if (source.hasDisplayName()) target.displayName(source.displayName());
+        if (source.hasLore()) target.lore(source.lore());
+        if (source.hasCustomModelData()) target.setCustomModelData(source.getCustomModelData());
+        source.getPersistentDataContainer().copyTo(target.getPersistentDataContainer(), true);
     }
 
     @Override

@@ -64,7 +64,7 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
     /**
      * Logs an action to the database.
      */
-    void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata);
+    @NotNull CompletableFuture<Void> logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata);
 
     @NotNull CompletableFuture<Void> migrateSkinId(String oldSkinId, @NotNull String newSkinId);
 

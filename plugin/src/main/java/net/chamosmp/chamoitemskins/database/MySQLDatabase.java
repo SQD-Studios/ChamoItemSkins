@@ -187,21 +187,23 @@ public final class MySQLDatabase implements DatabaseManager {
     }
 
     @Override
-    public void logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata) {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement("""
-                         INSERT INTO player_skin_logs (log_id, player_uuid, action, target, metadata)
-                         VALUES (?, ?, ?, ?, ?)
-                     """)) {
-            ps.setString(1, UUID.randomUUID().toString());
-            ps.setString(2, playerUuid.toString());
-            ps.setString(3, action);
-            ps.setString(4, target);
-            ps.setString(5, metadata);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to log action: " + e.getMessage());
-        }
+    public @NotNull CompletableFuture<Void> logAction(@NotNull UUID playerUuid, @NotNull String action, @NotNull String target, @Nullable String metadata) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("""
+                             INSERT INTO player_skin_logs (log_id, player_uuid, action, target, metadata)
+                             VALUES (?, ?, ?, ?, ?)
+                         """)) {
+                ps.setString(1, UUID.randomUUID().toString());
+                ps.setString(2, playerUuid.toString());
+                ps.setString(3, action);
+                ps.setString(4, target);
+                ps.setString(5, metadata);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Failed to log action: " + e.getMessage());
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
     }
 
     @Override
