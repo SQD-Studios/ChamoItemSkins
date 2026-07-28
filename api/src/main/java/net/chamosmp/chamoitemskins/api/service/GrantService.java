@@ -80,6 +80,7 @@ public interface GrantService {
 
     /**
      * Grants a bundle to a player.
+     * I need to change this scuffed thing, and have direct Bundle Grants not to grant skins
      *
      * @param playerUuid The player's UUID.
      * @param bundleId   The bundle ID.
@@ -90,6 +91,7 @@ public interface GrantService {
 
     /**
      * Revokes a bundle from a player.
+     * I need to change this scuffed thing, and have direct Bundle Grants not to grant skins
      *
      * @param playerUuid The player's UUID.
      * @param bundleId   The bundle ID.
@@ -100,4 +102,7 @@ public interface GrantService {
     @NotNull CompletableFuture<Void> grantSkin(@NotNull UUID playerUuid, @NotNull String skinId, @NotNull String source, int days);
 
     void checkAndRevokeExpiredGrants();
+
+    /// I need to change this scuffed thing, and have direct Bundle Grants not to grant skins
+    @NotNull CompletableFuture<Boolean> hasBundle(@NotNull UUID playerUuid, @NotNull String bundleId);
 }

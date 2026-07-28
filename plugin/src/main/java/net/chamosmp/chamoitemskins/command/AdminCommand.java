@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.command;
 
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.command.suggestions.bundles.BundleSuggestions;
 import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
@@ -93,11 +94,11 @@ public final class AdminCommand {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (has) {
-                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("skin_id", skinId, "target", target.getName()));
+                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("id", skinId, "target", target.getName()));
                     return;
                 }
                 grantService.grantSkin(target.getUniqueId(), skinId, "COMMAND", days).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("skin_id", skinId, "target", target.getName()));
+                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("id", skinId, "target", target.getName()));
                 });
             });
         }, () -> {
@@ -112,11 +113,11 @@ public final class AdminCommand {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
             grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
                 if (!has) {
-                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("skin_id", skinId, "target", target.getName()));
+                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", skinId, "target", target.getName()));
                     return;
                 }
                 grantService.revokeSkin(target.getUniqueId(), skinId).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("skin_id", skinId, "target", target.getName()));
+                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", skinId, "target", target.getName()));
                 });
             });
         }, () -> {
@@ -195,5 +196,47 @@ public final class AdminCommand {
                 <light_purple>User</light_purple>
                 <yellow>/skin</yellow> - <green>Opens the skin gui
                 """);
+    }
+
+    @Permission("chamoitemskins.admin.access.give")
+    @Executes("bundle access give")
+    public void onBundleAccessGive(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
+        giveBundleAccess(sender, target, bundleId);
+    }
+
+    private void giveBundleAccess(CommandSender sender, Player target, String bundleId) {
+        skinService.getBundle(bundleId).ifPresentOrElse(bundle -> {
+            grantService.hasBundle(target.getUniqueId(), bundle.id()).thenAccept(has -> {
+                if (has) {
+                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("id", bundle.id(), "target", target.getName()));
+                    return;
+                }
+                grantService.grantBundle(target.getUniqueId(), bundle.id(), "COMMAND").thenRun(() -> {
+                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("id", bundle.id(), "target", target.getName()));
+                });
+            });
+        }, () -> {
+            Map<String, String> placeholders = Map.of("bundle_id", bundleId);
+            messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
+        });
+    }
+
+    @Permission("chamoitemskins.admin.access.revoke")
+    @Executes("bundle access revoke")
+    public void onBundleAccessRevoke(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
+        skinService.getBundle(bundleId).ifPresentOrElse(_ -> {
+            grantService.hasBundle(target.getUniqueId(), bundleId).thenAccept(has -> {
+                if (!has) {
+                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", bundleId, "target", target.getName()));
+                    return;
+                }
+                grantService.revokeBundle(target.getUniqueId(), bundleId).thenRun(() -> {
+                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", bundleId, "target", target.getName()));
+                });
+            });
+        }, () -> {
+            Map<String, String> placeholders = Map.of("bundle_id", bundleId);
+            messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
+        });
     }
 }

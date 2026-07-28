@@ -277,4 +277,24 @@ public final class GrantManager implements GrantService {
                 .thenRun(() -> logService.log(playerUuid, "REVOKE_BUNDLE", bundleId, null));
     }
 
+    @Override
+    public @NotNull CompletableFuture<Boolean> hasBundle(@NotNull UUID playerUuid, @NotNull String bundleId) {
+        Optional<SkinBundle> bundleOpt = skinManager.getBundle(bundleId);
+        if (bundleOpt.isEmpty())
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Bundle not found"));
+        SkinBundle bundle = bundleOpt.get();
+
+        List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+        for (String skinId : bundle.skinIds()) {
+            futures.add(hasSkin(playerUuid, skinId));
+        }
+        for (CompletableFuture<Boolean> future : futures) {
+            if (!future.join()) {
+                return CompletableFuture.completedFuture(false);
+            }
+        }
+
+        return CompletableFuture.completedFuture(true);
+    }
+
 }
