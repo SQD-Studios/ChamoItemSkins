@@ -96,7 +96,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         ItemStack newSkin = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         var meta = newSkin.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse("<green><bold>Create New Skin"));
+            meta.customName(MessageUtil.parse("<green><bold>Create New Skin"));
             newSkin.setItemMeta(meta);
         }
         inventory.setItem(NEW_SKIN_SLOT, newSkin);
@@ -104,7 +104,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaBack = back.getItemMeta();
         if (metaBack != null) {
-            metaBack.displayName(MessageUtil.parse("<red><b>Go Back"));
+            metaBack.customName(MessageUtil.parse("<red><b>Go Back"));
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
@@ -119,7 +119,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
             for (Category c : skin.categories()) {
                 categoryNames.add(c.name());
             }
-            meta.displayName(MessageUtil.parse(skin.name()));
+            meta.customName(MessageUtil.parse(skin.name()));
             meta.lore(List.of(
                     MessageUtil.parse("<gray>ID: <white>" + skin.id()),
 
@@ -131,9 +131,10 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         return item;
     }
 
-    public void open() {
+    public void open(Runnable afterOpen) {
         SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
         });
+        if (afterOpen != null) afterOpen.run();
     }
 
     @Override

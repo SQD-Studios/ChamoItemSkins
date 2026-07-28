@@ -187,7 +187,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         var meta = item.getItemMeta();
         if (meta != null) {
 
-            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
 
 
             YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml");
@@ -219,9 +219,9 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = modelService.createPreviewItem(skin);
         var meta = item.getItemMeta();
         if (meta != null) {
-            String displayName = skin.name();
+            String customName = skin.name();
             if (active) {
-                displayName = "<dark_gray><i>[EQUIPPED] <white>" + displayName;
+                customName = "<dark_gray><i>[EQUIPPED] <white>" + customName;
             }
 
             List<String> lore = new ArrayList<>();
@@ -238,7 +238,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 lore.add("<red>Locked");
             }
 
-            meta.displayName(MessageUtil.parse(player, displayName, Map.of()));
+            meta.customName(MessageUtil.parse(player, customName, Map.of()));
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
 
             if (active || (skin.displayItem() != null && skin.displayItem().glow())) {
@@ -257,7 +257,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             String safeSearch = search == null ? "Nothing" : search;
             Map<String, String> placeholders = Map.of("search", safeSearch);
 
-            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
             List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
 
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
@@ -275,7 +275,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
             meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
             if (def.glow()) {
                 meta.setEnchantmentGlintOverride(true);

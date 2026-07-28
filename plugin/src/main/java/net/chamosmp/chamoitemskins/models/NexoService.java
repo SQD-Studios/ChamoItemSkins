@@ -58,9 +58,9 @@ public class NexoService implements Nexo {
 
     private void mergeMeta(ItemMeta source, ItemMeta target) {
         source.getEnchants().forEach((enchant, level) -> target.addEnchant(enchant, level, true));
-        if (source.hasDisplayName()) target.displayName(source.displayName());
+        if (source.hasCustomName()) target.customName(source.customName());
         if (source.hasLore()) target.lore(source.lore());
-        if (source.hasCustomModelData()) target.setCustomModelData(source.getCustomModelData());
+        if (source.hasCustomModelDataComponent()) target.setCustomModelDataComponent(source.getCustomModelDataComponent());
         source.getPersistentDataContainer().copyTo(target.getPersistentDataContainer(), true);
     }
 

@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.gui.admin;
 
+import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
@@ -39,8 +40,9 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final ModelService modelService;
     private final RarityManager rarityManager;
     private final ChatInputUtil chatInputUtil;
+    private final SkinService skinService;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil, SkinService skinService) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
@@ -49,6 +51,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
         this.modelService = modelService;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
+        this.skinService = skinService;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of()));
 
         setupInventory();
@@ -59,7 +62,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {
-                meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
                 meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
                 item.setItemMeta(meta);
             }
@@ -91,6 +94,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 SchedulerUtil.runSync(plugin, () -> {
                     if (plugin instanceof net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin chamoPlugin) {
                         chamoPlugin.reloadPlugin();
+                        skinService.reloadSkins();
                     }
                     messageUtil.sendLangMessage(player, "reload-success");
                 });

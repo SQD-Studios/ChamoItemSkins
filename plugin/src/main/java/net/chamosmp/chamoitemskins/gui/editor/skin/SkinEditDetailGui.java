@@ -89,7 +89,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.ARROW);
         var meta = back.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse("<gray>Back to Editor"));
+            meta.customName(MessageUtil.parse("<gray>Back to Editor"));
             back.setItemMeta(meta);
         }
         inventory.setItem(26, back);
@@ -106,7 +106,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse(name));
+            meta.customName(MessageUtil.parse(name));
             meta.lore(lore.stream().map(MessageUtil::parse).toList());
             item.setItemMeta(meta);
         }
@@ -186,13 +186,17 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                 if (input.equalsIgnoreCase("true")) {
                     skinService.deleteSkin(skin.id());
                     ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
-                    new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+                    SkinEditorGui editorGui = new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil);
+                    editorGui.open(() -> {
+                        skinService.reloadSkins();
+                        editorGui.refresh();
+                        editorGui.open(null);
+                    });
 
-                } else {
                 }
             }, "editoreditdeleteconf", Component.text("Are you sure you want to delete this skin?"));
         } else if (slot == 26) {
-            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
     }
 

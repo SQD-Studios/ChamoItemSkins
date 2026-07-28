@@ -101,7 +101,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack create = new ItemStack(Material.GREEN_CONCRETE);
         var meta = create.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse("<green><bold>CREATE"));
+            meta.customName(MessageUtil.parse("<green><bold>CREATE"));
             create.setItemMeta(meta);
         }
         inventory.setItem(26, create);
@@ -110,7 +110,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.ARROW);
         var backMeta = back.getItemMeta();
         if (backMeta != null) {
-            backMeta.displayName(MessageUtil.parse("<gray>Back to Editor"));
+            backMeta.customName(MessageUtil.parse("<gray>Back to Editor"));
             back.setItemMeta(backMeta);
         }
         inventory.setItem(25, back);
@@ -141,7 +141,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse(name));
+            meta.customName(MessageUtil.parse(name));
             meta.lore(lore.stream().map(MessageUtil::parse).toList());
             item.setItemMeta(meta);
         }
@@ -198,7 +198,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
             enabled = !enabled;
             refresh();
         } else if (slot == 25) {
-            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         } else if (slot == 26) {
             Material displayMat = Material.PAPER;
             if (!categories.isEmpty()) {
@@ -220,7 +220,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                     new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
             skinService.saveSkin(skin);
             messageUtil.sendLangMessage(player, "<green>Skin created!");
-            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
     }
 

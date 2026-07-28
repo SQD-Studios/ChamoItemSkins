@@ -70,7 +70,7 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.editor")
     @Executes
     public void onBase(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil, skinService).open();
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -173,6 +173,7 @@ public final class AdminCommand {
     public void onReload(CommandSender sender) {
         try {
             plugin.reloadConfig();
+            skinService.reloadSkins();
             sender.sendRichMessage("<aqua>Reloaded config.");
         } catch (Exception e) {
             sender.sendRichMessage("<aqua>Failed to reload config." + e);

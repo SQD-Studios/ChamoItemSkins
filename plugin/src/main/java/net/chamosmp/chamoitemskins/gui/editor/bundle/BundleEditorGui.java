@@ -6,8 +6,6 @@ import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
-import net.chamosmp.chamoitemskins.gui.editor.skin.SkinCreationGui;
-import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditDetailGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
@@ -94,7 +92,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack newSkin = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         var meta = newSkin.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse("<green><bold>Create a New Bundle"));
+            meta.customName(MessageUtil.parse("<green><bold>Create a New Bundle"));
             newSkin.setItemMeta(meta);
         }
         inventory.setItem(NEW_SKIN_SLOT, newSkin);
@@ -102,7 +100,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaBack = back.getItemMeta();
         if (metaBack != null) {
-            metaBack.displayName(MessageUtil.parse("<red><b>Go Back"));
+            metaBack.customName(MessageUtil.parse("<red><b>Go Back"));
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
@@ -110,21 +108,21 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
     }
 
     private ItemStack createIcon(SkinBundle bundle) {
-        Optional<Skin> optionalSkin = skinService.getSkin(bundle.skinIds().getFirst());
-        Skin displaySkin = null;
-        if (optionalSkin.isPresent()) {
-            displaySkin = optionalSkin.get();
+        ItemStack item = new ItemStack(Material.BUNDLE);
+        if (!bundle.skinIds().isEmpty() && bundle.skinIds().getFirst() != null) {
+            Optional<Skin> optionalSkin = skinService.getSkin(bundle.skinIds().getFirst());
+            Skin displaySkin = null;
+            if (optionalSkin.isPresent()) {
+                displaySkin = optionalSkin.get();
+            }
+            if (displaySkin != null) {
+                item = modelService.createPreviewItem(displaySkin);
+            }
         }
-        ItemStack item;
-        if (displaySkin != null) {
-            item = modelService.createPreviewItem(displaySkin);
-        } else {
-            item = new ItemStack(Material.BUNDLE);
-        }
-        var meta = item.getItemMeta();
+        ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             List<String> skinNames = new ArrayList<>(bundle.skinIds());
-            meta.displayName(MessageUtil.parse(bundle.name()));
+            meta.customName(MessageUtil.parse(bundle.name()));
             meta.lore(List.of(
                     MessageUtil.parse("<gray>ID: <white>" + bundle.id()),
 
@@ -135,9 +133,11 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         return item;
     }
 
-    public void open() {
+    public void open(Runnable afterOpen) {
         SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
         });
+
+        if (afterOpen != null) afterOpen.run();
     }
 
     @Override

@@ -75,7 +75,7 @@ public final class NoteUtil {
                 displayNameTemplate = config.getString("note.display-name", "<gold><bold>Skin Note");
                 placeholders = Map.of("skin_name", skin.name(), "time_left", "Permanent");
             }
-            meta.displayName(MessageUtil.parse(null, displayNameTemplate, placeholders));
+            meta.customName(MessageUtil.parse(null, displayNameTemplate, placeholders));
             meta.lore(loreTemplate.stream()
                     .map(line -> MessageUtil.parse(null, line, placeholders)) // {time_left} is still raw
                     .toList());

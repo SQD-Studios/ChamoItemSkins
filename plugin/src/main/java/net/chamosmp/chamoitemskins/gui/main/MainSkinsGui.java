@@ -100,7 +100,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {
-                meta.displayName(MessageUtil.parse(player, def.name(), Map.of()));
+                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
                 meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
                 if (def.glow()) meta.setEnchantmentGlintOverride(true);
                 item.setItemMeta(meta);

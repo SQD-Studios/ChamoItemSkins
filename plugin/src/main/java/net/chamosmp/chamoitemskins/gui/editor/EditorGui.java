@@ -58,7 +58,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaBack = back.getItemMeta();
         if (metaBack != null) {
-            metaBack.displayName(MessageUtil.parse("<red><b>Go Back"));
+            metaBack.customName(MessageUtil.parse("<red><b>Go Back"));
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
@@ -66,7 +66,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack skinEditor = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta metaSkinEditor = skinEditor.getItemMeta();
         if (metaSkinEditor != null) {
-            metaSkinEditor.displayName(MessageUtil.parse("<aqua><b>Skin Editor"));
+            metaSkinEditor.customName(MessageUtil.parse("<aqua><b>Skin Editor"));
             skinEditor.setItemMeta(metaSkinEditor);
         }
         inventory.setItem(11, skinEditor);
@@ -74,7 +74,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack bundleEditor = new ItemStack(Material.BLUE_BUNDLE);
         ItemMeta metaBundleEditor = bundleEditor.getItemMeta();
         if (metaBundleEditor != null) {
-            metaBundleEditor.displayName(MessageUtil.parse("<yellow><b>Bundle Editor"));
+            metaBundleEditor.customName(MessageUtil.parse("<yellow><b>Bundle Editor"));
             bundleEditor.setItemMeta(metaBundleEditor);
         }
         inventory.setItem(15, bundleEditor);
@@ -91,13 +91,13 @@ public class EditorGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == BACK_SLOT) {
-            new AdminGui(plugin, player, plugin.adminGuiTitle(), plugin.adminSize(), plugin.adminSlots(), messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
+            new AdminGui(plugin, player, plugin.adminGuiTitle(), plugin.adminSize(), plugin.adminSlots(), messageUtil, categoryManager, modelService, rarityManager, chatInputUtil, plugin.getSkinService()).open();
         }
         if (slot == 11) {
-            new SkinEditorGui(plugin, player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new SkinEditorGui(plugin, player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
         if (slot == 15) {
-            new BundleEditorGui(plugin,player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new BundleEditorGui(plugin,player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
     }
 

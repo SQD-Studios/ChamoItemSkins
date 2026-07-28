@@ -1,11 +1,13 @@
 package net.chamosmp.chamoitemskins.gui.editor.bundle;
 
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Rarity;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
+import net.chamosmp.chamoitemskins.gui.editor.AdministratorSkinSelectionGui;
 import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
@@ -91,7 +93,7 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
         ItemStack create = new ItemStack(Material.GREEN_CONCRETE);
         var meta = create.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse("<green><bold>CREATE"));
+            meta.customName(MessageUtil.parse("<green><bold>CREATE"));
             create.setItemMeta(meta);
         }
         inventory.setItem(26, create);
@@ -100,7 +102,7 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.ARROW);
         var backMeta = back.getItemMeta();
         if (backMeta != null) {
-            backMeta.displayName(MessageUtil.parse("<gray>Back to Editor"));
+            backMeta.customName(MessageUtil.parse("<gray>Back to Editor"));
             back.setItemMeta(backMeta);
         }
         inventory.setItem(25, back);
@@ -118,7 +120,7 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MessageUtil.parse(name));
+            meta.customName(MessageUtil.parse(name));
             meta.lore(lore.stream().map(MessageUtil::parse).toList());
             item.setItemMeta(meta);
         }
@@ -154,15 +156,21 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
                 refresh();
             }, "editorcreateskinname", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 12) {
-            player.closeInventory();
-            player.showTitle(Title.title(MessageUtil.parse("<aqua>LET ME OUT OF THIS, I CAN'T ANYMORE"), MessageUtil.parse("Pws mr agent do it for me")));
+            new AdministratorSkinSelectionGui((ChamoItemSkinsPlugin) plugin, player, skinService, modelService).open(skins -> {
+                List<String> skinIds = new ArrayList<>();
+                for (Skin skin : skins) {
+                    skinIds.add(skin.id());
+                }
+                this.skins = skinIds;
+                open();
+            }, null);
         } else if (slot == 25) {
-            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         } else if (slot == 26) {
             SkinBundle bundle = new SkinBundle(id, name, skins);
             skinService.saveBundle(bundle);
             messageUtil.sendLangMessage(player, "<green>Bundle created!");
-            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
     }
 

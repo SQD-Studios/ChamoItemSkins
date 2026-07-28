@@ -110,10 +110,10 @@ public final class GuiFillerUtil {
         var meta = item.getItemMeta();
         if (meta != null) {
             if (player != null) {
-                meta.displayName(MessageUtil.parse(player, name, Map.of()));
+                meta.customName(MessageUtil.parse(player, name, Map.of()));
                 meta.lore(lore.stream().map(line -> MessageUtil.parse(player, line, Map.of())).toList());
             } else {
-                meta.displayName(MessageUtil.parse(name));
+                meta.customName(MessageUtil.parse(name));
                 meta.lore(lore.stream().map(MessageUtil::parse).toList());
             }
             if (glow) {
