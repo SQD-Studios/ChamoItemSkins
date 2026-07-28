@@ -52,11 +52,11 @@ public final class ConfigUtil {
                     try {
                         config.save(file);
                     } catch (IOException e) {
-                        plugin.getLogger().severe("Could not save adapted config " + fileName + ": " + e.getMessage());
+                        LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save adapted config " + fileName + ": " + e.getMessage());
                     }
                 }
             } catch (IOException e) {
-                plugin.getLogger().severe("Could not read default config: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not read default config: " + e.getMessage());
             }
 
         }

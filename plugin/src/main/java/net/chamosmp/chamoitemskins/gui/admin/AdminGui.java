@@ -14,6 +14,7 @@ import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -92,7 +93,6 @@ public final class AdminGui implements GuiListener.ChamoGui {
                         chamoPlugin.reloadPlugin();
                     }
                     messageUtil.sendLangMessage(player, "reload-success");
-                    player.closeInventory();
                 });
             }
             case "EDITOR" -> {

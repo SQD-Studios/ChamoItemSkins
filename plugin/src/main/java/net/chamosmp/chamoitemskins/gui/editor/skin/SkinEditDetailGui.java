@@ -50,7 +50,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         this.skinService = skinService;
         this.rarityManager = rarityManager;
         this.skin = skin;
-        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<gold>Edit Skin: " + skin.id()));
+        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<aqua><b>Edit Skin: " + skin.id()));
         this.messageUtil = messageUtil;
         this.categoryManager = categoryManager;
         this.modelService = modelService;

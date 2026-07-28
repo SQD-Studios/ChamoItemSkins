@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.manager;
 
 import net.chamosmp.chamoitemskins.api.service.LanguageService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -36,10 +37,9 @@ public final class LanguageManager implements LanguageService {
             messages.clear();
             flatten("", yaml.getValues(true));
             currentLang = langCode;
-            plugin.getLogger().info("Loaded language: " + currentLang + " (" + messages.size() + " messages)");
+            LoggerUtil.log(LoggerUtil.LogType.INFO, "Loaded current language: " + currentLang + " (" + messages.size() + " messages)");
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to load language file: " + langCode);
-            e.printStackTrace();
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to load language file: " + langCode + ". Exception: " + e.getMessage());
         }
     }
 
@@ -79,7 +79,7 @@ public final class LanguageManager implements LanguageService {
         try {
             ConfigUtil.loadOrAdapt(plugin, "lang/" + langName);
         } catch (Exception e) {
-            plugin.getLogger().severe("Could not create default language file: " + e.getMessage());
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not create default language file: " + e.getMessage());
         }
     }
 }

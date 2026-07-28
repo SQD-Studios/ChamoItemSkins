@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +72,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                 // Column already exists
             }
         } catch (SQLException e) {
-            plugin.getLogger().severe("Failed to initialize SQLite: " + e.getMessage());
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to initialize SQLite: " + e.getMessage());
         }
     }
 
@@ -94,7 +95,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                 ps.setString(4, source);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to grant skin: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to grant skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -110,7 +111,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                 ps.setString(2, skinId);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to revoke skin: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to revoke skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -134,7 +135,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to get grants: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get grants: " + e.getMessage());
             }
             return grants;
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -151,7 +152,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     if (rs.next()) return Optional.of(rs.getString("skin_id"));
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to get active skin: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get active skin: " + e.getMessage());
             }
             return Optional.empty();
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -178,7 +179,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to set active skin: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to set active skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -198,7 +199,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                 ps.setString(5, metadata);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to log action: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to log action: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -251,7 +252,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                 ps.setTimestamp(5, expiresAt != null ? Timestamp.valueOf(expiresAt) : null);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to grant skin with expiry: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to grant skin with expiry: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -276,7 +277,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to get expired grants: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get expired grants: " + e.getMessage());
             }
             return expired;
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -303,7 +304,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to upsert active skin: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to upsert active skin: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -327,7 +328,7 @@ public final class SQLiteDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to get all active skins: " + e.getMessage());
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get all active skins for player: " + e.getMessage());
             }
             return activeSkins;
         }, SchedulerUtil.getVirtualThreadExecutor());

@@ -3,6 +3,7 @@ package net.chamosmp.chamoitemskins.gui.editor;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
+import net.chamosmp.chamoitemskins.gui.editor.bundle.BundleEditorGui;
 import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
@@ -92,12 +93,11 @@ public class EditorGui implements GuiListener.ChamoGui {
         if (slot == BACK_SLOT) {
             new AdminGui(plugin, player, plugin.adminGuiTitle(), plugin.adminSize(), plugin.adminSlots(), messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
         }
-        if (slot == 13) {
+        if (slot == 11) {
             new SkinEditorGui(plugin, player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         }
         if (slot == 15) {
-            player.closeInventory();
-            player.showTitle(Title.title(MessageUtil.parse("<dark_aqua>Not implemented, lol"), MessageUtil.parse("You have to wait (Hard isn't it)")));
+            new BundleEditorGui(plugin,player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         }
     }
 

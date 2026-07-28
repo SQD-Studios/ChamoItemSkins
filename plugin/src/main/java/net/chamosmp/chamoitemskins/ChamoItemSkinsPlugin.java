@@ -103,8 +103,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        getLogger().info("ChamoItemSkins enabled successfully.");
+        LoggerUtil.log(LoggerUtil.LogType.INFO, "ChamoItemSkins enabled successfully.");
     }
 
     private void registerCommands() {
@@ -126,7 +125,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager, messageUtil);
                 AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
-                getLogger().info("Registered commands.");
+                LoggerUtil.log(LoggerUtil.LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
                 throw new CommandRegisterException("Failed to register commands: ", e);
             }
@@ -138,7 +137,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         metrics.addCustomChart(
                 new SingleLineChart("totalskins", () -> getSkinService().getSkins().size())
         );
-        getLogger().info("Successfully loaded metrics.");
+        LoggerUtil.log(LoggerUtil.LogType.INFO, "Metrics loaded successfully.");
     }
 
     private void registerClasses() {
@@ -197,8 +196,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     /// 1. Config<br>
-    /// 1.1 Saves the configs<br>
-    /// 1.2 Reloads the config<br>
     /// 2. Init<br>
     /// 2.2 Inits the managers<br>
     /// 2.3 Inits everything else<br>
@@ -206,12 +203,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     /// 4. Schedule grants in 6000 ticks<br>
     /// 5. Schedule this task in 7000 ticks
     public void reloadPlugin() {
-
-        ConfigUtil.loadOrAdapt(this, "config.yml");
-        ConfigUtil.loadDataFile(this, "guis/gui.yml");
-        ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
-        saveDefaultConfig();
-        reloadConfig();
+        reloadConfiguration();
 
         initManagers();
         initElse();
@@ -224,13 +216,23 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         SchedulerUtil.runDelayed(this, this::reloadPlugin, 7000L);
     }
 
+    /// 1. Saves the configs<br>
+    /// 2. Reloads the config<br>
+    public void reloadConfiguration() {
+        ConfigUtil.loadOrAdapt(this, "config.yml");
+        ConfigUtil.loadDataFile(this, "guis/gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
+        saveDefaultConfig();
+        reloadConfig();
+    }
+
     /**
      * When the plugin gets disabled
      */
     @Override
     public void onDisable() {
         if (databaseManager != null) databaseManager.close();
-        getLogger().info("ChamoItemSkins disabled.");
+        LoggerUtil.log(LoggerUtil.LogType.INFO, "ChamoItemSkins disabled.");
     }
 
     private void setupDatabase(FileConfiguration config) {

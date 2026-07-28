@@ -54,11 +54,13 @@ public class UpdateUtil implements Listener {
 
         if (!version.equals("failed")) {
             if (isNewerVersion(pluginVer, version)) {
-                plugin.getLogger().info("New update available. Your version: " + pluginVer + ", latest version: " + version);
-                plugin.getLogger().info("Download plugin here: https://github.com/SQD-Studios/ChamoItemSkins/releases");
+                LoggerUtil.log(LoggerUtil.LogType.INFO, """
+                        New update available. Your version: " + pluginVer + ", latest version: " + version
+                        Download plugin here: https://github.com/SQD-Studios/ChamoItemSkins/releases
+                        """);
             }
         } else {
-            plugin.getLogger().warning("Failed to check for updates.");
+            LoggerUtil.log(LoggerUtil.LogType.WARNING, "Failed to check for updates.");
         }
     }
 

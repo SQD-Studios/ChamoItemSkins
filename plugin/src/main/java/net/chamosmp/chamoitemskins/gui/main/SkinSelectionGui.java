@@ -13,6 +13,7 @@ import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -306,7 +307,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 });
             });
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Failed to load player data: " + ex.getMessage());
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to load player data: " + ex.getMessage());
             return null;
         });
     }

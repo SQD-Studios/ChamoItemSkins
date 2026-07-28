@@ -14,4 +14,4 @@ slots:
     action: EDITOR
     material: WRITABLE_BOOK
     name: "<gold>Editor"
-    lore: ["<gray>Click to open the live skin editor."]
+    lore: ["<gray>Click to open the editor."]

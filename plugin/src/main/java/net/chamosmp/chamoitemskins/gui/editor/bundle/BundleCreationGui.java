@@ -1,10 +1,12 @@
-package net.chamosmp.chamoitemskins.gui.editor.skin;
+package net.chamosmp.chamoitemskins.gui.editor.bundle;
 
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Rarity;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
+import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
@@ -14,6 +16,7 @@ import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,7 +32,7 @@ import java.util.List;
 /**
  * GUI for creating a new skin.
  */
-public final class SkinCreationGui implements GuiListener.ChamoGui {
+public final class BundleCreationGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
     private final Player player;
     private final SkinService skinService;
@@ -39,20 +42,17 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private final CategoryManager categoryManager;
     private final ChatInputUtil chatInputUtil;
 
-    private String id = "new_skin";
-    private String name = "New Skin";
-    private String modelId = "model_id";
-    private final Material itemType = Material.DIAMOND_SWORD;
-    private List<Category> categories = new ArrayList<>();
-    private boolean enabled = true;
+    private String id = "new_bundle";
+    private String name = "New Bundle";
 
-    private Rarity rarity;
+    private List<String> skins = new ArrayList<>();
+
     private final Inventory inventory;
 
 
-    private final List<Category> ALL_CATEGORIES;
+    private final List<Skin> ALL_SKINS = new ArrayList<>();
 
-    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public BundleCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
@@ -60,10 +60,9 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         this.messageUtil = messageUtil;
         this.modelService = modelService;
         this.categoryManager = categoryManager;
-        this.ALL_CATEGORIES = categoryManager.getCategories();
-        this.rarity = rarityManager.getDefaultRarity();
+        ALL_SKINS.addAll(skinService.getSkins());
         this.chatInputUtil = chatInputUtil;
-        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<aqua><b>Create New Skin"));
+        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<yellow><b>Create New Bundle"));
 
         refresh();
     }
@@ -74,28 +73,19 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         // ID & Name
         inventory.setItem(10, createInfoItem(Material.NAME_TAG, "<yellow>ID: <white>" + id, "<gray>Click to set ID"));
         inventory.setItem(11, createInfoItem(Material.PAPER, "<yellow>Name: <white>" + name, "<gray>Click to set Name"));
-        inventory.setItem(12, createInfoItem(Material.ARMOR_STAND, "<yellow>Model ID: <white>" + modelId, "<gray>Click to set Model ID"));
-
         // Category Cycle Item
         List<String> lore = new ArrayList<>();
-        lore.add("<yellow>Click to toggle categories in order:");
-        for (Category cat : ALL_CATEGORIES) {
+        lore.add("<dark_aqua>Click to open the skin selection");
+        for (Skin cat : ALL_SKINS) {
             boolean contains = false;
-            for (Category cat2 : categories) {
-                contains = cat2.name().equalsIgnoreCase(cat.name());
+            for (String cat2 : skins) {
+                contains = cat2.equalsIgnoreCase(cat.id());
             }
             String prefix = contains ? "     <gray>> <green>" : "         <dark_gray>";
             lore.add("      " + prefix + cat.name());
         }
 
-        inventory.setItem(13, createInfoItem(Material.BOOK, "<gold><bold>Categories", lore));
-
-        // Rarities
-        if (rarityManager.isEnabled()) {
-            inventory.setItem(14, createInfoItem(Material.EMERALD, "<yellow>Rarity: " + rarity.getDisplayName(), "<gray>Click to cycle rarity"));
-        }
-
-        inventory.setItem(15, createInfoItem(Material.LEVER, "<yellow>Enabled: " + (enabled ? "<green>Yes" : "<red>No"), "<gray>Click to toggle"));
+        inventory.setItem(12, createInfoItem(Material.BOOK, "<aqua><bold>Skins", lore));
 
         // Create Button (Bottom Right)
         ItemStack create = new ItemStack(Material.GREEN_CONCRETE);
@@ -119,19 +109,6 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
 
 
     private int categoryCycleIndex = 0;
-
-    private Rarity nextRarity(Rarity current) {
-        var rarities = rarityManager.getRarities();
-        if (rarities.isEmpty()) return current;
-        int idx = 0;
-        for (int i = 0; i < rarities.size(); i++) {
-            if (rarities.get(i).id().equals(current.id())) {
-                idx = i;
-                break;
-            }
-        }
-        return rarities.get((idx + 1) % rarities.size());
-    }
 
     private ItemStack createInfoItem(Material mat, String name, String lore) {
         return createInfoItem(mat, name, List.of(lore));
@@ -177,50 +154,15 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 refresh();
             }, "editorcreateskinname", Component.text("Create Skin", NamedTextColor.AQUA));
         } else if (slot == 12) {
-            chatInputUtil.getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
-                if (input == null) {
-                    open();
-                    return;
-                }
-                this.modelId = input;
-                open();
-                refresh();
-            }, "editorcreatemodelid", Component.text("Create Skin", NamedTextColor.AQUA));
-        } else if (slot == 13) {
-            categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
-            Category cat = ALL_CATEGORIES.get(categoryCycleIndex);
-            categories = new ArrayList<>(List.of(cat));
-            refresh();
-        } else if (slot == 14 && rarityManager.isEnabled()) {
-            rarity = nextRarity(rarity);
-            refresh();
-        } else if (slot == 15) {
-            enabled = !enabled;
-            refresh();
+            player.closeInventory();
+            player.showTitle(Title.title(MessageUtil.parse("<aqua>LET ME OUT OF THIS, I CAN'T ANYMORE"), MessageUtil.parse("Pws mr agent do it for me")));
         } else if (slot == 25) {
-            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         } else if (slot == 26) {
-            Material displayMat = Material.PAPER;
-            if (!categories.isEmpty()) {
-                displayMat = switch (categories.getFirst().name()) {
-                    case "SWORD" -> Material.DIAMOND_SWORD;
-                    case "AXE" -> Material.DIAMOND_AXE;
-                    case "PICKAXE" -> Material.DIAMOND_PICKAXE;
-                    case "SHOVEL" -> Material.DIAMOND_SHOVEL;
-                    case "HOE" -> Material.DIAMOND_HOE;
-                    case "SHIELD" -> Material.SHIELD;
-                    case "BOW" -> Material.BOW;
-                    case "CROSSBOW" -> Material.CROSSBOW;
-                    case "MACE" -> Material.MACE;
-                    case "SPEAR" -> Material.TRIDENT;
-                    default -> Material.PAPER;
-                };
-            }
-            Skin skin = new Skin(id, name, modelId, rarity, categories, enabled, null,
-                    new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
-            skinService.saveSkin(skin);
-            messageUtil.sendLangMessage(player, "<green>Skin created!");
-            new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
+            SkinBundle bundle = new SkinBundle(id, name, skins);
+            skinService.saveBundle(bundle);
+            messageUtil.sendLangMessage(player, "<green>Bundle created!");
+            new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open();
         }
     }
 

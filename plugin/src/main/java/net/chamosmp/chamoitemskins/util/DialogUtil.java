@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 /**
  * Utility for opening Paper Dialog API inputs and returning results via callbacks.
  */
+@SuppressWarnings("UnstableApiUsage")
 public class DialogUtil implements Listener {
 
     // Maps player UUID -> (input key -> callback)

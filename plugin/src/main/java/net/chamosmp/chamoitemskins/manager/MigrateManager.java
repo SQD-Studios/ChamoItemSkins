@@ -7,6 +7,7 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
+import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
 import net.kyori.adventure.audience.Audience;
@@ -142,7 +143,7 @@ public final class MigrateManager implements MigrateService {
             );
 
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to convert wrap " + wrapId + ": " + e.getMessage());
+            LoggerUtil.log(LoggerUtil.LogType.WARNING, "Failed to convert wrap " + wrapId + ": " + e.getMessage());
             return null;
         }
     }

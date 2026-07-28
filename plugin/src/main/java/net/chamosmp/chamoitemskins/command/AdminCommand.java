@@ -6,6 +6,7 @@ import net.chamosmp.chamoitemskins.command.suggestions.bundles.BundleSuggestions
 import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.MigrateManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
@@ -69,13 +70,13 @@ public final class AdminCommand {
     @Permission("chamoitemskins.admin.editor")
     @Executes
     public void onBase(@Executor Player player) {
-        onEditor(player);
+        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
     }
 
     @Permission("chamoitemskins.admin.editor")
     @Executes("editor")
     public void onEditor(@Executor Player player) {
-        new AdminGui(plugin, player, adminGuiTitle, adminGuiSize, adminGuiSlots, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
+        new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
     }
 
     @Permission("chamoitemskins.admin.access.give")

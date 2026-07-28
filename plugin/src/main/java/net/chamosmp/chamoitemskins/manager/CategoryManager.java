@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.manager;
 
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.service.CategoryService;
+import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -39,7 +40,7 @@ public final class CategoryManager implements CategoryService {
         categories.clear();
         ConfigurationSection section = config.getConfigurationSection("categories");
         if (section == null) {
-            plugin.getLogger().severe(DISABLE_MESSAGE);
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, DISABLE_MESSAGE);
             return;
         }
         for (String key : section.getKeys(false)) {
@@ -56,7 +57,7 @@ public final class CategoryManager implements CategoryService {
         }
 
         if (categories.isEmpty()) {
-            plugin.getLogger().severe(DISABLE_MESSAGE);
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, DISABLE_MESSAGE);
         }
     }
 
