@@ -4,16 +4,23 @@ skin-not-owned: "<red>✘ Δεν έχετε το <white>{skin_name}<red>."
 skin-not-found: "<red>Δε βρέθηκε το skin: {skin_id}"
 skin-revoked-notify: "<red>Το skin σας <white>{skin_name}<red> ανακλήθηκε."
 already-owned: "<red>Έχεις ήδη αυτό το skin!"
+
 grant-received: "<green>✔ Ξεκλειδώσατε το <white>{skin_name}<green>!"
 admin-grant-success: "<green>Παραχωρήθηκε πρόσβαση στο <white>{id}<green> για τον <white>{target}<green>."
 admin-revoke-success: "<red>Ανακλήθηκε το <white>{id}<red> από τον <white>{target}<red>."
+
 reload-success: "<green>Το ChamoItemSkins επαναφορτώθηκε."
+
 editor-saved: "<green>To <white>{skin_name}<green> skin αποθηκεύτηκε."
 editor-deleted: "<red>Το <white>{skin_id}<red> skin διαγράφηκε."
+
 already-has-access: "<red>{target} έχει ήδη πρόσβαση στο {id}"
 revoke-not-owned: "<red>{target} Δεν έχει πρόσβαση στο {id}"
 admin-give-note: "<green>Δόθηκαν {amount} {skin_id} note στον {target}"
+
 holding: "<red>Πρέπει να κρατάτε ένα αντικείμενο για να εφαρμόσετε αυτό το skin!"
 cannot-item: "<red>Αυτό το skin δεν μπορεί να εφαρμοστεί σε αυτό το αντικείμενο!"
+
 busy-database: "<red>Η βάση δεδομένων είναι απασχολημένη ή επαναφορτίζετε. Παρακαλώ προσπαθήστε ξανά σε λίγο."
+
 bundle-not-found: "<red>Bundle not found: {skin_id}"
