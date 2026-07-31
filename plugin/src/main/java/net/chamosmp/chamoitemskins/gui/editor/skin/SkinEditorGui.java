@@ -3,14 +3,14 @@ package net.chamosmp.chamoitemskins.gui.editor.skin;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
+import net.chamosmp.chamoitemskins.api.service.SkinService;
+import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
+import net.chamosmp.chamoitemskins.gui.GuiMultiPageUtil;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
+import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
@@ -24,10 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * GUI for editing skins.
@@ -49,6 +46,12 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final RarityManager rarityManager;
     private final ChatInputUtil chatInputUtil;
 
+    private final GuiMultiPageUtil<Skin> pagination;
+
+    private final int PAGE_PRE = 52;
+    private final int PAGE_NEXT = 53;
+
+
     public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
@@ -61,6 +64,20 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<aqua><b>Skin Editor"));
         this.skinSlots = computeSkinSlots(inventory.getSize());
+
+        Set<Integer> reserved = new HashSet<>();
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            if (!skinSlots.contains(slot)) {
+                reserved.add(slot);
+            }
+        }
+
+        this.pagination = new GuiMultiPageUtil<>(
+                inventory.getSize(),
+                this::isBorderSlot,
+                reserved
+        );
+        pagination.setItems(skins);
 
         refresh();
     }
@@ -79,18 +96,25 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         return slots;
     }
 
+    private boolean isBorderSlot(int slot) {
+        int row = slot / 9;
+        int col = slot % 9;
+        int totalRows = inventory.getSize() / 9;
+        return row == 0 || row == totalRows - 1 || col == 0 || col == 8;
+    }
+
     public void refresh() {
         inventory.clear();
         slotToSkin.clear();
 
-        int placed = 0;
-        for (Skin skin : skins) {
-            if (placed >= skinSlots.size()) break;
-            //if (isBorderSlot(placed)) break;
-            int slot = skinSlots.get(placed);
+        List<Skin> pageSkins = pagination.getCurrentPageItems();
+        List<Integer> available = pagination.getAvailableSlots();
+
+        for (int i = 0; i < pageSkins.size() && i < available.size(); i++) {
+            int slot = available.get(i);
+            Skin skin = pageSkins.get(i);
             slotToSkin.put(slot, skin);
             inventory.setItem(slot, createSkinIcon(skin));
-            placed++;
         }
 
         ItemStack newSkin = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
@@ -108,6 +132,27 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
+
+        ItemStack next = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        ItemMeta metaNext = next.getItemMeta();
+        if (metaNext != null) {
+            metaNext.customName(MessageUtil.parse("<green><b>Next Page"));
+            next.setItemMeta(metaNext);
+        }
+        if (pagination.hasNext()) {
+            inventory.setItem(PAGE_NEXT, next);
+        }
+
+        ItemStack prev = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta metaPrev = next.getItemMeta();
+        if (metaNext != null) {
+            metaPrev.customName(MessageUtil.parse("<red><b>Previous Page"));
+            prev.setItemMeta(metaPrev);
+        }
+        if (pagination.hasPrev()) {
+            inventory.setItem(PAGE_PRE, prev);
+        }
+
         GuiFillerUtil.apply(plugin, inventory, player);
     }
 
@@ -151,6 +196,13 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         Skin skin = slotToSkin.get(slot);
         if (skin != null) {
             new SkinEditDetailGui(plugin, player, skinService, skin, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
+        }
+        if (slot == PAGE_PRE && pagination.hasPrev()) {
+            pagination.prevPage();
+            refresh();
+        } else if (slot == PAGE_NEXT && pagination.hasNext()) {
+            pagination.nextPage();
+            refresh();
         }
     }
 

@@ -4,12 +4,13 @@ import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
+import net.chamosmp.chamoitemskins.gui.GuiMultiPageUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
@@ -23,17 +24,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +51,12 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
     private final Map<Integer, String> filterSlotCategories = new HashMap<>();
     private final String baseCategory;
+
+    private final GuiMultiPageUtil<Skin> pagination;
+
+    private int PAGE_NEXT;
+    private int PAGE_PRE;
+
 
     /**
      * I need to Javadoc this because I WON'T REMEMBER IT<br>
@@ -97,13 +99,31 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.messageUtil = messageUtil;
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
 
+        Set<Integer> reserved = new HashSet<>();
         for (GuiSlotDef def : slots) {
             if (def.type() instanceof SlotType.FilterSlot) {
                 filterSlotCategories.put(def.slot(), "category");
             }
+            if (!(def.type() instanceof SlotType.SkinSlot)) {
+                reserved.add(def.slot());
+            }
         }
 
+        this.pagination = new GuiMultiPageUtil<>(
+                inventory.getSize(),
+                this::isBorderSlot,
+                reserved
+        );
+
         this.pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
+
+        List<Skin> visibleSkins = filterSkins(pinnedSkins);
+        pagination.setItems(visibleSkins);
+
+        this.PAGE_NEXT = inventory.getSize() - 1;
+        this.PAGE_PRE = inventory.getSize() - 2;
+
+        refresh();
     }
 
     private boolean isBorderSlot(int slot) {
@@ -117,32 +137,44 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         inventory.clear();
         skinMap.clear();
 
-        for (GuiSlotDef def : slots) {
-            switch (def.type()) {
-                case SlotType.SkinSlot ignored -> {
-                }
-                case SlotType.FilterSlot ignored -> inventory.setItem(def.slot(), createFilterItem(def));
-                case SlotType.SearchSlot ignored -> inventory.setItem(def.slot(), createSearchItem(def));
-                case SlotType.Decorative ignored -> inventory.setItem(def.slot(), createStaticItem(def));
-                default -> inventory.setItem(def.slot(), createStaticItem(def));
-            }
+        List<Skin> pageSkins = pagination.getCurrentPageItems();
+        List<Integer> available = pagination.getAvailableSlots();
+
+        int index = 0;
+        for (Skin skin : pageSkins) {
+            if (index >= available.size()) break;
+            int slot = available.get(index);
+            skinMap.put(slot, skin);
+            inventory.setItem(slot, createSkinItem(skin));
+            index++;
         }
 
-        List<Skin> visibleSkins = filterSkins(pinnedSkins);
-
-        int currentSlot = 10;
-        for (Skin skin : visibleSkins) {
-            if (currentSlot >= inventory.getSize()) break;
-
-            while (currentSlot < inventory.getSize() && (isBorderSlot(currentSlot) || inventory.getItem(currentSlot) != null)) {
-                currentSlot++;
+        for (GuiSlotDef def : slots) {
+            switch (def.type()) {
+                case SlotType.SkinSlot _ -> {
+                }
+                case SlotType.FilterSlot _ -> {
+                    inventory.setItem(def.slot(), createFilterItem(def));
+                }
+                case SlotType.SearchSlot _ -> {
+                    inventory.setItem(def.slot(), createSearchItem(def));
+                }
+                case SlotType.NextPage _ -> {
+                    if (pagination.hasNext()) {
+                        inventory.setItem(def.slot(), createNavigationItem(def));
+                        PAGE_NEXT = def.slot();
+                    }
+                }
+                case SlotType.PreviousPage _ -> {
+                    if (pagination.hasPrev()) {
+                        inventory.setItem(def.slot(), createNavigationItem(def));
+                        PAGE_PRE = def.slot();
+                    }
+                }
+                default -> {
+                    inventory.setItem(def.slot(), createStaticItem(def));
+                }
             }
-
-            if (currentSlot >= inventory.getSize()) break;
-
-            skinMap.put(currentSlot, skin);
-            inventory.setItem(currentSlot, createSkinItem(skin));
-            currentSlot++;
         }
 
         GuiFillerUtil.apply(plugin, inventory, player);
@@ -156,7 +188,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                         || skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(baseCategory)))
                 .filter(skin -> matchesCategoryFilter(skin, filter))
                 .filter(skin -> matchesOwnershipFilter(skin, filter))
-                .filter(skin -> matchesSearchFilter(skin))
+                .filter(this::matchesSearchFilter)
                 .toList();
     }
 
@@ -207,6 +239,22 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
             meta.setEnchantmentGlintOverride(def.glow());
 
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private @NotNull ItemStack createNavigationItem(@NotNull GuiSlotDef def) {
+        ItemStack item = new ItemStack(def.material());
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.customName(MessageUtil.parse(def.name()));
+            List<Component> loreList = new ArrayList<>();
+            for (String lore : def.lore()) {
+                loreList.add(MessageUtil.parse(lore));
+            }
+            meta.lore(loreList);
+            meta.setEnchantmentGlintOverride(def.glow());
             item.setItemMeta(meta);
         }
         return item;
@@ -272,17 +320,20 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private @NotNull ItemStack createStaticItem(@NotNull GuiSlotDef def) {
-        ItemStack item = new ItemStack(def.material());
-        var meta = item.getItemMeta();
-        if (meta != null) {
-            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
-            meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
-            if (def.glow()) {
-                meta.setEnchantmentGlintOverride(true);
+        if (def.material() != null) {
+            ItemStack item = new ItemStack(def.material());
+            var meta = item.getItemMeta();
+            if (meta != null) {
+                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
+                meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+                if (def.glow()) {
+                    meta.setEnchantmentGlintOverride(true);
+                }
+                item.setItemMeta(meta);
             }
-            item.setItemMeta(meta);
+            return item;
         }
-        return item;
+        return new ItemStack(Material.BARRIER);
     }
 
     public void open() {
@@ -398,12 +449,19 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         }
 
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            switch (def.type()) {
-                case SlotType.BackSlot ignored -> player.performCommand("skins");
-                default -> {
-                }
+            if (Objects.requireNonNull(def.type()) instanceof SlotType.BackSlot) {
+                player.performCommand("skins");
             }
         });
+
+        // Navigation items
+        if (slot == PAGE_PRE && pagination.hasPrev()) {
+            pagination.prevPage();
+            refresh();
+        } else if (slot == PAGE_NEXT && pagination.hasNext()) {
+            pagination.nextPage();
+            refresh();
+        }
     }
 
     @Override

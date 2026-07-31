@@ -22,4 +22,10 @@ public sealed interface SlotType {
 
     record SearchSlot() implements SlotType {
     }
+
+    record NextPage() implements SlotType {
+    }
+
+    record PreviousPage() implements SlotType {
+    }
 }

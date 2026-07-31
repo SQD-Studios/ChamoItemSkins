@@ -169,6 +169,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             case "BACKSLOT" -> new SlotType.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
             case "SEARCHSLOT" -> new SlotType.SearchSlot();
+            case "PREVIOUSPAGE" -> new SlotType.PreviousPage();
+            case "NEXTPAGE" -> new SlotType.NextPage();
             default -> new SlotType.Decorative();
         };
     }

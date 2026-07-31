@@ -138,3 +138,17 @@ selection-slots:
       - ''
       - <white>Currently searching for:<dark_red> {search}
       - ' '
+  nextpage:
+    slot: 54
+    type: NextPage
+    material: GREEN_STAINED_GLASS_PANE
+    name: "<b><green>Next Page"
+    lore:
+      -
+  lastpage:
+    slot: 53
+    type: LastPage
+    material: RED_STAINED_GLASS_PANE
+    name: "<b><red>Previous Page"
+    lore:
+      -
