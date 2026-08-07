@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.92.+")
 
     // Dokka (Better Javadocs)
     dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
