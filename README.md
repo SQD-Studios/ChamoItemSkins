@@ -5,53 +5,45 @@
 [![Javadocs](https://img.shields.io/badge/Javadocs-ED8B00?style=flat-square)](https://sqd-studios.github.io/ChamoItemSkins/)
 [![Crowdin](https://img.shields.io/badge/Crowdin-%232E3340?style=flat-square&logo=crowdin)](https://crowdin.com/project/sqd-studios)
 
+# ChamoItemSkins
 
-ChamoItemSkins is a Minecraft skin plugin built for **Paper 26.1.2** and **Folia**. It allows players to unlock and apply skins to their items. Primarily made for resource pack models support.
+ChamoItemSkins is a Minecraft skin plugin built for **Paper 26.1.2** and **Folia**.
+It allows players to unlock and apply skins to their items.
 
+## Features
 
-##  Features
-
-- **Folia & Paper Support**: Fully compatible with Folia servers.
+- **Folia**: Why not?
 - **Skin Notes**: Give players "Skin Notes" that they can use to unlock a skin.
-- **Multiple GUIs**:
-  - **Main Menu**: Browse skin categories by item type.
-  - **Skin Selection**: Equippable skins for owned items.
-  - **Admin**: Access the editor and reload configurations in-game.
-    - **Editor** Access the Bundle Editor and Skin Editor GUI
-    - **Skin Editor**: Modify existing skins directly from a GUI.
-    - **Skin Creation** Create new skins from a GUI
-    - **Bundle Editor** Edit the bundles (Not finished yet)
-- **Database Support**: Choose between **SQLite** (local) or **MySQL** (multiserver sync (Not tested. MAY NOT WORK)).
-- **PlaceholderAPI Support**: Custom placeholders for active skins, ownership status, and totals.
-- **Developer API**: Good API for third-party integrations.
-- **Nexo Items Support** Instead of vanilla models use Nexo Items
-- **HMCWarps Migration** Migrate from HMCWarps to us
+- **PlaceholderAPI**: Placeholders for active skins, ownership status, and totals.
+- **Nexo Items Support** Instead of vanilla textures, use Nexo Items
+- **HMCWarps Migration** Migrate from HMCWarps to us 
 
-##  Requirements
+## Requirements
 
 - **Java 25** or higher.
 - **Paper/Folia 26.1.2+**.
-- (Optional) **PlaceholderAPI** for menu/chat integration.
+- (Optional) **PlaceholderAPI** for placeholders.
 - (Optional) **Nexo** for NexoItems support
 - (Optional) **HMCWarps** for the migration
 
-##  Installation
+## Installation
 
 1. Download the latest `ChamoItemSkins.jar`.
 2. Place it in your server's `plugins/` folder.
 3. Restart your server to generate the default configuration files.
 4. Configure our plugin and enjoy!
 
-##  Configuration
+## Configuration
+
 **Keep in mind that our documentation has a more detailed guide, so we recommend checking that instead :D**
 
-- **`config.yml`**: Database settings, default Note item settings, selfpack hosting, filler gui items, rarities and more!
-- **`skins.yml`**: Define all available skins (their model IDs, names, etc.) and bundles.
-- **`gui.yml`**: GUI for the `/skins` command and skin selection.
-- **`admin-gui.yml`**: Configuration for the admin GUI.
+- **`config.yml`**: Database settings, default Note item settings, selfpack hosting, filler gui items, rarities, etc.
+- **`skins.yml`**: Define skins and bundles.
+- **`guis\(gui)`**: Edit a gui
 - **`lang\(language code)`** Stores all the messages in the specified language
 
 ### Example Skin (`skins.yml`)
+
 ```yaml
 skins:
   infernal_blade:
@@ -63,10 +55,12 @@ skins:
     display-item:
       id: DIAMOND_SWORD
       name: "<gradient:red:dark_red>Infernal Blade"
-      lore: ["<gray>A blade forged in hellfire."]
+      lore: [ "<gray>A blade forged in hellfire." ]
       glow: true
 ```
+
 ### Example Bundle (`skins.yml`)
+
 ```yaml
 bundles:
   sky_bundle:
@@ -76,24 +70,26 @@ bundles:
       - sky_meteor
 ```
 
-##  Commands & Permissions
+## Commands & Permissions
 
 > [!WARNING]
 > This needs to be documented and is outdated
 
 ### Player Commands
+
 | Command  | Description                        | Permission                     |
 |:---------|:-----------------------------------|:-------------------------------|
 | `/skins` | Opens the main skin selection GUI. | `chamoitemskins.use` (default) |
 
 ### Admin Commands
+
 | Command                              | Description                                | Permission             |
 |:-------------------------------------|:-------------------------------------------|:-----------------------|
 | `/skinsadmin gui`                    | Opens the administrative management GUI.   | `chamoitemskins.admin` |
 | `/skinsadmin give <player> <skinId>` | Gives a physical Skin Note to a player.    | `chamoitemskins.admin` |
 | `/skinsadmin reload`                 | Reloads all configuration files and skins. | `chamoitemskins.admin` |
 
-##  Placeholders
+## Placeholders
 
 > [!WARNING]
 > This needs to be documented and is outdated
@@ -105,11 +101,12 @@ Use these with **PlaceholderAPI**:
 - `%chamoitemskins_total_owned%`: Total number of skins owned by the player.
 - `%chamoitemskins_total_skins%`: Total number of enabled skins available.
 
-##  Developer API
+## Developer API
 
 Developers can hook into ChamoItemSkins' `:api` submodule.
 
 ### Repository
+
 The repository for the API can be accessed here:
 
 <details>
@@ -121,6 +118,7 @@ maven {
     url = uri("https://maven.chamosmp.net/releases")
 }
 ```
+
 ``` kotlin
 compileOnly("net.chamosmp.chamoitemskins:api:version")
 ```
@@ -137,6 +135,7 @@ compileOnly("net.chamosmp.chamoitemskins:api:version")
   <url>https://maven.chamosmp.net/releases</url>
 </repository>
 ```
+
 ``` xml
 <dependency>
   <groupId>net.chamosmp</groupId>
@@ -144,6 +143,7 @@ compileOnly("net.chamosmp.chamoitemskins:api:version")
   <version>version</version>
 </dependency>
 ```
+
 </details>
 
 <details>
@@ -155,32 +155,40 @@ maven {
     url "https://maven.chamosmp.net/releases"
 }
 ```
+
 ```groovy
 implementation "net.chamosmp.chamoitemskins:api:version"
 ```
+
 </details>
 
 ### Events
+
 - `SkinEquipEvent`: Fired when a player equips a skin.
 - `SkinUnequipEvent`: Fired when a player unequips a skin.
 - `SkinGrantEvent`: Fired when a player unlocks a skin via a Note or Admin command.
 - `SkinRevokeEvent`: Fired when a skin is removed from a player.
 
 ### Javadocs
+
 Don't forget to see our Javadocs for more information
 
 ### Accessing the API
+
 ```java
 ChamoItemSkinsApi api = Bukkit.getServicesManager().load(ChamoItemSkinsApi.class);
-if (api != null) {
+if(api != null){
     SkinService skinService = api.getSkinService();
-            // Your logic here
+    // Your logic here
 }
 ```
+
 ---
 
-*Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid excuse) it is. I've personally checked every file to
-maintain the quality. There aren't a lot of things (except unperformed code) that could go wrong right? If I have time, I may 
+*Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid
+excuse) it is. I've personally checked every file to
+maintain the quality. There aren't a lot of things (except unperformed code) that could go wrong right? If I have time,
+I may
 recode this as some people actually need it_
 
 ---
@@ -189,9 +197,12 @@ recode this as some people actually need it_
 All the assets are made by real humans, without any assistance of AI.
 
 Credits:
-- assets/ChamoItemSkins.png - Chamogelastos, made with Affinity ([Project Files](https://drive.google.com/file/d/1Nss96bDYgBvlbML-1XOsDvFQxYXJ-jK5/view?usp=sharing))
+
+- assets/ChamoItemSkins.png - Chamogelastos, made with
+  Affinity ([Project Files](https://drive.google.com/file/d/1Nss96bDYgBvlbML-1XOsDvFQxYXJ-jK5/view?usp=sharing))
 - assets/logo-icon.svg - Black and white convertion of assets/ChamoItemSkins.png to an svg
-- assets/ChamoItemSkins ad.png - Chamogelastos, made with Affinity ([Project Files](https://drive.google.com/file/d/1mv-8KJExXF2AoQSd2A2fVQrtaHTmzmZc/view?usp=sharing))
+- assets/ChamoItemSkins ad.png - Chamogelastos, made with
+  Affinity ([Project Files](https://drive.google.com/file/d/1mv-8KJExXF2AoQSd2A2fVQrtaHTmzmZc/view?usp=sharing))
 
 Want to contribute assets yourself? DM me on discord (chamogelastos)
 
