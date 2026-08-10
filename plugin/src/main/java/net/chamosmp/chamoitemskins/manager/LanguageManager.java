@@ -73,13 +73,4 @@ public final class LanguageManager implements LanguageService {
     public String getMessage(String key) {
         return getMessage(key, null);
     }
-
-    /// It's just a glorified {@link ConfigUtil#loadDataFile(Plugin, String)} but it does it in a try/catch and defaults to the lang folder. I'm welcome.
-    private void createLanguageFile(String langName) {
-        try {
-            ConfigUtil.loadOrAdapt(plugin, "lang/" + langName);
-        } catch (Exception e) {
-            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not create default language file: " + e.getMessage());
-        }
-    }
 }

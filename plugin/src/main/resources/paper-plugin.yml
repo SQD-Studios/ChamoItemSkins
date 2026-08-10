@@ -33,33 +33,55 @@ permissions:
   chamoitemskins.use:
     description: Allows using the /skins command
     default: true
+    children:
+      permission.node.child: true
   chamoitemskins.use.others:
     description: Allows using the /skins command on other people
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin:
     description: Allows using admin features
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.editor:
     description: Allows opening the admin editor
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.reload:
     description: Allows using /reload
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.give:
     description: Allows using /give
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.access.revoke:
     description: Allows using /access revoke
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.access.give:
     description: Allows using /access give
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.migrate:
     description: Allows using /migrate (plugin)
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.admin.help:
     description: Allows using /skinsadmin help
     default: op
+    children:
+      permission.node.child: true
   chamoitemskins.update:
     description: Get the plugin update notification
     default: op
+    children:
+      permission.node.child: true

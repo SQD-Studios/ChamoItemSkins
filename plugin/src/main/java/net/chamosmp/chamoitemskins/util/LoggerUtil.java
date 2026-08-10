@@ -1,7 +1,6 @@
 package net.chamosmp.chamoitemskins.util;
 
 import org.bukkit.Bukkit;
-import org.slf4j.Logger;
 
 public class LoggerUtil {
     public enum LogType {
@@ -23,6 +22,6 @@ public class LoggerUtil {
     }
 
     public static void log(LogType type, String message) {
-        Bukkit.getConsoleSender().sendMessage(MessageUtil.parse("<light_purple>ChamoItemSkins| " + type.getColor() + message));
+        Bukkit.getConsoleSender().sendMessage(MessageUtil.parse("<light_purple>ChamoItemSkins</light_purple>| " + type.getColor() + message));
     }
 }

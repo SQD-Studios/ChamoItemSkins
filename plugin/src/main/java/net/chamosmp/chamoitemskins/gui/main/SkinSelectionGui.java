@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.gui.main;
 
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
@@ -44,7 +45,6 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final ModelService modelService;
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
-    private final List<Skin> pinnedSkins;
     private final Map<Integer, Skin> skinMap = new HashMap<>();
     private final ChatInputUtil chatInputUtil;
     private final MessageUtil messageUtil;
@@ -115,7 +115,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 reserved
         );
 
-        this.pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
+        List<Skin> pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
 
         List<Skin> visibleSkins = filterSkins(pinnedSkins);
         pagination.setItems(visibleSkins);
@@ -344,7 +344,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         grantService.getAllActiveSkins(player.getUniqueId()).thenAccept(loadedActive -> {
             grantService.getGrants(player.getUniqueId()).thenAccept(grants -> {
                 Set<String> loadedOwned = grants.stream()
-                        .map(grant -> grant.skinId())
+                        .map(SkinGrant::skinId)
                         .collect(Collectors.toSet());
 
                 SchedulerUtil.runForEntity(plugin, player, () -> {

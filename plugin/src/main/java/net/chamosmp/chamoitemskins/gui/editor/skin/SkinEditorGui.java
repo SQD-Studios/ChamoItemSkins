@@ -48,8 +48,8 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
 
     private final GuiMultiPageUtil<Skin> pagination;
 
-    private final int PAGE_PRE = 52;
-    private final int PAGE_NEXT = 53;
+    private static final int PAGE_PRE = 52;
+    private static final int PAGE_NEXT = 53;
 
 
     public SkinEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {

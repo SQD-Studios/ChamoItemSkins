@@ -49,6 +49,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private MigrateManager migrateManager;
     private LanguageManager langManager;
     private CategoryManager categoryManager;
+    private FavoriteManager favoriteManager;
 
     private UpdateUtil updateUtil;
     private ChatInputUtil chatInputUtil;
@@ -151,6 +152,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         Bukkit.getServicesManager().register(MigrateService.class, getMigrateService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(RarityService.class, getRarityService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(FavoriteService.class, getFavoriteService(), this, ServicePriority.Normal);
 
         Bukkit.getServicesManager().register(Model.class, getModelClass(), this, ServicePriority.Normal);
     }
@@ -181,6 +183,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         if (this.langManager == null) this.langManager = new LanguageManager(this);
         if (this.migrateManager == null) migrateManager = new MigrateManager(this, skinManager);
         if (this.categoryManager == null) this.categoryManager = new CategoryManager(this);
+        if (this.favoriteManager == null) this.favoriteManager = new FavoriteManager();
     }
 
     /**
@@ -339,5 +342,10 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public @NotNull Model getModelClass() {
         return modelService;
+    }
+
+    @Override
+    public @NotNull FavoriteService getFavoriteService() {
+        return favoriteManager;
     }
 }

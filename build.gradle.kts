@@ -50,7 +50,7 @@ subprojects {
 
         // Display all deprecation warnings
         compileJava {
-            options.compilerArgs.addAll(listOf("-Xlint:-unchecked", "-Xlint:-rawtypes", "-proc:full"))
+            options.compilerArgs.addAll(listOf("-proc:full", "-Xlint:deprecation"))
         }
     }
 }

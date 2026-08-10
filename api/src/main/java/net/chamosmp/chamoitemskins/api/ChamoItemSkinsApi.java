@@ -53,4 +53,6 @@ public interface ChamoItemSkinsApi {
 
     /// Get the {@link Model} class
     @NotNull Model getModelClass();
+
+    @NotNull FavoriteService getFavoriteService();
 }

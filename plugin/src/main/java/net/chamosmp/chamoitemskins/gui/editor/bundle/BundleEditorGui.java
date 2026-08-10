@@ -48,8 +48,8 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
 
     private final GuiMultiPageUtil<SkinBundle> pagination;
 
-    private final int PAGE_PRE = 52;
-    private final int PAGE_NEXT = 53;
+    private static final int PAGE_PRE = 52;
+    private static final int PAGE_NEXT = 53;
 
     public BundleEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         skinService.reloadSkins();

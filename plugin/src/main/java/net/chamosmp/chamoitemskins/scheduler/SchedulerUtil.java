@@ -13,11 +13,21 @@ import java.util.concurrent.Executors;
  * Utility for transparent Folia/Paper scheduling.
  */
 public final class SchedulerUtil {
-    private static final boolean IS_FOLIA = Bukkit.getServer().getClass().getSimpleName().contains("Folia");
+    private static final boolean IS_FOLIA = isFolia();
     private static final Executor VIRTUAL_THREAD_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private SchedulerUtil() {
     }
+
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
 
     public static Executor getVirtualThreadExecutor() {
         return VIRTUAL_THREAD_EXECUTOR;
