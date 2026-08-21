@@ -18,7 +18,7 @@ dependencies {
     compileOnly("de.skyslycer.hmcwraps:api:1.8.2")
 
     // More plugin support
-    compileOnly("com.nexomc:nexo:1.26.0")
+    compileOnly("com.nexomc:nexo:1.27.0")
     compileOnly("me.clip:placeholderapi:2.12.3")
 
     // Dokka (Better Javadocs)
