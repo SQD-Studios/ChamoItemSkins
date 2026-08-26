@@ -1,5 +1,8 @@
 package net.chamosmp.chamoitemskins.api.objects;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -10,8 +13,8 @@ import java.util.List;
  * @param skinIds List of skin IDs included in this bundle.
  */
 public record SkinBundle(
-        String id,
-        String name,
-        List<String> skinIds
+        @NotNull String id,
+        @NotNull String name,
+        @Nullable List<String> skinIds
 ) {
 }

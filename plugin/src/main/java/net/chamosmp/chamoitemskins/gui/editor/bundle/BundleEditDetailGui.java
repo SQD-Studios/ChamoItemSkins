@@ -138,13 +138,13 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            chatInputUtil.getInput(player, Component.text("Enter bundle Name:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter bundle Name:"), input -> {
                 bundle = new SkinBundle(bundle.id(), input, bundle.skinIds());
                 saveAndRefresh();
                 open();
-            }, "editoreditskinnameb", Component.text(bundle.id(), NamedTextColor.LIGHT_PURPLE), bundle.name());
+            }, "editoreditskinnameb", MessageUtil.parse("<light_purple>" + bundle.id()), bundle.name());
         } else if (slot == 11) {
-            chatInputUtil.getInput(player, Component.text("Enter NEW bundle ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter NEW bundle ID:"), input -> {
                 if (input == null) {
                     return;
                 }
@@ -166,12 +166,14 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                 bundle = skinBundle;
                 saveAndRefresh();
                 open();
-            }, "editoreditskinidb", Component.text(bundle.id(), NamedTextColor.LIGHT_PURPLE), bundle.id());
+            }, "editoreditskinidb", MessageUtil.parse("<light_purple>" + bundle.id()), bundle.id());
         } else if (slot == 12) {
             List<Skin> skins = new ArrayList<>();
-            for (String id : bundle.skinIds()) {
-                Optional<Skin> optionalSkin = skinService.getSkin(id);
-                optionalSkin.ifPresent(skins::add);
+            if (bundle.skinIds() != null) {
+                for (String id : bundle.skinIds()) {
+                    Optional<Skin> optionalSkin = skinService.getSkin(id);
+                    optionalSkin.ifPresent(skins::add);
+                }
             }
             new AdministratorSkinSelectionGui((ChamoItemSkinsPlugin) plugin, player, skinService, modelService).open(newSkins -> {
                 List<String> skinIds = new ArrayList<>();
@@ -184,7 +186,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
             }, skins);
         } else if (slot == 25) {
             chatInputUtil.getYesNo(player, input -> {
-                if (input.equalsIgnoreCase("true")) {
+                if ("true".equalsIgnoreCase(input)) {
                     skinService.deleteBundle(bundle.id());
                     ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
                     BundleEditorGui editorGui = new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil);
@@ -194,7 +196,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                         editorGui.open(null);
                     });
                 }
-            }, "editoreditdeleteconfb", Component.text("Are you sure you want to delete this bundle?"));
+            }, "editoreditdeleteconfb", MessageUtil.parse("Are you sure you want to delete this bundle?"));
         } else if (slot == 26) {
             new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }

@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.database;
 
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -90,6 +91,13 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
      * @return a CompletableFuture containing a collection of expired grant entries
      */
     @NotNull CompletableFuture<Collection<ExpiredGrant>> getExpiredGrants();
+
+
+    @NotNull CompletableFuture<Void> addFavoriteSkinToPlayer(@NotNull UUID playerUuid, @NotNull Skin skin);
+
+    @NotNull CompletableFuture<Void> removeFavoriteSkinFromPlayer(@NotNull UUID playerUuid, @NotNull Skin skin);
+
+    @NotNull CompletableFuture<Collection<String>> getFavoriteSkinsFromPlayer(@NotNull UUID playerUuid);
 
     /**
      * Simple record representing an expired grant entry.

@@ -29,15 +29,6 @@ public interface Nexo {
     /// Is the modelId nexo?
     ///
     /// @param modelId The modelId to check it on
-    ///
     /// @return If the modelId has a nexo: prefix
     boolean isNexo(@NotNull String modelId);
-
-    /// Replaces the current {@link ItemStack} with the Nexo equivalent one
-    ///
-    /// @param itemStack The {@link ItemStack} to replace with a Nexo Item
-    /// @param nexoId    The Model ID
-    /// @deprecated This is deprecated in favor of {@link Nexo#getNexoItem(ItemStack, String)}. This method may be unsafe. {@link Nexo#getNexoItem(ItemStack, String)} is not a direct replacement. It returns an {@link ItemStack}, which you have to replace
-    @Deprecated(forRemoval = true)
-    void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId);
 }

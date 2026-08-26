@@ -22,7 +22,6 @@ skins:
         - <gray>Wizardous, as always.
       glow: true
     rarity: common
-    animations: []
     note-material: PAPER
   demon_knight:
     id: demon_knight
@@ -41,7 +40,6 @@ skins:
       - MACE
       - HOE
     enabled: true
-    animations: []
     display-item:
       id: DIAMOND_SWORD
       name: <gradient:red:dark_red>Demon Knight
@@ -64,7 +62,6 @@ skins:
       - SPEAR
       - MACE
       - HOE
-    animations: []
     display-item:
       id: NETHERITE_SWORD
       name: <gradient:blue:aqua>Sky Meteor

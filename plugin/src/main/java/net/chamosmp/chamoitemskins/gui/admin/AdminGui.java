@@ -107,34 +107,34 @@ public final class AdminGui implements GuiListener.ChamoGui {
                 new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
             }
             case "GIVE" -> {
-                chatInputUtil.getInput(player, Component.text("Enter skin ID to GIVE note:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to GIVE note:"), skinId -> {
                     if (skinId == null) {
                         open();
                         return;
                     }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin give " + player.getName() + " " + skinId);
                     open();
-                }, "adminguigiveskinid", Component.text("Give Note", NamedTextColor.YELLOW));
+                }, "adminguigiveskinid", MessageUtil.parse("<yellow>Give Note"));
             }
             case "GRANT" -> {
-                chatInputUtil.getInput(player, Component.text("Enter skin ID to GRANT access:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to GRANT access:"), skinId -> {
                     if (skinId == null) {
                         open();
                         return;
                     }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access give " + player.getName() + " " + skinId);
                     open();
-                }, "adminguigrant", Component.text("Grant Access", NamedTextColor.YELLOW));
+                }, "adminguigrant", MessageUtil.parse("<yellow>Grant Access"));
             }
             case "REVOKE" -> {
-                chatInputUtil.getInput(player, Component.text("Enter skin ID to REVOKE access:", NamedTextColor.YELLOW), skinId -> {
+                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to REVOKE access:"), skinId -> {
                     if (skinId == null) {
                         open();
                         return;
                     }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access revoke " + player.getName() + " " + skinId);
                     open();
-                }, "adminguirevokeskinid", Component.text("Revoke Access", NamedTextColor.YELLOW));
+                }, "adminguirevokeskinid", MessageUtil.parse("<yellow>Revoke Access"));
             }
             default -> player.sendRichMessage("Action " + action + " not implemented yet.");
         }

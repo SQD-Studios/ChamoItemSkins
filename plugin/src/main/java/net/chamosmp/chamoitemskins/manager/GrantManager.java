@@ -118,7 +118,6 @@ public final class GrantManager implements GrantService {
         db.getExpiredGrants().thenAccept(expiredGrants -> {
             if (expiredGrants.isEmpty()) return;
 
-            // Use the correct type: DatabaseManager.ExpiredGrant
             for (DatabaseManager.ExpiredGrant entry : expiredGrants) {
                 revokeSkin(entry.playerUuid(), entry.skinId());
             }

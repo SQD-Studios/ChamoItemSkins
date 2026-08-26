@@ -40,29 +40,6 @@ public final class ModelService extends NexoService implements Model {
     }
 
     @Override
-    public void applyItemModel(@NotNull ItemStack item, @NotNull String modelId) {
-        if (modelId.isBlank() || item.getType().isAir()) {
-            return;
-        }
-        var meta = item.getItemMeta();
-        if (meta == null) {
-            return;
-        }
-
-
-        if (isNexo(modelId)) {
-            applyNexoItem(item, modelId);
-            return;
-        }
-
-
-        NamespacedKey key = resolveItemModelKey(modelId);
-        meta.setItemModel(key);
-        item.setItemMeta(meta);
-
-    }
-
-    @Override
     public ItemStack getItemModel(@NotNull ItemStack item, @NotNull String modelId) {
         if (modelId.isBlank() || item.getType().isAir()) {
             return item;

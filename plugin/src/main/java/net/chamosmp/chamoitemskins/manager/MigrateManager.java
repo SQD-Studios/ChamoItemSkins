@@ -129,7 +129,6 @@ public final class MigrateManager implements MigrateService {
 
             List<Category> categories = determineCategories(wrap);
 
-            // Skin constructor: (id, name, model, rarity, categories, enabled, note, display, animations)
             return new Skin(
                     wrapId,
                     displayName,
@@ -138,8 +137,7 @@ public final class MigrateManager implements MigrateService {
                     categories,
                     true,
                     null,
-                    null,
-                    Collections.emptyList()
+                    null
             );
 
         } catch (Exception e) {

@@ -71,4 +71,8 @@ public class GuiMultiPageUtil<T> {
         return availableSlots;
     }
 
+    public void clear() {
+        allItems.clear();
+    }
+
 }

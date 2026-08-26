@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -113,8 +114,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
-                var guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
-                var adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
+                YamlConfiguration guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
+                YamlConfiguration adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
                 mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
                 skinsTitle = guiConfig.getString("title", "Skins");
@@ -123,8 +124,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminSlots = parseSlots(adminGuiConfig.getConfigurationSection("slots"));
                 adminTitle = adminGuiConfig.getString("title", "Admin");
                 adminSize = adminGuiConfig.getInt("size", 54);
-
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager, messageUtil);
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
                 AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
                 LoggerUtil.log(LoggerUtil.LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
@@ -183,7 +183,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         if (this.langManager == null) this.langManager = new LanguageManager(this);
         if (this.migrateManager == null) migrateManager = new MigrateManager(this, skinManager);
         if (this.categoryManager == null) this.categoryManager = new CategoryManager(this);
-        if (this.favoriteManager == null) this.favoriteManager = new FavoriteManager();
+        if (this.favoriteManager == null)
+            this.favoriteManager = new FavoriteManager(this, databaseManager, skinManager);
     }
 
     /**

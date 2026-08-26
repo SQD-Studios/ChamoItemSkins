@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.api.objects;
 
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public record Category(
         @NotNull String name,
-        List<String> allowedItems,
+        @Nullable List<String> allowedItems,
         String id
 ) {
     public List<Material> getAllowedMaterials() {

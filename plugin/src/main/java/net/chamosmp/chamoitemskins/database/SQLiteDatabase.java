@@ -2,6 +2,7 @@ package net.chamosmp.chamoitemskins.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.LoggerUtil;
@@ -66,11 +67,11 @@ public final class SQLiteDatabase implements DatabaseManager {
                         metadata    TEXT,
                         timestamp   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )""");
-            try (Statement stmt = conn.createStatement()) {
-                stmt.execute("ALTER TABLE player_skin_grants ADD COLUMN expires_at TIMESTAMP");
-            } catch (SQLException ignored) {
-                // Column already exists
-            }
+            conn.createStatement().execute("""
+                    CREATE TABLE IF NOT EXISTS player_favorite_skins (
+                         player_uuid VARCHAR(36) NOT NULL,
+                         skin_id     VARCHAR(64) NOT NULL
+                    )""");
         } catch (SQLException e) {
             LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to initialize SQLite: " + e.getMessage());
         }
@@ -284,6 +285,19 @@ public final class SQLiteDatabase implements DatabaseManager {
     }
 
     @Override
+    public @NotNull CompletableFuture<Void> addFavoriteSkinToPlayer(@NotNull UUID playerUuid, @NotNull Skin skin) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement("INSERT INTO player_favorite_skins (player_uuid, skin_id) VALUES (?, ?)")) {
+                ps.setString(1, playerUuid.toString());
+                ps.setString(2, skin.id());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to add favorite skin: " + e.getMessage());
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
     public @NotNull CompletableFuture<Void> upsertActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId) {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection()) {
@@ -331,6 +345,41 @@ public final class SQLiteDatabase implements DatabaseManager {
                 LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get all active skins for player: " + e.getMessage());
             }
             return activeSkins;
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> removeFavoriteSkinFromPlayer(@NotNull UUID playerUuid, @NotNull Skin skin) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("DELETE FROM player_favorite_skins WHERE player_uuid = ? AND skin_id = ?")) {
+                ps.setString(1, playerUuid.toString());
+                ps.setString(2, skin.id());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to remove favorite skin: " + e.getMessage());
+            }
+        }, SchedulerUtil.getVirtualThreadExecutor());
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Collection<String>> getFavoriteSkinsFromPlayer(@NotNull UUID playerUuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("SELECT skin_id FROM player_favorite_skins WHERE player_uuid = ?")) {
+                Collection<String> skins = new ArrayList<>();
+
+                ps.setString(1, playerUuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        skins.add(rs.getString("skin_id"));
+                    }
+                }
+                return skins;
+            } catch (SQLException e) {
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get favorite skins: " + e.getMessage());
+                return Collections.emptyList();
+            }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
 }

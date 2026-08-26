@@ -111,7 +111,6 @@ All DB `CompletableFuture` `.thenAccept()` callbacks that touch Bukkit API must 
  * @param noteMaterial Optional override for the physical note item material.
  * @param displayItem  Configuration for the item shown in GUIs.
  * @param rarity       The rarity of the skin
- * @param animations   The animations to apply to the skin
  */
 public record Skin(
         String id,
@@ -121,8 +120,7 @@ public record Skin(
         List<Category> categories,
         boolean enabled,
         Material noteMaterial,
-        DisplayItem displayItem,
-        List<String> animations
+        DisplayItem displayItem
 ) {
   /**
    * Represents an item to be displayed in the GUI.

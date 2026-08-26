@@ -1,6 +1,8 @@
 package net.chamosmp.chamoitemskins.api.objects;
 
 import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,18 +18,16 @@ import java.util.List;
  * @param noteMaterial Optional override for the physical note item material.
  * @param displayItem  Configuration for the item shown in GUIs.
  * @param rarity       The rarity of the skin
- * @param animations   The animations to apply to the skin
  */
 public record Skin(
-        String id,
-        String name,
-        String modelId,
-        Rarity rarity,
-        List<Category> categories,
+        @NotNull String id,
+        @NotNull String name,
+        @NotNull String modelId,
+        @Nullable Rarity rarity,
+        @Nullable List<Category> categories,
         boolean enabled,
         Material noteMaterial,
-        DisplayItem displayItem,
-        List<String> animations
+        DisplayItem displayItem
 ) {
     /**
      * Represents an item to be displayed in the GUI.

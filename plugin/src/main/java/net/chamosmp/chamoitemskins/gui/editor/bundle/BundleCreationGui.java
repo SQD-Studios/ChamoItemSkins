@@ -1,14 +1,11 @@
 package net.chamosmp.chamoitemskins.gui.editor.bundle;
 
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Category;
-import net.chamosmp.chamoitemskins.api.objects.Rarity;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.editor.AdministratorSkinSelectionGui;
-import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
@@ -16,9 +13,6 @@ import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -136,7 +130,7 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            chatInputUtil.getInput(player, Component.text("Enter skin ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID:"), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -144,9 +138,9 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
                 this.id = input.toLowerCase().replace(" ", "_");
                 open();
                 refresh();
-            }, "editorcreateskinid", Component.text("Create Skin", NamedTextColor.AQUA));
+            }, "editorcreateskinid", MessageUtil.parse("<aqua>Create Skin"));
         } else if (slot == 11) {
-            chatInputUtil.getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin Name:"), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -154,7 +148,7 @@ public final class BundleCreationGui implements GuiListener.ChamoGui {
                 this.name = input;
                 open();
                 refresh();
-            }, "editorcreateskinname", Component.text("Create Skin", NamedTextColor.AQUA));
+            }, "editorcreateskinname", MessageUtil.parse("<aqua>Create Skin"));
         } else if (slot == 12) {
             new AdministratorSkinSelectionGui((ChamoItemSkinsPlugin) plugin, player, skinService, modelService).open(skins -> {
                 List<String> skinIds = new ArrayList<>();

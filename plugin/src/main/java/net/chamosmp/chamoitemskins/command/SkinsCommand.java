@@ -4,6 +4,7 @@ import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.main.MainSkinsGui;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
+import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
@@ -38,8 +39,9 @@ public final class SkinsCommand {
     private final ModelService modelService;
     private final RarityManager rarityManager;
     private final MessageUtil messageUtil;
+    private final FavoriteManager favoriteManager;
 
-    public SkinsCommand(Plugin plugin, SkinService skinService, GrantService grantService, String guiTitle, int guiSize, List<GuiSlotDef> guiSlots, SkinManager skinManager, DialogUtil dialogUtil, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil) {
+    public SkinsCommand(Plugin plugin, SkinService skinService, GrantService grantService, String guiTitle, int guiSize, List<GuiSlotDef> guiSlots, SkinManager skinManager, DialogUtil dialogUtil, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -52,19 +54,20 @@ public final class SkinsCommand {
         this.modelService = modelService;
         this.rarityManager = rarityManager;
         this.messageUtil = messageUtil;
+        this.favoriteManager = favoriteManager;
     }
 
 
     @Permission("chamoitemskins.use")
     @Executes
     public void onSkins(@Executor Player player) {
-        new MainSkinsGui(plugin, player, skinService, grantService, guiTitle, guiSize, guiSlots, skinManager, chatInputUtil, modelService, rarityManager, messageUtil).open();
+        new MainSkinsGui(plugin, player, skinService, grantService, guiTitle, guiSize, guiSlots, skinManager, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager).open();
     }
 
     @Permission("chamoitemskins.use.other")
     @Executes
     public void onSkinsOther(CommandSender sender, Player target) {
-        new MainSkinsGui(plugin, target, skinService, grantService, guiTitle, guiSize, guiSlots, skinManager, chatInputUtil, modelService, rarityManager, messageUtil).open();
+        new MainSkinsGui(plugin, target, skinService, grantService, guiTitle, guiSize, guiSlots, skinManager, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager).open();
     }
 
 }

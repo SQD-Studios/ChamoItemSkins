@@ -122,6 +122,7 @@ selection-slots:
       - " "
       - "{owned}"
       - "{all}"
+      - "{favorite}"
   back:
     slot: 45
     type: BackSlot

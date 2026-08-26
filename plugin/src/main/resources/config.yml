@@ -74,7 +74,7 @@ selfpack: # This is if you want to have self pack hosting for your server. You w
 categories:
   sword:
     name: Sword
-    items: # If it is not a full item id it will just search if it contains it. E.g. for sword it will be applicable on all sword skins. If it is DIAMOND_SWORD it can be only applied to a diamond swor
+    items: # If it is not a full item id it will just search if it contains it. E.g. for sword it will be applicable on all sword skins. If it is DIAMOND_SWORD it can be only applied to a diamond sword
       - SWORD
   picks:
     name: Pickaxe
@@ -111,3 +111,7 @@ categories:
   hoe: # Peak btw
     name: Hoe
     items: HOE
+
+favorites:
+  enabled: true
+  favorite-click: SHIFTCLICK # Allowed options: SHIFTCLICK, RIGHTCLICK. Allows defining how one favorites an item

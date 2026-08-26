@@ -11,7 +11,6 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,10 +26,8 @@ import java.util.function.Consumer;
 /**
  * Utility for opening Paper Dialog API inputs and returning results via callbacks.
  */
-@SuppressWarnings("UnstableApiUsage")
 public class DialogUtil implements Listener {
 
-    // Maps player UUID -> (input key -> callback)
     private final Map<UUID, Map<String, Consumer<String>>> pending = new ConcurrentHashMap<>();
 
     public DialogUtil(Plugin plugin) {
@@ -73,14 +70,14 @@ public class DialogUtil implements Listener {
                         )
                         .type(DialogType.confirmation(
                                 ActionButton.create(
-                                        Component.text("Confirm", TextColor.color(0xAEFFC1)),
-                                        Component.text("Click to confirm your input."),
+                                        MessageUtil.parse("<green>Confirm"),
+                                        MessageUtil.parse("Click to confirm your input."),
                                         100,
                                         DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/confirm"), null)
                                 ),
                                 ActionButton.create(
-                                        Component.text("Discard", TextColor.color(0xFFA0B1)),
-                                        Component.text("Click to discard your input."),
+                                        MessageUtil.parse("<red>Discard"),
+                                        MessageUtil.parse("Click to discard your input."),
                                         100,
                                         DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/discard"), null)
                                 )
@@ -123,14 +120,14 @@ public class DialogUtil implements Listener {
                         )
                         .type(DialogType.confirmation(
                                 ActionButton.create(
-                                        Component.text("Yes", TextColor.color(0xAEFFC1)),
-                                        Component.text("Click to confirm your input."),
+                                        MessageUtil.parse("<green>Yes"),
+                                        MessageUtil.parse("Click to confirm your input."),
                                         100,
                                         DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/yes"), null)
                                 ),
                                 ActionButton.create(
-                                        Component.text("No", TextColor.color(0xFFA0B1)),
-                                        Component.text("Click to discard your input."),
+                                        MessageUtil.parse("<red>No"),
+                                        MessageUtil.parse("Click to discard your input."),
                                         100,
                                         DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/no"), null)
                                 )

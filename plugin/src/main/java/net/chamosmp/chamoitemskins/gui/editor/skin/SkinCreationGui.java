@@ -157,7 +157,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            chatInputUtil.getInput(player, Component.text("Enter skin ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID:"), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -165,9 +165,9 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 this.id = input.toLowerCase().replace(" ", "_");
                 open();
                 refresh();
-            }, "editorcreateskinid", Component.text("Create Skin", NamedTextColor.AQUA));
+            }, "editorcreateskinid", MessageUtil.parse("<aqua>Create Skin"));
         } else if (slot == 11) {
-            chatInputUtil.getInput(player, Component.text("Enter skin Name:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin Name:"), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -175,9 +175,9 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 this.name = input;
                 open();
                 refresh();
-            }, "editorcreateskinname", Component.text("Create Skin", NamedTextColor.AQUA));
+            }, "editorcreateskinname", MessageUtil.parse("<aqua>Create Skin"));
         } else if (slot == 12) {
-            chatInputUtil.getInput(player, Component.text("Enter Model ID:", NamedTextColor.YELLOW), input -> {
+            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter Model ID:"), input -> {
                 if (input == null) {
                     open();
                     return;
@@ -185,7 +185,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 this.modelId = input;
                 open();
                 refresh();
-            }, "editorcreatemodelid", Component.text("Create Skin", NamedTextColor.AQUA));
+            }, "editorcreatemodelid", MessageUtil.parse("<aqua>Create Skin"));
         } else if (slot == 13) {
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
             Category cat = ALL_CATEGORIES.get(categoryCycleIndex);
@@ -217,7 +217,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
                 };
             }
             Skin skin = new Skin(id, name, modelId, rarity, categories, enabled, null,
-                    new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false), new ArrayList<>());
+                    new Skin.DisplayItem(displayMat, name, List.of("<gray>A new skin."), false));
             skinService.saveSkin(skin);
             messageUtil.sendLangMessage(player, "<green>Skin created!");
             new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);

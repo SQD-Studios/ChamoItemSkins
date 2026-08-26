@@ -10,6 +10,7 @@ import net.chamosmp.chamoitemskins.gui.GuiMultiPageUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -48,11 +50,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final Map<Integer, Skin> skinMap = new HashMap<>();
     private final ChatInputUtil chatInputUtil;
     private final MessageUtil messageUtil;
+    private final FavoriteManager favoriteManager;
 
-    private final Map<Integer, String> filterSlotCategories = new HashMap<>();
+    private int filterSlotCategories;
     private final String baseCategory;
 
     private final GuiMultiPageUtil<Skin> pagination;
+
+    private final FavoriteManager.ClickType favoriteClickType;
 
     private int PAGE_NEXT;
     private int PAGE_PRE;
@@ -62,6 +67,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
      * I need to Javadoc this because I WON'T REMEMBER IT<br>
      * {@code 1} = Owned<br>
      * {@code 2} = All<br>
+     * {@code 3} = Favorite<br>
      * {@code Default} = 2<br>
      */
     private int filterLoreCycle = 2;
@@ -73,6 +79,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
     private Map<Material, String> activeSkins = new HashMap<>();
     private Set<String> ownedSkinIds = new HashSet<>();
+    private List<Skin> favoritedSkins = new ArrayList<>();
 
     public SkinSelectionGui(
             @NotNull Plugin plugin,
@@ -85,7 +92,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull String title,
             int size,
             @NotNull List<GuiSlotDef> slots,
-            ChatInputUtil chatInputUtil, MessageUtil messageUtil
+            ChatInputUtil chatInputUtil, MessageUtil messageUtil, FavoriteManager favoriteManager
     ) {
         this.plugin = plugin;
         this.player = player;
@@ -97,12 +104,16 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.baseCategory = category;
         this.chatInputUtil = chatInputUtil;
         this.messageUtil = messageUtil;
+        this.favoriteManager = favoriteManager;
+
         this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
+
+        this.favoriteClickType = favoriteManager.getClickType(plugin.getConfig().getString("favorites.favorite-click", "RIGHTCLICK").toUpperCase());
 
         Set<Integer> reserved = new HashSet<>();
         for (GuiSlotDef def : slots) {
             if (def.type() instanceof SlotType.FilterSlot) {
-                filterSlotCategories.put(def.slot(), "category");
+                filterSlotCategories = def.slot();
             }
             if (!(def.type() instanceof SlotType.SkinSlot)) {
                 reserved.add(def.slot());
@@ -114,11 +125,6 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 this::isBorderSlot,
                 reserved
         );
-
-        List<Skin> pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
-
-        List<Skin> visibleSkins = filterSkins(pinnedSkins);
-        pagination.setItems(visibleSkins);
 
         this.PAGE_NEXT = inventory.getSize() - 1;
         this.PAGE_PRE = inventory.getSize() - 2;
@@ -136,6 +142,12 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     public void refresh() {
         inventory.clear();
         skinMap.clear();
+        pagination.clear();
+
+        List<Skin> pinnedSkins = List.copyOf(skinService.getSkins().stream().filter(Skin::enabled).toList());
+
+        List<Skin> visibleSkins = filterSkins(pinnedSkins);
+        pagination.setItems(visibleSkins);
 
         List<Skin> pageSkins = pagination.getCurrentPageItems();
         List<Integer> available = pagination.getAvailableSlots();
@@ -181,13 +193,18 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private @NotNull List<Skin> filterSkins(@NotNull List<Skin> source) {
-        String filter = filterLoreCycle == 1 ? "OWNED" : "ALL";
         return source.stream()
-                .filter(skin -> baseCategory == null
-                        || baseCategory.equalsIgnoreCase("ALL")
-                        || skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(baseCategory)))
-                .filter(skin -> matchesCategoryFilter(skin, filter))
-                .filter(skin -> matchesOwnershipFilter(skin, filter))
+                .filter(skin -> {
+                    if (baseCategory == null
+                            || baseCategory.equalsIgnoreCase("ALL")) return true;
+                    if (skin.categories() != null) {
+                        return skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(baseCategory));
+                    } else {
+                        return false;
+                    }
+                })
+                .filter(this::matchesFavoriteFilter)
+                .filter(this::matchesOwnershipFilter)
                 .filter(this::matchesSearchFilter)
                 .toList();
     }
@@ -198,21 +215,21 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return skin.id().toLowerCase().contains(q) || skin.name().toLowerCase().contains(q);
     }
 
-    private boolean matchesCategoryFilter(@NotNull Skin skin, @NotNull String filter) {
-        if (filter.equalsIgnoreCase("ALL") || filter.equalsIgnoreCase("OWNED")) {
-            return true;
-        }
-        return skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(filter));
+    /**
+     * If it is on "Owned" mode, check if the player owns the skins
+     *
+     * @param skin The skin to check
+     * @return If he owns it (When on the "owned" mode)
+     */
+    private boolean matchesOwnershipFilter(@NotNull Skin skin) {
+        if (filterLoreCycle != 1) return true;
+        return ownedSkinIds.contains(skin.id());
     }
 
-    private boolean matchesOwnershipFilter(@NotNull Skin skin, @NotNull String filter) {
-        if (filter.equalsIgnoreCase("OWNED")) {
-            return ownedSkinIds.contains(skin.id());
-        }
-        return true;
+    private boolean matchesFavoriteFilter(@NotNull Skin skin) {
+        if (filterLoreCycle != 3) return true;
+        return favoritedSkins.contains(skin);
     }
-
-    private static final List<String> ALL_FILTERS = List.of("OWNED", "ALL");
 
     private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def) {
         ItemStack item = new ItemStack(def.material());
@@ -228,11 +245,15 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             Map<String, String> placeholders;
 
             if (character == null) return item;
-            if (filterLoreCycle == 1) {
-                placeholders = Map.of("owned", MessageUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins");
-            } else {
-                placeholders = Map.of("owned", "Owned", "all", MessageUtil.placeholder(character, Map.of("category", "All Skins")));
-            }
+            placeholders = switch (filterLoreCycle) { // Make the placeholder different based on the filter
+                case 1 ->
+                        Map.of("owned", MessageUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins", "favorite", "Favorite");
+                case 3 ->
+                        Map.of("owned", "Owned", "all", "All Skins", "favorite", MessageUtil.placeholder(character, Map.of("category", "Favorite")));
+                default -> // case 2
+                        Map.of("owned", "Owned", "all", MessageUtil.placeholder(character, Map.of("category", "All Skins")), "favorite", "Favorite");
+            };
+
             List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
             meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
 
@@ -273,7 +294,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             }
 
             List<String> lore = new ArrayList<>();
-            if (rarityManager.isEnabled()) {
+            if (rarityManager.isEnabled() && skin.rarity() != null) {
                 lore.add(skin.rarity().getDisplayName());
                 lore.add("");
             }
@@ -337,10 +358,15 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     public void open() {
-        loadPlayerData(true);
+        try {
+            loadPlayerData(true);
+        } catch (InterruptedException | ExecutionException e) {
+            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get favorite skins: " + e);
+        }
     }
 
-    private void loadPlayerData(boolean openAfter) {
+    private void loadPlayerData(boolean openAfter) throws ExecutionException, InterruptedException {
+        favoritedSkins = favoriteManager.getFavoriteSkinsFromPlayer(player).get().stream().toList();
         grantService.getAllActiveSkins(player.getUniqueId()).thenAccept(loadedActive -> {
             grantService.getGrants(player.getUniqueId()).thenAccept(grants -> {
                 Set<String> loadedOwned = grants.stream()
@@ -376,91 +402,115 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
 
-        if (filterSlotCategories.containsKey(slot)) {
-            if (filterLoreCycle == 1) {
-                filterLoreCycle = 2;
-            } else {
-                filterLoreCycle = 1;
-            }
-            refresh();
-        }
+        if (event.getClick().isLeftClick()) {
 
-        if (searchSlot == slot) {
-            refresh();
-            if (!isSearching) {
-                chatInputUtil.getInput(player, Component.text("Search:"), input -> {
-                    if (input == null) {
-                        isSearching = false;
-                        return;
-                    }
-                    search = input;
-
-                    isSearching = true;
-                    refresh();
-                    SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
-                    });
-                }, "selectionsearch", Component.text("Search for a skin"));
-            } else {
-                isSearching = false;
-                search = null;
+            // Filter Item
+            if (filterSlotCategories == slot) {
+                switch (filterLoreCycle) {
+                    case 1:
+                        filterLoreCycle = 2;
+                        break;
+                    case 2:
+                        filterLoreCycle = 3;
+                        break;
+                    case 3:
+                        filterLoreCycle = 1;
+                        break;
+                }
                 refresh();
+            }
+
+            // Search Item
+            if (searchSlot == slot) {
+                refresh();
+                if (!isSearching) {
+                    chatInputUtil.getInput(player, MessageUtil.parse("Search:"), input -> {
+                        if (input == null) {
+                            isSearching = false;
+                            return;
+                        }
+                        search = input;
+
+                        isSearching = true;
+                        refresh();
+                        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
+                        });
+                    }, "selectionsearch", MessageUtil.parse("Search for a skin"));
+                } else {
+                    isSearching = false;
+                    search = null;
+                    refresh();
+                    return;
+                }
+            }
+
+            Skin skin = skinMap.get(slot);
+            if (skin != null) {
+                if (!ownedSkinIds.contains(skin.id())) {
+                    messageUtil.sendLangMessage(player, "skin-not-owned", Map.of("skin_name", skin.name()));
+                    return;
+                }
+
+                ItemStack handItem = player.getInventory().getItemInMainHand();
+                if (handItem.getType() == Material.AIR) {
+                    messageUtil.sendLangMessage(player, "holding");
+                    return;
+                }
+                Material targetMat = handItem.getType();
+
+                if (skin.categories() != null && skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat, cat))) {
+                    messageUtil.sendLangMessage(player, "cannot-item");
+                    return;
+                }
+
+                String activeId = activeSkins.get(targetMat);
+                if (skin.id().equals(activeId)) {
+                    grantService.setActiveSkin(player.getUniqueId(), targetMat, null).thenRun(() ->
+                            SchedulerUtil.runForEntity(plugin, player, () -> {
+                                messageUtil.sendLangMessage(player, "skin-unequipped", Map.of("skin_name", skin.name()));
+                                updateAfterEquip(targetMat, null);
+                            }, () -> {
+                            })
+                    );
+                } else {
+                    grantService.setActiveSkin(player.getUniqueId(), targetMat, skin.id()).thenRun(() ->
+                            SchedulerUtil.runForEntity(plugin, player, () -> {
+                                messageUtil.sendLangMessage(player, "skin-equipped", Map.of("skin_name", skin.name()));
+                                updateAfterEquip(targetMat, skin.id());
+                            }, () -> {
+                            })
+                    );
+                }
                 return;
+            }
+
+            slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
+                if (Objects.requireNonNull(def.type()) instanceof SlotType.BackSlot) {
+                    player.performCommand("skins");
+                }
+            });
+
+            // Navigation items
+            if (slot == PAGE_PRE && pagination.hasPrev()) {
+                pagination.prevPage();
+                refresh();
+            } else if (slot == PAGE_NEXT && pagination.hasNext()) {
+                pagination.nextPage();
+                refresh();
+            }
+        }
+        if (event.getClick().isRightClick() && favoriteClickType == FavoriteManager.ClickType.RIGHTCLICK) {
+            Skin s = skinMap.get(slot);
+            if (s != null) {
+                favoriteManager.changeFavoriteSkin(player, s);
             }
         }
 
-        Skin skin = skinMap.get(slot);
-        if (skin != null) {
-            if (!ownedSkinIds.contains(skin.id())) {
-                messageUtil.sendLangMessage(player, "skin-not-owned", Map.of("skin_name", skin.name()));
-                return;
+        if (event.getClick().isShiftClick() && favoriteClickType == FavoriteManager.ClickType.SHIFTCLICK) {
+            Skin s = skinMap.get(slot);
+            if (s != null) {
+                favoriteManager.changeFavoriteSkin(player, s);
             }
-
-            ItemStack handItem = player.getInventory().getItemInMainHand();
-            if (handItem.getType() == Material.AIR) {
-                messageUtil.sendLangMessage(player, "holding");
-                return;
-            }
-            Material targetMat = handItem.getType();
-
-            if (skin.categories().stream().noneMatch(cat -> isMaterialInCategory(targetMat, cat))) {
-                messageUtil.sendLangMessage(player, "cannot-item");
-                return;
-            }
-
-            String activeId = activeSkins.get(targetMat);
-            if (skin.id().equals(activeId)) {
-                grantService.setActiveSkin(player.getUniqueId(), targetMat, null).thenRun(() ->
-                        SchedulerUtil.runForEntity(plugin, player, () -> {
-                            messageUtil.sendLangMessage(player, "skin-unequipped", Map.of("skin_name", skin.name()));
-                            updateAfterEquip(targetMat, null);
-                        }, () -> {
-                        })
-                );
-            } else {
-                grantService.setActiveSkin(player.getUniqueId(), targetMat, skin.id()).thenRun(() ->
-                        SchedulerUtil.runForEntity(plugin, player, () -> {
-                            messageUtil.sendLangMessage(player, "skin-equipped", Map.of("skin_name", skin.name()));
-                            updateAfterEquip(targetMat, skin.id());
-                        }, () -> {
-                        })
-                );
-            }
-            return;
-        }
-
-        slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            if (Objects.requireNonNull(def.type()) instanceof SlotType.BackSlot) {
-                player.performCommand("skins");
-            }
-        });
-
-        // Navigation items
-        if (slot == PAGE_PRE && pagination.hasPrev()) {
-            pagination.prevPage();
-            refresh();
-        } else if (slot == PAGE_NEXT && pagination.hasNext()) {
-            pagination.nextPage();
-            refresh();
         }
     }
 

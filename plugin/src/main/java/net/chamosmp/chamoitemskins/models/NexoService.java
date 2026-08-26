@@ -16,28 +16,6 @@ public class NexoService implements Nexo {
     }
 
     @Override
-    public void applyNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
-        if (!isNexoEnabled()) {
-            return;
-        }
-        ItemBuilder builder = NexoItems.itemFromId(getNexoId(nexoId));
-        if (builder == null) return;
-        ItemStack newItem = builder.build();
-
-        ItemMeta originalMeta = itemStack.getItemMeta();
-        ItemMeta nexoMeta = newItem.getItemMeta();
-
-        if (originalMeta != null && nexoMeta != null) {
-            mergeMeta(originalMeta, nexoMeta);
-        }
-
-        int amount = itemStack.getAmount();
-        itemStack.setType(newItem.getType());
-        itemStack.setItemMeta(nexoMeta);
-        itemStack.setAmount(amount);
-    }
-
-    @Override
     public ItemStack getNexoItem(@NotNull ItemStack itemStack, @NotNull String nexoId) {
         if (!isNexoEnabled()) return itemStack;
 

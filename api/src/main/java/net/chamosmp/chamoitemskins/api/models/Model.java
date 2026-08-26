@@ -22,17 +22,6 @@ public interface Model extends Nexo {
     @NotNull ItemStack createPreviewItem(@NotNull Skin skin);
 
     /**
-     * Applies a custom item model to an {@link ItemStack}.
-     *
-     * @param item    The item stack to apply the model to.
-     * @param modelId The ID of the model to apply.
-     * @apiNote {@link Model#getItemModel(ItemStack, String)} isn't fully implemented yet so you must use in the meantime
-     * @deprecated This is deprecated in favor of {@link Model#getItemModel(ItemStack, String)}. This method may be unsafe when using Nexo Items. {@link Model#getItemModel(ItemStack, String)} is not a direct replacement. It returns an {@link ItemStack}, which you have to replace
-     */
-    @Deprecated(forRemoval = true)
-    void applyItemModel(@NotNull ItemStack item, @NotNull String modelId);
-
-    /**
      * Returns an item, with a model applied to it.
      *
      * @param item    The item stack to apply the model to.

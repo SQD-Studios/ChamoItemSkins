@@ -46,13 +46,11 @@ public final class YamlUtil {
             List<String> categoryNames = skinSection.getStringList("categories");
             List<Category> categories = categoryNames.stream()
                     .map(categoryManager::getCategoryByName)
-                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             boolean enabled = skinSection.getBoolean("enabled", true);
             Material noteMaterial = Optional.ofNullable(skinSection.getString("note-material"))
                     .map(Material::matchMaterial)
                     .orElse(null);
-            List<String> animations = skinSection.getStringList("animations");
 
             ConfigurationSection displaySection = skinSection.getConfigurationSection("display-item");
             Skin.DisplayItem displayItem = null;
@@ -64,7 +62,7 @@ public final class YamlUtil {
                 displayItem = new Skin.DisplayItem(displayMat, displayName, displayLore, glow);
             }
 
-            skins.add(new Skin(id, name, modelId, rarity, categories, enabled, noteMaterial, displayItem, animations));
+            skins.add(new Skin(id, name, modelId, rarity, categories, enabled, noteMaterial, displayItem));
         }
         return skins;
     }
@@ -105,7 +103,6 @@ public final class YamlUtil {
                 config.set(path + ".categories", skin.categories().stream().map(Category::name).collect(Collectors.toList()));
                 config.set(path + ".enabled", skin.enabled());
                 config.set(path + ".note-material", skin.noteMaterial() != null ? skin.noteMaterial().name() : null);
-                config.set(path + ".animations", skin.animations());
 
                 if (skin.displayItem() != null) {
                     config.set(path + ".display-item.id", skin.displayItem().material().name());

@@ -1,5 +1,7 @@
 package net.chamosmp.chamoitemskins.api.objects;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -13,11 +15,10 @@ import java.util.UUID;
  * @param source     Source of the grant (e.g., "NOTE", "ADMIN").
  */
 public record SkinGrant(
-        UUID grantId,
-        UUID playerUuid,
-        String skinId,
-        Instant grantedAt,
-        String source
+        @NotNull UUID grantId,
+        @NotNull UUID playerUuid,
+        @NotNull String skinId,
+        @NotNull Instant grantedAt,
+        @NotNull String source
 ) {
-
 }
