@@ -11,7 +11,6 @@ import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.identity.Identity;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -23,15 +22,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public final class MigrateManager implements MigrateService {
 
     private static final Logger log = LoggerFactory.getLogger(MigrateManager.class);
     private final Plugin plugin;
     private final SkinService skinService;
+
     private HMCWraps hmcWraps;
 
     public MigrateManager(Plugin plugin, SkinService skinService) {
@@ -39,20 +39,17 @@ public final class MigrateManager implements MigrateService {
         this.skinService = skinService;
     }
 
-
     @Override
     public void migrateItemSkins() {
         throw new UnsupportedOperationException("migrateItemSkins() is not implemented yet in MigrateManager.");
     }
-
 
     // HMCWarps Section
     @Override
     public void migrateHMC(Audience audience) {
         // Weird trickery hehe
         Audience a;
-        boolean isConsole = audience instanceof ConsoleCommandSender;
-        if (!isConsole) {
+        if (!(audience instanceof ConsoleCommandSender)) {
             a = Audience.audience(audience, Bukkit.getConsoleSender());
         } else {
             a = audience;
@@ -63,7 +60,7 @@ public final class MigrateManager implements MigrateService {
             return;
         }
 
-        // Get HMCWraps instance – using ServicesManager or plugin manager
+        // Get HMCWraps instance
         hmcWraps = Bukkit.getServicesManager().load(HMCWraps.class);
         if (hmcWraps == null) {
             a.sendMessage(MessageUtil.parse("<red>Failed to load HMCWraps instance."));
@@ -80,7 +77,7 @@ public final class MigrateManager implements MigrateService {
             a.sendMessage(MessageUtil.parse("<dark_red>Could not save config: " + e.getMessage()));
         }
 
-        // Access wraps via WrapHandler (or WrapRepository)
+        // Access wraps
         Map<String, Wrap> wraps = hmcWraps.getWrapsLoader().getWraps();
         if (wraps == null || wraps.isEmpty()) {
             a.sendMessage(MessageUtil.parse("<yellow>No wraps found in HMCWarps to migrate"));
@@ -123,7 +120,7 @@ public final class MigrateManager implements MigrateService {
      */
     private Skin convertWrapToSkin(String wrapId, Wrap wrap) {
         try {
-            String displayName = wrap.getName() != null ? wrap.getName() : "Migrated " + wrapId;
+            String displayName = wrap.getName() != null ? wrap.getName() : wrapId;
 
             NamespacedKey modelData = wrap.getItemModel();
 
@@ -137,13 +134,39 @@ public final class MigrateManager implements MigrateService {
                     categories,
                     true,
                     null,
-                    null
+                    convertWrapToDisplayItem(wrap)
             );
 
         } catch (Exception e) {
             LoggerUtil.log(LoggerUtil.LogType.WARNING, "Failed to convert wrap " + wrapId + ": " + e.getMessage());
             return null;
         }
+    }
+
+    private Skin.DisplayItem convertWrapToDisplayItem(Wrap wrap) {
+        Material material = determineCategories(wrap).getFirst().getAllowedMaterials().getFirst();
+        boolean glow = Boolean.TRUE.equals(wrap.isGlow());
+
+        return new Skin.DisplayItem(
+                material,
+                wrap.getName(),
+                wrap.getLore(),
+                glow
+        );
+    }
+
+    private Category generateCategory(String collection) {
+        List<String> material = new ArrayList<>();
+        hmcWraps.getCollectionHelper().getMaterials(collection).forEach(m -> {
+            material.add(m.name());
+        });
+        Category category = new Category(
+                collection,
+                material,
+                collection
+        );
+        YamlUtil.saveCategory(plugin, category);
+        return category;
     }
 
     /**
@@ -154,15 +177,9 @@ public final class MigrateManager implements MigrateService {
      */
     private List<Category> determineCategories(Wrap wrap) {
         List<Category> categories = new ArrayList<>();
-        if (hmcWraps.getCollectionHelper().getCollection(wrap) != null && !hmcWraps.getCollectionHelper().getCollection(wrap).isEmpty()) {
-            String collection = hmcWraps.getCollectionHelper().getCollection(wrap);
-            List<Material> allowedItems = hmcWraps.getCollectionHelper().getMaterials(collection);
-            List<String> materialNames = allowedItems.stream()
-                    .map(Material::toString)
-                    .collect(Collectors.toList());
-            Category category = new Category(collection, materialNames, collection.toLowerCase());
-            YamlUtil.saveCategory(plugin, category);
-            categories.add(category);
+        String collection = hmcWraps.getCollectionHelper().getCollection(wrap);
+        if (collection != null && !collection.isEmpty()) {
+            categories.add(generateCategory(collection));
         }
 
         if (categories.isEmpty()) {
