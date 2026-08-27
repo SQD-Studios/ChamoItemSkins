@@ -2,7 +2,7 @@ plugins {
     id("com.gradleup.shadow") version "9.6.1"
     id("xyz.jpenilla.run-paper") version "3.1.0"
     id("maven-publish")
-    id("org.jetbrains.dokka")
+    //id("org.jetbrains.dokka") Breaks with runServer
 }
 
 dependencies {
@@ -22,7 +22,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.12.3")
 
     // Dokka (Better Javadocs)
-    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
+    //dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
 }
 
 
@@ -97,6 +97,7 @@ publishing {
     }
 }
 
+/*
 dokka {
     pluginsConfiguration.html {
         customAssets.from("../assets/ChamoItemSkins.png", "../assets/logo-icon.svg")
@@ -109,3 +110,5 @@ dokka {
         footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
     }
 }
+
+ */

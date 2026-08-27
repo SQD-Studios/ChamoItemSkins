@@ -2,7 +2,7 @@ plugins {
     id("java")
     id("com.gradleup.shadow") version "9.6.1"
     id("maven-publish")
-    id("org.jetbrains.dokka") version "2.2.0"
+    //id("org.jetbrains.dokka") version "2.2.0"
 }
 
 allprojects {
@@ -82,11 +82,12 @@ publishing {
 }
 
 dependencies {
-    dokka(project(":api:"))
-    dokka(project(":plugin:"))
-    dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
+    //dokka(project(":api:"))
+    //dokka(project(":plugin:"))
+    //dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
 }
 
+/*
 dokka {
     pluginsConfiguration.html {
         customAssets.from("./assets/ChamoItemSkins.png", "./assets/logo-icon.svg")
@@ -94,3 +95,5 @@ dokka {
         footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
     }
 }
+
+ */

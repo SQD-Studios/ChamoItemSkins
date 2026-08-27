@@ -366,7 +366,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private void loadPlayerData(boolean openAfter) throws ExecutionException, InterruptedException {
-        favoritedSkins = favoriteManager.getFavoriteSkinsFromPlayer(player).get().stream().toList();
+        favoritedSkins.clear();
+        favoritedSkins.addAll(favoriteManager.getFavoriteSkinsFromPlayer(player).get().stream().toList());
         grantService.getAllActiveSkins(player.getUniqueId()).thenAccept(loadedActive -> {
             grantService.getGrants(player.getUniqueId()).thenAccept(grants -> {
                 Set<String> loadedOwned = grants.stream()
@@ -402,7 +403,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
 
-        if (event.getClick().isLeftClick()) {
+        if (event.getClick().isLeftClick() && !event.getClick().isShiftClick()) {
 
             // Filter Item
             if (filterSlotCategories == slot) {
@@ -499,17 +500,29 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 refresh();
             }
         }
-        if (event.getClick().isRightClick() && favoriteClickType == FavoriteManager.ClickType.RIGHTCLICK) {
+        if (event.getClick().isRightClick() && favoriteManager.isEnabled && favoriteClickType == FavoriteManager.ClickType.RIGHTCLICK) {
             Skin s = skinMap.get(slot);
             if (s != null) {
                 favoriteManager.changeFavoriteSkin(player, s);
+                if (favoritedSkins.contains(s)) {
+                    favoritedSkins.remove(s);
+                } else  {
+                    favoritedSkins.add(s);
+                }
+                refresh();
             }
         }
 
-        if (event.getClick().isShiftClick() && favoriteClickType == FavoriteManager.ClickType.SHIFTCLICK) {
+        if (event.getClick().isShiftClick() && favoriteManager.isEnabled && favoriteClickType == FavoriteManager.ClickType.SHIFTCLICK) {
             Skin s = skinMap.get(slot);
             if (s != null) {
                 favoriteManager.changeFavoriteSkin(player, s);
+                if (favoritedSkins.contains(s)) {
+                    favoritedSkins.remove(s);
+                } else  {
+                    favoritedSkins.add(s);
+                }
+                refresh();
             }
         }
     }
