@@ -55,7 +55,4 @@ public class SkinGrantEvent extends PlayerEvent implements Cancellable {
         return HANDLERS;
     }
 
-    public static @NotNull HandlerList getHandlerList() {
-        return HANDLERS;
-    }
 }

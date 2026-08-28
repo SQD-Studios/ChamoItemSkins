@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.api.service;
 
+import com.google.errorprone.annotations.DoNotCall;
 import net.kyori.adventure.audience.Audience;
 
 /**
@@ -11,6 +12,7 @@ public interface MigrateService {
     /**
      * Migrates data from ItemSkins.
      */
+    @DoNotCall("Is not implemented and will throw a runtime exception")
     void migrateItemSkins();
 
     /**

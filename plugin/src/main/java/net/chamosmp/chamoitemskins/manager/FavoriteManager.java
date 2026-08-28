@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FavoriteManager implements FavoriteService {
 
@@ -77,7 +78,7 @@ public class FavoriteManager implements FavoriteService {
             if (skins.isEmpty() || !skins.contains(skin)) {
                 addFavoriteSkinToPlayer(player, skin);
             } else {
-                removeFavoriteSkinFromPlayer(player, skin);
+                    removeFavoriteSkinFromPlayer(player, skin);
             }
         });
     }

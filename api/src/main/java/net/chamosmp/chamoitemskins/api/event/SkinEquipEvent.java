@@ -43,8 +43,4 @@ public class SkinEquipEvent extends PlayerEvent implements Cancellable {
     public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
-
-    public static @NotNull HandlerList getHandlerList() {
-        return HANDLERS;
-    }
 }

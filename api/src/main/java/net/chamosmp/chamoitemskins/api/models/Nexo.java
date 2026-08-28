@@ -4,7 +4,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-/// @apiNote Please do not use this directly. This is internal. Instead use {@link Model}
 @ApiStatus.Internal
 public interface Nexo {
 
