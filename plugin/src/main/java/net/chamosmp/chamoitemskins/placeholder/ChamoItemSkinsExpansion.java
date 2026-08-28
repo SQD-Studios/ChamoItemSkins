@@ -50,6 +50,20 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
+        if (params.equals("total_skins")) {
+            return String.valueOf(skinService.getSkins().stream().filter(Skin::enabled).count());
+        }
+
+        if (params.startsWith("rarity_")) {
+            if (!rarityManager.isEnabled()) return "";
+            String skinId = params.substring(7);
+            return skinService.getSkin(skinId).map(s -> s.rarity().getDisplayName()).orElse("");
+        }
+
+        if (params.equals("total_bundles")) {
+            return String.valueOf(skinService.getBundles().size());
+        }
+
         if (player == null) return null;
 
         if (params.startsWith("active_")) {
@@ -69,20 +83,6 @@ public final class ChamoItemSkinsExpansion extends PlaceholderExpansion {
 
         if (params.equals("total_owned")) {
             return String.valueOf(grantService.getGrants(player.getUniqueId()).join().size());
-        }
-
-        if (params.equals("total_skins")) {
-            return String.valueOf(skinService.getSkins().stream().filter(Skin::enabled).count());
-        }
-
-        if (params.startsWith("rarity_")) {
-            if (!rarityManager.isEnabled()) return "";
-            String skinId = params.substring(7);
-            return skinService.getSkin(skinId).map(s -> s.rarity().getDisplayName()).orElse("");
-        }
-
-        if (params.equals("total_bundles")) {
-            return String.valueOf(skinService.getBundles().size());
         }
 
         if (params.startsWith("owns_bundle_")) {
