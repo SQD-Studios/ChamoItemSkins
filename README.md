@@ -1,7 +1,7 @@
 ![ChamoItemSkins](assets/ChamoItemSkins%20ad.png)
 
 [![Build](https://img.shields.io/github/actions/workflow/status/SQD-Studios/ChamoItemSkins/gradle.yml?style=flat-square)](https://github.com/SQD-Studios/ChamoItemSkins/actions)
-[![Documentation](https://img.shields.io/badge/Documentation-8A2BE2?style=flat-square)](https://sqd-studios.github.io/docs/chamoitemskins/administration/introduction/installing/)
+[![Documentation](https://img.shields.io/badge/Documentation-8A2BE2?style=flat-square)](https://sqd-studios.github.io/docs/chamoitemskins)
 [![Javadocs](https://img.shields.io/badge/Javadocs-ED8B00?style=flat-square)](https://sqd-studios.github.io/ChamoItemSkins/)
 [![Crowdin](https://img.shields.io/badge/Crowdin-%232E3340?style=flat-square&logo=crowdin)](https://crowdin.com/project/sqd-studios)
 
