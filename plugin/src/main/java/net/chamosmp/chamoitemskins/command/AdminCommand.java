@@ -18,6 +18,7 @@ import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.strokkur.commands.Aliases;
 import net.strokkur.commands.Command;
 import net.strokkur.commands.Executes;
+import net.strokkur.commands.Subcommand;
 import net.strokkur.commands.paper.Description;
 import net.strokkur.commands.paper.Executor;
 import net.strokkur.commands.permission.Permission;
@@ -29,6 +30,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Command("skinsadmin")
 @Aliases({"sa", "skinadmin"})
@@ -79,17 +81,39 @@ public final class AdminCommand {
         new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
     }
 
-    @Permission("chamoitemskins.admin.access.give")
-    @Executes("access give")
-    public void onAccessGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
-        giveAccess(sender, target, skinId, -1);
+    @Subcommand("access")
+    public class onAccess {
+        @Permission("chamoitemskins.admin.access.give")
+        @Executes("give")
+        public void onAccessGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, Optional<Integer> days) {
+            if (days.isPresent()) {
+                giveAccess(sender, target, skinId, days.get());
+
+            } else {
+                giveAccess(sender, target, skinId, -1);
+            }
+        }
+
+        @Permission("chamoitemskins.admin.access.revoke")
+        @Executes("revoke")
+        public void onAccessRevoke(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
+            skinService.getSkin(skinId).ifPresentOrElse(skin -> {
+                grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
+                    if (!has) {
+                        messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", skinId, "target", target.getName()));
+                        return;
+                    }
+                    grantService.revokeSkin(target.getUniqueId(), skinId).thenRun(() -> {
+                        messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", skinId, "target", target.getName()));
+                    });
+                });
+            }, () -> {
+                Map<String, String> placeholders = Map.of("skin_id", skinId);
+                messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
+            });
+        }
     }
 
-    @Permission("chamoitemskins.admin.access.give")
-    @Executes("access give")
-    public void onAccessGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int days) {
-        giveAccess(sender, target, skinId, days);
-    }
 
     private void giveAccess(CommandSender sender, Player target, String skinId, int days) {
         skinService.getSkin(skinId).ifPresentOrElse(skin -> {
@@ -108,41 +132,22 @@ public final class AdminCommand {
         });
     }
 
-    @Permission("chamoitemskins.admin.access.revoke")
-    @Executes("access revoke")
-    public void onAccessRevoke(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
-        skinService.getSkin(skinId).ifPresentOrElse(skin -> {
-            grantService.hasSkin(target.getUniqueId(), skinId).thenAccept(has -> {
-                if (!has) {
-                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", skinId, "target", target.getName()));
-                    return;
-                }
-                grantService.revokeSkin(target.getUniqueId(), skinId).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", skinId, "target", target.getName()));
-                });
-            });
-        }, () -> {
-            Map<String, String> placeholders = Map.of("skin_id", skinId);
-            messageUtil.sendLangMessage(sender, "skin-not-found", placeholders);
-        });
-    }
 
     @Permission("chamoitemskins.admin.give")
     @Executes("give")
-    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int amount, int time) {
-        giveSkinNotes(sender, target, skinId, amount, time);
-    }
+    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, Optional<Integer> amount, Optional<Integer> time) {
+        int amountN = 1;
+        int timeN = -1;
 
-    @Permission("chamoitemskins.admin.give")
-    @Executes("give")
-    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId, int amount) {
-        giveSkinNotes(sender, target, skinId, amount, -1);
-    }
+        if (amount.isPresent()) {
+            amountN = amount.get();
+        }
+        if (time.isPresent()) {
+            timeN = time.get();
+        }
 
-    @Permission("chamoitemskins.admin.give")
-    @Executes("give")
-    public void onGive(CommandSender sender, Player target, @SkinIdSuggestions String skinId) {
-        giveSkinNotes(sender, target, skinId, 1, -1);
+
+        giveSkinNotes(sender, target, skinId, amountN, timeN);
     }
 
     private void giveSkinNotes(CommandSender sender, Player target, String skinId, int amount, int time) {
@@ -160,13 +165,17 @@ public final class AdminCommand {
         });
     }
 
+    @Subcommand("migrate")
+    public class migrate {
 
+        @Permission("chamoitemskins.admin.migrate")
+        @Executes("hmcwarps")
+        public void onMigrate(CommandSender sender) {
+            migrateManager.migrateHMC(sender);
+        }
 
-    @Permission("chamoitemskins.admin.migrate")
-    @Executes("migrate hmcwarps")
-    public void onMigrate(CommandSender sender) {
-        migrateManager.migrateHMC(sender);
     }
+
 
     @Permission("chamoitemskins.admin.reload")
     @Executes("reload")
@@ -200,45 +209,52 @@ public final class AdminCommand {
                 """);
     }
 
-    @Permission("chamoitemskins.admin.access.give")
-    @Executes("bundle access give")
-    public void onBundleAccessGive(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
-        giveBundleAccess(sender, target, bundleId);
-    }
+    @Subcommand("bundle")
+    public class bundle {
+        @Subcommand("access")
+        public class access {
 
-    private void giveBundleAccess(CommandSender sender, Player target, String bundleId) {
-        skinService.getBundle(bundleId).ifPresentOrElse(bundle -> {
-            grantService.hasBundle(target.getUniqueId(), bundle.id()).thenAccept(has -> {
-                if (has) {
-                    messageUtil.sendLangMessage(sender, "already-has-access", Map.of("id", bundle.id(), "target", target.getName()));
-                    return;
-                }
-                grantService.grantBundle(target.getUniqueId(), bundle.id(), "COMMAND").thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("id", bundle.id(), "target", target.getName()));
-                });
-            });
-        }, () -> {
-            Map<String, String> placeholders = Map.of("bundle_id", bundleId);
-            messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
-        });
-    }
+            @Permission("chamoitemskins.admin.access.give")
+            @Executes("give")
+            public void onBundleAccessGive(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
+                giveBundleAccess(sender, target, bundleId);
+            }
 
-    @Permission("chamoitemskins.admin.access.revoke")
-    @Executes("bundle access revoke")
-    public void onBundleAccessRevoke(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
-        skinService.getBundle(bundleId).ifPresentOrElse(_ -> {
-            grantService.hasBundle(target.getUniqueId(), bundleId).thenAccept(has -> {
-                if (!has) {
-                    messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", bundleId, "target", target.getName()));
-                    return;
-                }
-                grantService.revokeBundle(target.getUniqueId(), bundleId).thenRun(() -> {
-                    messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", bundleId, "target", target.getName()));
+            @Permission("chamoitemskins.admin.access.revoke")
+            @Executes("revoke")
+            public void onBundleAccessRevoke(CommandSender sender, Player target, @BundleSuggestions String bundleId) {
+                skinService.getBundle(bundleId).ifPresentOrElse(_ -> {
+                    grantService.hasBundle(target.getUniqueId(), bundleId).thenAccept(has -> {
+                        if (!has) {
+                            messageUtil.sendLangMessage(sender, "revoke-not-owned", Map.of("id", bundleId, "target", target.getName()));
+                            return;
+                        }
+                        grantService.revokeBundle(target.getUniqueId(), bundleId).thenRun(() -> {
+                            messageUtil.sendLangMessage(sender, "admin-revoke-success", Map.of("id", bundleId, "target", target.getName()));
+                        });
+                    });
+                }, () -> {
+                    Map<String, String> placeholders = Map.of("bundle_id", bundleId);
+                    messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
                 });
-            });
-        }, () -> {
-            Map<String, String> placeholders = Map.of("bundle_id", bundleId);
-            messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
-        });
+            }
+
+            private void giveBundleAccess(CommandSender sender, Player target, String bundleId) {
+                skinService.getBundle(bundleId).ifPresentOrElse(bundle -> {
+                    grantService.hasBundle(target.getUniqueId(), bundle.id()).thenAccept(has -> {
+                        if (has) {
+                            messageUtil.sendLangMessage(sender, "already-has-access", Map.of("id", bundle.id(), "target", target.getName()));
+                            return;
+                        }
+                        grantService.grantBundle(target.getUniqueId(), bundle.id(), "COMMAND").thenRun(() -> {
+                            messageUtil.sendLangMessage(sender, "admin-grant-success", Map.of("id", bundle.id(), "target", target.getName()));
+                        });
+                    });
+                }, () -> {
+                    Map<String, String> placeholders = Map.of("bundle_id", bundleId);
+                    messageUtil.sendLangMessage(sender, "bundle-not-found", placeholders);
+                });
+            }
+        }
     }
 }

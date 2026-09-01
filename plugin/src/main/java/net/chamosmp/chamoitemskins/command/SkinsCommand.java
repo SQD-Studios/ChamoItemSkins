@@ -17,7 +17,6 @@ import net.strokkur.commands.Executes;
 import net.strokkur.commands.paper.Description;
 import net.strokkur.commands.permission.Permission;
 import net.strokkur.commands.paper.Executor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -66,7 +65,7 @@ public final class SkinsCommand {
 
     @Permission("chamoitemskins.use.other")
     @Executes
-    public void onSkinsOther(CommandSender sender, Player target) {
+    public void onSkinsOther(Player target) {
         new MainSkinsGui(plugin, target, skinService, grantService, guiTitle, guiSize, guiSlots, skinManager, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager).open();
     }
 
