@@ -1,45 +1,24 @@
 package net.chamosmp.chamoitemskins.util;
 
-import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import io.papermc.paper.registry.data.dialog.ActionButton;
-import io.papermc.paper.registry.data.dialog.action.DialogAction;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.server.TabCompleteEvent;
-import org.bukkit.plugin.Plugin;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
- * Utility for getting chat input from players.
+ * Wrapper class of {@link DialogUtil}
+ *
+ * This is kept for backwards combatability in every part of the plugin
+ *
+ * @apiNote Use {@link DialogUtil} directly instead of this
  */
-public final class ChatInputUtil implements Listener {
-    private final Plugin plugin;
-    private final Map<UUID, Consumer<String>> pendingInputs = new ConcurrentHashMap<>();
-    private final Map<UUID, Supplier<Collection<String>>> pendingSuggestions = new ConcurrentHashMap<>();
+@ApiStatus.Obsolete
+public final class ChatInputUtil {
     private final DialogUtil dialogUtil;
-    private final MessageUtil messageUtil;
 
-    public ChatInputUtil(Plugin plugin, DialogUtil dialogUtil, MessageUtil messageUtil) {
+    public ChatInputUtil(DialogUtil dialogUtil) {
         this.dialogUtil = dialogUtil;
-        this.plugin = plugin;
-        this.messageUtil = messageUtil;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     /**
@@ -48,18 +27,12 @@ public final class ChatInputUtil implements Listener {
      * @param player       The player to open the util to
      * @param prompt       The prompt to give the player
      * @param callback     Callback is the piece of code to be executed
-     * @param key          (Dialog Only) The key, the buttons/dialog should have
-     * @param title        (Dialog Only) The title in the dialog
-     * @param defaultValue (Dialog Only) The value the text prompt should have, useful for editing already defined configs.
+     * @param key          The key, the buttons/dialog should have
+     * @param title        The title in the dialog
+     * @param defaultValue The value the text prompt should have, useful for editing already defined configs.
      */
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title, String defaultValue) {
-        if (!dialogUtil.canUseDialogs()) {
-            player.closeInventory();
-            messageUtil.sendLangMessage(player, prompt + " <red>Type cancel to cancel.");
-            pendingInputs.put(player.getUniqueId(), callback);
-        } else {
-            dialogUtil.getInput(title, player, key, prompt, defaultValue, callback);
-        }
+        dialogUtil.getInput(title, player, key, prompt, defaultValue, callback);
     }
 
     /**
@@ -68,17 +41,11 @@ public final class ChatInputUtil implements Listener {
      * @param player   The player to open the util to
      * @param prompt   The prompt to give the player
      * @param callback Callback is the piece of code to be executed
-     * @param key      (Dialog Only) The key, the buttons/dialog should have
-     * @param title    (Dialog Only) The title in the dialog
+     * @param key      The key, the buttons/dialog should have
+     * @param title    The title in the dialog
      */
     public void getInput(Player player, Component prompt, Consumer<String> callback, String key, Component title) {
-        if (!dialogUtil.canUseDialogs()) {
-            player.closeInventory();
-            messageUtil.sendLangMessage(player, prompt + " <red>Type cancel to cancel.");
-            pendingInputs.put(player.getUniqueId(), callback);
-        } else {
-            dialogUtil.getInput(title, player, key, prompt, callback);
-        }
+        getInput(player, prompt, callback, key, title, null);
     }
 
     /**
@@ -86,59 +53,9 @@ public final class ChatInputUtil implements Listener {
      *
      * @param player   The player to open the util to
      * @param callback Callback is the piece of code to be executed
-     * @param key      (Dialog Only) The key, the buttons/dialog should have
-     * @param title    (Dialog Only) The title in the dialog
+     * @param title    The title in the dialog
      */
-    public void getYesNo(Player player, Consumer<String> callback, String key, Component title) {
-        if (!dialogUtil.canUseDialogs()) {
-            player.closeInventory();
-            messageUtil.sendLangMessage(player, title + " <yellow>(Yes or No) <red>Type cancel to cancel.");
-            pendingInputs.put(player.getUniqueId(), callback);
-        } else {
-            dialogUtil.getYesNo(title, player, key, callback);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChat(AsyncChatEvent event) {
-        UUID uuid = event.getPlayer().getUniqueId();
-        if (!pendingInputs.containsKey(uuid)) return;
-
-        event.setCancelled(true);
-        pendingSuggestions.remove(uuid);
-        Consumer<String> callback = pendingInputs.remove(uuid);
-
-        String message = String.valueOf(event.message());
-        if (message.equalsIgnoreCase("cancel")) {
-            messageUtil.sendLangMessage(event.getPlayer(), "<red>Input cancelled.");
-            return;
-        }
-
-        if (callback != null) {
-            SchedulerUtil.runSync(plugin, () -> callback.accept(message));
-        }
-    }
-
-    @EventHandler
-    public void onTabComplete(TabCompleteEvent event) {
-        if (!(event.getSender() instanceof Player player)) return;
-        var suggestionsSupplier = pendingSuggestions.get(player.getUniqueId());
-        if (suggestionsSupplier == null) return;
-
-        String buffer = event.getBuffer();
-        // Chat tab complete usually doesn't have a '/' prefix if it's just chat
-        if (buffer.startsWith("/")) return;
-
-        Collection<String> all = suggestionsSupplier.get();
-        if (all == null || all.isEmpty()) return;
-
-        String lastWord = buffer.substring(buffer.lastIndexOf(' ') + 1).toLowerCase();
-        List<String> matched = all.stream()
-                .filter(s -> s.toLowerCase().startsWith(lastWord))
-                .toList();
-
-        if (!matched.isEmpty()) {
-            event.setCompletions(new ArrayList<>(matched));
-        }
+    public void getYesNo(Player player, Consumer<Boolean> callback, Component title) {
+        dialogUtil.getYesNo(title, player, callback);
     }
 }

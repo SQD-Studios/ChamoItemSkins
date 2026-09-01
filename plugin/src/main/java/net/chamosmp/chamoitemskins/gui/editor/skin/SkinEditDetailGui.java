@@ -13,8 +13,6 @@ import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -183,7 +181,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
             saveAndRefresh();
         } else if (slot == 25) {
             chatInputUtil.getYesNo(player, input -> {
-                if ("true".equalsIgnoreCase(input)) {
+                if (input) {
                     skinService.deleteSkin(skin.id());
                     ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
                     SkinEditorGui editorGui = new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil);
@@ -194,7 +192,7 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
                     });
 
                 }
-            }, "editoreditdeleteconf", MessageUtil.parse("Are you sure you want to delete this skin?"));
+            }, MessageUtil.parse("Are you sure you want to delete this skin?"));
         } else if (slot == 26) {
             new SkinEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }

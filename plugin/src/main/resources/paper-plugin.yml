@@ -10,7 +10,6 @@ api-version: '1.21.11'
 
 main: net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin
 loader: net.chamosmp.chamoitemskins.ChamoItemSkinsLoader
-bootstrapper: net.chamosmp.chamoitemskins.ChamoItemSkinsBootstrap
 
 folia-supported: true
 

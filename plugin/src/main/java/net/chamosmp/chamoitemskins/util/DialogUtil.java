@@ -11,11 +11,11 @@ import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
+import org.intellij.lang.annotations.Subst;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,8 @@ public class DialogUtil implements Listener {
 
     private final Map<UUID, Map<String, Consumer<String>>> pending = new ConcurrentHashMap<>();
 
-    public DialogUtil(Plugin plugin) {
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+    public DialogUtil() {
+
     }
 
     /**
@@ -48,21 +48,16 @@ public class DialogUtil implements Listener {
         if (key == null || key.isBlank()) return;
 
         // Sanitize: lowercase, replace invalid chars with underscores
-        String safeKey = key.toLowerCase().replaceAll("[^a-z0-9_\\-.]", "_");
-        if (safeKey.isEmpty() || !Character.isLetter(safeKey.charAt(0))) {
-            safeKey = "k_" + safeKey;
-        }
+        final String safeKey = key.toLowerCase().replaceAll("[^a-z0-9_\\-.]", "_");
 
-        pending.computeIfAbsent(player.getUniqueId(), id -> new ConcurrentHashMap<>())
+        pending.computeIfAbsent(player.getUniqueId(), _ -> new ConcurrentHashMap<>())
                 .put(safeKey, callback);
 
-        final String fKey = safeKey;
         Dialog dialog = Dialog.create(builder ->
                 builder.empty()
                         .base(DialogBase.builder(title)
                                 .inputs(List.of(
-                                        DialogInput.text(fKey, content)
-                                                //.width(300)
+                                        DialogInput.text(safeKey, content)
                                                 .initial(defaultValue != null ? defaultValue : "")
                                                 .build()
                                 ))
@@ -73,22 +68,21 @@ public class DialogUtil implements Listener {
                                         MessageUtil.parse("<green>Confirm"),
                                         MessageUtil.parse("Click to confirm your input."),
                                         100,
-                                        DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/confirm"), null)
+                                        DialogAction.customClick(Key.key("chamoitemskins:" + safeKey + "/confirm"), null)
                                 ),
                                 ActionButton.create(
                                         MessageUtil.parse("<red>Discard"),
                                         MessageUtil.parse("Click to discard your input."),
                                         100,
-                                        DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/discard"), null)
+                                        DialogAction.staticAction(ClickEvent.callback(_ -> {
+                                            pending.remove(player.getUniqueId());
+                                            callback.accept(null);
+                                        }))
                                 )
                         ))
         );
 
         player.showDialog(dialog);
-    }
-
-    public void getInput(Component title, Player player, String key, Component content, Consumer<String> callback) {
-        getInput(title, player, key, content, null, callback);
     }
 
     /**
@@ -97,22 +91,9 @@ public class DialogUtil implements Listener {
      *
      * @param title    The title of the dialog
      * @param player   The player to open the dialog to
-     * @param key      The key of the text input, used to retrieve the value
      * @param callback Called with the player's input, or null on discard
      */
-    public void getYesNo(Component title, Player player, String key, Consumer<String> callback) {
-        if (key == null || key.isBlank()) return;
-
-        // Sanitize: lowercase, replace invalid chars with underscores
-        String safeKey = key.toLowerCase().replaceAll("[^a-z0-9_\\-.]", "_");
-        if (safeKey.isEmpty() || !Character.isLetter(safeKey.charAt(0))) {
-            safeKey = "k_" + safeKey;
-        }
-
-        pending.computeIfAbsent(player.getUniqueId(), id -> new ConcurrentHashMap<>())
-                .put(safeKey, callback);
-
-        final String fKey = safeKey;
+    public void getYesNo(Component title, Player player, Consumer<Boolean> callback) {
         Dialog dialog = Dialog.create(builder ->
                 builder.empty()
                         .base(DialogBase.builder(title)
@@ -123,20 +104,27 @@ public class DialogUtil implements Listener {
                                         MessageUtil.parse("<green>Yes"),
                                         MessageUtil.parse("Click to confirm your input."),
                                         100,
-                                        DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/yes"), null)
+                                        DialogAction.staticAction(ClickEvent.callback(_ -> {
+                                            callback.accept(true);
+                                        }))
                                 ),
                                 ActionButton.create(
                                         MessageUtil.parse("<red>No"),
                                         MessageUtil.parse("Click to discard your input."),
                                         100,
-                                        DialogAction.customClick(Key.key("chamoitemskins:" + fKey + "/no"), null)
-                                )
+                                        DialogAction.staticAction(ClickEvent.callback(_ -> {
+                                            callback.accept(false);
+                                        })))
                         ))
         );
 
         player.showDialog(dialog);
     }
 
+    /**
+     * Code logic for the {@link #getInput(Component, Player, String, Component, String, Consumer)}, when the value is confirmed
+     * @param event The event
+     */
     @EventHandler
     public void onDialogClick(PlayerCustomClickEvent event) {
         Key id = event.getIdentifier();
@@ -145,11 +133,8 @@ public class DialogUtil implements Listener {
         if (!id.namespace().equals("chamoitemskins")) return;
 
         boolean isConfirm = path.endsWith("/confirm");
-        boolean isDiscard = path.endsWith("/discard");
-        boolean isYes = path.endsWith("/yes");
-        boolean isNo = path.endsWith("/no");
 
-        if (!isConfirm && !isDiscard && !isYes && !isNo) return;
+        if (!isConfirm) return;
 
         if (!(event.getCommonConnection() instanceof PlayerGameConnection conn)) return;
         Player player = conn.getPlayer();
@@ -163,32 +148,8 @@ public class DialogUtil implements Listener {
         if (playerPending.isEmpty()) pending.remove(player.getUniqueId());
         if (callback == null) return;
 
-        if (isConfirm) {
-            DialogResponseView view = event.getDialogResponseView();
-            String text = (view != null) ? view.getText(key) : null;
-            callback.accept(text);
-        } else if (isDiscard) {
-            callback.accept(null);
-        } else if (isYes) {
-            callback.accept(String.valueOf(true));
-        } else {
-            callback.accept(null);
-        }
-    }
-
-    /**
-     * Opens a dialog without an input (informational / confirmation only).
-     */
-    public void open(Dialog dialog, Player player) {
-        player.showDialog(dialog);
-    }
-
-    public boolean canUseDialogs() {
-        try {
-            Class.forName("io.papermc.paper.dialog.Dialog");
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
+        DialogResponseView view = event.getDialogResponseView();
+        String text = (view != null) ? view.getText(key) : null;
+        callback.accept(text);
     }
 }

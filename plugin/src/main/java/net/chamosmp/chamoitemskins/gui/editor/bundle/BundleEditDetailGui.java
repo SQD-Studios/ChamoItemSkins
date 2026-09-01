@@ -15,8 +15,6 @@ import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -133,7 +131,6 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
         });
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
@@ -186,7 +183,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
             }, skins);
         } else if (slot == 25) {
             chatInputUtil.getYesNo(player, input -> {
-                if ("true".equalsIgnoreCase(input)) {
+                if (input) {
                     skinService.deleteBundle(bundle.id());
                     ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
                     BundleEditorGui editorGui = new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil);
@@ -196,7 +193,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                         editorGui.open(null);
                     });
                 }
-            }, "editoreditdeleteconfb", MessageUtil.parse("Are you sure you want to delete this bundle?"));
+            }, MessageUtil.parse("Are you sure you want to delete this bundle?"));
         } else if (slot == 26) {
             new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }

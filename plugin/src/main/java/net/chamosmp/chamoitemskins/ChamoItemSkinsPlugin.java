@@ -158,6 +158,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     private void registerEvents() throws IOException {
+        Bukkit.getPluginManager().registerEvents(dialogUtil, this);
         Bukkit.getPluginManager().registerEvents(new SelfPackUtil(this), this);
         Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), messageUtil), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
@@ -193,8 +194,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void initElse() {
         this.messageUtil = new MessageUtil(langManager);
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
-        this.dialogUtil = new DialogUtil(this);
-        this.chatInputUtil = new ChatInputUtil(this, dialogUtil, messageUtil);
+        this.dialogUtil = new DialogUtil();
+        this.chatInputUtil = new ChatInputUtil(dialogUtil);
         this.updateUtil = new UpdateUtil(this);
         NoteUtil.init(this);
     }
