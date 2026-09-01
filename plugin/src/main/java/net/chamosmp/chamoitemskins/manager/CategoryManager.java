@@ -20,7 +20,7 @@ public final class CategoryManager implements CategoryService {
     private final Plugin plugin;
     private final Map<String, Category> categories = new LinkedHashMap<>();
 
-    private final String DISABLE_MESSAGE = "No category entries defined in config.yml - categories disabled! This will break the plugin. Warning";
+    private static final String DISABLE_MESSAGE = "No category entries defined in config.yml - categories disabled! This will break the plugin. Warning";
 
     /**
      * Constructs a new CategoryManager.

@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
  * Utility for transparent Folia/Paper scheduling.
  */
 public final class SchedulerUtil {
-    private static final boolean IS_FOLIA = isFolia();
     private static final Executor VIRTUAL_THREAD_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private SchedulerUtil() {
@@ -34,42 +33,22 @@ public final class SchedulerUtil {
     }
 
     public static void runAsync(@NotNull Plugin plugin, @NotNull Runnable task) {
-        if (IS_FOLIA) {
-            Bukkit.getAsyncScheduler().runNow(plugin, t -> task.run());
-        } else {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
-        }
+        Bukkit.getAsyncScheduler().runNow(plugin, t -> task.run());
     }
 
     public static void runSync(@NotNull Plugin plugin, @NotNull Runnable task) {
-        if (IS_FOLIA) {
-            Bukkit.getGlobalRegionScheduler().run(plugin, t -> task.run());
-        } else {
-            Bukkit.getScheduler().runTask(plugin, task);
-        }
+        Bukkit.getGlobalRegionScheduler().run(plugin, t -> task.run());
     }
 
     public static void runForEntity(@NotNull Plugin plugin, @NotNull Entity entity, @NotNull Runnable task, @NotNull Runnable fallback) {
-        if (IS_FOLIA) {
-            entity.getScheduler().run(plugin, t -> task.run(), fallback);
-        } else {
-            Bukkit.getScheduler().runTask(plugin, task);
-        }
+        entity.getScheduler().run(plugin, t -> task.run(), fallback);
     }
 
     public static void runAtLocation(@NotNull Plugin plugin, @NotNull Location location, @NotNull Runnable task) {
-        if (IS_FOLIA) {
-            Bukkit.getRegionScheduler().run(plugin, location, t -> task.run());
-        } else {
-            Bukkit.getScheduler().runTask(plugin, task);
-        }
+        Bukkit.getRegionScheduler().run(plugin, location, t -> task.run());
     }
 
     public static void runDelayed(@NotNull Plugin plugin, @NotNull Runnable task, long delayTicks) {
-        if (IS_FOLIA) {
-            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> task.run(), delayTicks);
-        } else {
-            Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
-        }
+        Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> task.run(), delayTicks);
     }
 }

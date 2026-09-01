@@ -28,7 +28,6 @@ public class AdministratorSkinSelectionGui implements GuiListener.ChamoGui, List
 
     private final ChamoItemSkinsPlugin plugin;
     private final Player player;
-    private final SkinService skinService;
     private final ModelService modelService;
 
     private final Map<Integer, Skin> slotToSkin = new HashMap<>();
@@ -37,14 +36,13 @@ public class AdministratorSkinSelectionGui implements GuiListener.ChamoGui, List
 
     private final List<Skin> selectedSkinList = new ArrayList<>();
 
-    private Map<UUID, Consumer<List<Skin>>> pending = new ConcurrentHashMap<>();
+    private final Map<UUID, Consumer<List<Skin>>> pending = new ConcurrentHashMap<>();
 
     private final Inventory inventory;
 
     public AdministratorSkinSelectionGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, ModelService modelService) {
         this.plugin = plugin;
         this.player = player;
-        this.skinService = skinService;
         this.modelService = modelService;
         this.skins = new ArrayList<>(skinService.getSkins());
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<aqua><b>Select as skin"));

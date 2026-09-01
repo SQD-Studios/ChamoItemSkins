@@ -38,8 +38,6 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final ModelService modelService;
     private final Inventory inventory;
-    private final List<Skin> skins;
-    private final List<Integer> skinSlots;
     private final Map<Integer, Skin> slotToSkin = new HashMap<>();
     private final CategoryManager categoryManager;
     private final MessageUtil messageUtil;
@@ -57,13 +55,13 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
         this.player = player;
         this.skinService = skinService;
         this.modelService = modelService;
-        this.skins = new ArrayList<>(skinService.getSkins());
+        List<Skin> skins = new ArrayList<>(skinService.getSkins());
         this.categoryManager = categoryManager;
         this.messageUtil = messageUtil;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<aqua><b>Skin Editor"));
-        this.skinSlots = computeSkinSlots(inventory.getSize());
+        List<Integer> skinSlots = computeSkinSlots(inventory.getSize());
 
         Set<Integer> reserved = new HashSet<>();
         for (int slot = 0; slot < inventory.getSize(); slot++) {

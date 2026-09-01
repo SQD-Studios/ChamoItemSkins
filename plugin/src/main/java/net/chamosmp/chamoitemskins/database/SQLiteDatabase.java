@@ -7,7 +7,6 @@ import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.Material;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,12 +17,10 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class SQLiteDatabase implements DatabaseManager {
-    private final Plugin plugin;
     private final File dbFile;
     private HikariDataSource dataSource;
 
-    public SQLiteDatabase(Plugin plugin, File dbFile) {
-        this.plugin = plugin;
+    public SQLiteDatabase(File dbFile) {
         this.dbFile = dbFile;
     }
 

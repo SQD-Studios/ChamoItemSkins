@@ -124,8 +124,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminSlots = parseSlots(adminGuiConfig.getConfigurationSection("slots"));
                 adminTitle = adminGuiConfig.getString("title", "Admin");
                 adminSize = adminGuiConfig.getInt("size", 54);
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, skinManager, dialogUtil, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, dialogUtil, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
                 LoggerUtil.log(LoggerUtil.LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
                 throw new CommandRegisterException("Failed to register commands: ", e);
@@ -160,9 +160,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void registerEvents() throws IOException {
         Bukkit.getPluginManager().registerEvents(dialogUtil, this);
         Bukkit.getPluginManager().registerEvents(new SelfPackUtil(this), this);
-        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, getConfig(), messageUtil), this);
+        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, messageUtil), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
-        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager, this, modelService), this);
+        Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
         Bukkit.getPluginManager().registerEvents(new UpdateUtil(this), this);
     }
 
@@ -170,7 +170,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         var config = getConfig();
         if (this.databaseManager == null) setupDatabase(config);
         if (this.rarityManager == null) {
-            this.rarityManager = new RarityManager(this, config);
+            this.rarityManager = new RarityManager(config);
         }
         if (this.skinManager == null) {
             this.skinManager = new SkinManager(this, rarityManager, databaseManager);
@@ -178,7 +178,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         }
         if (this.modelService == null) this.modelService = new ModelService();
         if (this.cacheManager == null) this.cacheManager = new CacheManager(config.getLong("cache.ttl-seconds", 300));
-        if (this.logManager == null) this.logManager = new LogManager(this, databaseManager);
+        if (this.logManager == null) this.logManager = new LogManager(databaseManager);
         if (this.grantManager == null)
             this.grantManager = new GrantManager(this, databaseManager, cacheManager, skinManager, logManager, modelService);
         if (this.langManager == null) this.langManager = new LanguageManager(this);
@@ -243,14 +243,14 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void setupDatabase(FileConfiguration config) {
         String type = config.getString("database.type", "sqlite");
         if (type.equalsIgnoreCase("mysql")) {
-            this.databaseManager = new MySQLDatabase(this,
+            this.databaseManager = new MySQLDatabase(
                     config.getString("database.host"),
                     config.getString("database.port"),
                     config.getString("database.database"),
                     config.getString("database.username"),
                     config.getString("database.password"));
         } else {
-            this.databaseManager = new SQLiteDatabase(this, new File(getDataFolder(), "data.db"));
+            this.databaseManager = new SQLiteDatabase(new File(getDataFolder(), "data.db"));
         }
         this.databaseManager.init();
     }

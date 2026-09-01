@@ -28,7 +28,6 @@ import java.util.Map;
 
 public final class MigrateManager implements MigrateService {
 
-    private static final Logger log = LoggerFactory.getLogger(MigrateManager.class);
     private final Plugin plugin;
     private final SkinService skinService;
 

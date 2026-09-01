@@ -5,7 +5,6 @@ import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,14 +28,12 @@ public final class NoteListener implements Listener {
     private final Plugin plugin;
     private final SkinService skinService;
     private final GrantService grantService;
-    private final FileConfiguration config;
     private final MessageUtil messageUtil;
 
-    public NoteListener(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config, MessageUtil messageUtil) {
+    public NoteListener(Plugin plugin, SkinService skinService, GrantService grantService, MessageUtil messageUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
-        this.config = config;
         this.messageUtil = messageUtil;
     }
 

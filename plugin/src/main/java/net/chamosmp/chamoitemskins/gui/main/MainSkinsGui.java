@@ -10,7 +10,6 @@ import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
-import net.chamosmp.chamoitemskins.manager.SkinManager;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
@@ -20,33 +19,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import net.chamosmp.chamoitemskins.manager.LanguageManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Main GUI for browsing skin categories.
  */
 public final class MainSkinsGui implements GuiListener.ChamoGui {
-    private final Plugin plugin;
-    private final ChamoItemSkinsPlugin pluginInstance;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
     private final GrantService grantService;
     private final Inventory inventory;
     private final List<GuiSlotDef> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
-    private final SkinManager skinManager;
     private final ChatInputUtil chatInputUtil;
     private final ModelService modelService;
     private final RarityManager rarityManager;
@@ -54,14 +46,12 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final FavoriteManager favoriteManager;
 
 
-    public MainSkinsGui(Plugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, SkinManager skinManager, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
+    public MainSkinsGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
         this.plugin = plugin;
-        this.pluginInstance = (ChamoItemSkinsPlugin) plugin;
         this.player = player;
         this.skinService = skinService;
         this.grantService = grantService;
         this.slots = slots;
-        this.skinManager = skinManager;
         this.chatInputUtil = chatInputUtil;
         this.modelService = modelService;
         this.rarityManager = rarityManager;
@@ -74,29 +64,25 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
 
     private void setupInventory() {
         for (GuiSlotDef def : slots) {
-            switch (def.type()) {
-                case SlotType.ActionSlot(String action) -> {
-                    if (action.equals("ADMIN_GUI")) {
-                        if (!player.hasPermission("chamoitemskins.admin")) {
-                            continue; // Skip Admin Panel if no permission
-                        }
-                    }
-
-                    if (action.startsWith("CATEGORY_")) {
-                        String category = action.substring(9);
-                        if (category.equalsIgnoreCase("ALL")) {
-                            if (skinService.getSkins().stream().noneMatch(Skin::enabled)) continue;
-                        } else {
-                            if (skinService.getSkins().stream()
-                                    .filter(Skin::enabled)
-                                    .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(category)))) {
-                                continue;
-                            }
-                        }
-                        categorySlots.put(def.slot(), category);
+            if (Objects.requireNonNull(def.type()) instanceof SlotType.ActionSlot(String action)) {
+                if (action.equals("ADMIN_GUI")) {
+                    if (!player.hasPermission("chamoitemskins.admin")) {
+                        continue; // Skip Admin Panel if no permission
                     }
                 }
-                default -> {
+
+                if (action.startsWith("CATEGORY_")) {
+                    String category = action.substring(9);
+                    if (category.equalsIgnoreCase("ALL")) {
+                        if (skinService.getSkins().stream().noneMatch(Skin::enabled)) continue;
+                    } else {
+                        if (skinService.getSkins().stream()
+                                .filter(Skin::enabled)
+                                .noneMatch(skin -> skin.categories().stream().anyMatch(cat -> cat.name().equalsIgnoreCase(category)))) {
+                            continue;
+                        }
+                    }
+                    categorySlots.put(def.slot(), category);
                 }
             }
 

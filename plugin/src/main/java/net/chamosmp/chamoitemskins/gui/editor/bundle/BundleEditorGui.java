@@ -38,8 +38,6 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final ModelService modelService;
     private final Inventory inventory;
-    private final List<SkinBundle> skins;
-    private final List<Integer> skinSlots;
     private final Map<Integer, SkinBundle> slotToSkin = new HashMap<>();
     private final CategoryManager categoryManager;
     private final MessageUtil messageUtil;
@@ -57,13 +55,13 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         this.player = player;
         this.skinService = skinService;
         this.modelService = modelService;
-        this.skins = new ArrayList<>(skinService.getBundles());
+        List<SkinBundle> skins = new ArrayList<>(skinService.getBundles());
         this.categoryManager = categoryManager;
         this.messageUtil = messageUtil;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
         this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<yellow><b>Bundle Editor"));
-        this.skinSlots = computeSlots(inventory.getSize());
+        List<Integer> skinSlots = computeSlots(inventory.getSize());
 
         Set<Integer> reserved = new HashSet<>();
         for (int slot = 0; slot < inventory.getSize(); slot++) {

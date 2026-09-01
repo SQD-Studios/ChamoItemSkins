@@ -13,8 +13,6 @@ import java.util.Map;
 public final class LanguageManager implements LanguageService {
 
     private final Plugin plugin;
-    private final String defaultLang = "en";
-    private String currentLang;
     private final Map<String, String> messages = new HashMap<>();
 
     public LanguageManager(Plugin plugin) {
@@ -23,7 +21,7 @@ public final class LanguageManager implements LanguageService {
         if (!langDir.exists()) {
             langDir.mkdirs();
         }
-        String langCode = plugin.getConfig().getString("language", defaultLang);
+        String langCode = plugin.getConfig().getString("language", "en");
         loadLanguage(langCode);
     }
 
@@ -36,8 +34,7 @@ public final class LanguageManager implements LanguageService {
             YamlConfiguration yaml = ConfigUtil.loadOrAdapt(plugin, "lang/" + langCode + ".yml");
             messages.clear();
             flatten("", yaml.getValues(true));
-            currentLang = langCode;
-            LoggerUtil.log(LoggerUtil.LogType.INFO, "Loaded current language: " + currentLang + " (" + messages.size() + " messages)");
+            LoggerUtil.log(LoggerUtil.LogType.INFO, "Loaded current language: " + langCode + " (" + messages.size() + " messages)");
         } catch (Exception e) {
             LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to load language file: " + langCode + ". Exception: " + e.getMessage());
         }

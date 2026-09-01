@@ -71,8 +71,10 @@ public final class SkinEditDetailGui implements GuiListener.ChamoGui {
         lore.add("<yellow>Click to toggle categories in order:");
         for (Category cat : CATEGORIES) {
             boolean contains = false;
-            for (Category cat2 : skin.categories()) {
-                contains = cat2.name().equalsIgnoreCase(cat.name());
+            if (skin.categories() != null) {
+                for (Category cat2 : skin.categories()) {
+                    contains = cat2.name().equalsIgnoreCase(cat.name());
+                }
             }
             String prefix = contains ? "     <gray>> <green>" : "         <dark_gray>";
             lore.add("      " + prefix + cat.name());

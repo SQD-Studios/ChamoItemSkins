@@ -5,7 +5,6 @@ import net.chamosmp.chamoitemskins.api.service.RarityService;
 import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,17 +18,14 @@ import java.util.Optional;
  * Loads and serves user-defined rarity tiers from config.yml.
  */
 public final class RarityManager implements RarityService {
-    private final Plugin plugin;
     private final Map<String, Rarity> rarities = new LinkedHashMap<>();
     private boolean enabled;
 
     /**
      * Constructs a new RarityManager.
      *
-     * @param plugin The plugin instance.
      */
-    public RarityManager(@NotNull Plugin plugin, @NotNull FileConfiguration config) {
-        this.plugin = plugin;
+    public RarityManager(@NotNull FileConfiguration config) {
         load(config);
     }
 

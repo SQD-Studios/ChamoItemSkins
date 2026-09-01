@@ -34,6 +34,7 @@ public class NexoService implements Nexo {
         return itemStack.withType(newItem.getType());
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private void mergeMeta(ItemMeta source, ItemMeta target) {
         source.getEnchants().forEach((enchant, level) -> target.addEnchant(enchant, level, true));
         if (source.hasCustomName()) target.customName(source.customName());

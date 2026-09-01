@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Admin control panel GUI.
@@ -80,10 +81,8 @@ public final class AdminGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            switch (def.type()) {
-                case SlotType.ActionSlot(String action) -> handleAction(action);
-                default -> {
-                }
+            if (Objects.requireNonNull(def.type()) instanceof SlotType.ActionSlot(String action)) {
+                handleAction(action);
             }
         });
     }

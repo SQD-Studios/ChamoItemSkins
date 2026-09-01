@@ -12,7 +12,6 @@ import net.chamosmp.chamoitemskins.manager.MigrateManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
-import net.chamosmp.chamoitemskins.util.DialogUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.strokkur.commands.Aliases;
@@ -43,7 +42,6 @@ public final class AdminCommand {
     private final String adminGuiTitle;
     private final int adminGuiSize;
     private final List<GuiSlotDef> adminGuiSlots;
-    private final DialogUtil dialogUtil;
     private final MigrateManager migrateManager;
     private final MessageUtil messageUtil;
     private final ModelService modelService;
@@ -52,7 +50,7 @@ public final class AdminCommand {
     private final ChatInputUtil chatInputUtil;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, DialogUtil dialogUtil, MigrateManager migrateManager, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, MigrateManager migrateManager, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -60,7 +58,6 @@ public final class AdminCommand {
         this.adminGuiTitle = adminGuiTitle;
         this.adminGuiSize = adminGuiSize;
         this.adminGuiSlots = adminGuiSlots;
-        this.dialogUtil = dialogUtil;
         this.migrateManager = migrateManager;
         this.messageUtil = messageUtil;
         this.modelService = modelService;

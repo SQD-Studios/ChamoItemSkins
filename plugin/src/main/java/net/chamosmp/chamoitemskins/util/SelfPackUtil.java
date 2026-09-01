@@ -37,7 +37,7 @@ public class SelfPackUtil implements Listener {
         this.plugin = plugin;
         this.port = plugin.getConfig().getInt("selfpack.port");
         this.isEnabled = plugin.getConfig().getBoolean("selfpack.enable");
-        this.isPreMakeEnabled = plugin.getConfig().getBoolean("selfpack.pre-make");
+        boolean isPreMakeEnabled = plugin.getConfig().getBoolean("selfpack.pre-make");
         this.address = new InetSocketAddress(this.port);
         this.ip = plugin.getConfig().getString("selfpack.ip", plugin.getServer().getIp());
         this.pluginFolder = plugin.getDataFolder().toPath();
@@ -72,7 +72,6 @@ public class SelfPackUtil implements Listener {
     }
 
     private final boolean isEnabled;
-    private final boolean isPreMakeEnabled;
 
 
     @EventHandler

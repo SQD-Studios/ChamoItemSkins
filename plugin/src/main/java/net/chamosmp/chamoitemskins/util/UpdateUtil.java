@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 
 public class UpdateUtil implements Listener {
 
-    private static final Logger log = LoggerFactory.getLogger(UpdateUtil.class);
     private final Plugin plugin;
 
     /**
@@ -107,7 +106,7 @@ public class UpdateUtil implements Listener {
                                 ? Integer.parseInt(latestParts[i])
                                 : 0;
             } catch (NumberFormatException e) {
-                log.error("Had error parsing versions: ", e);
+                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Had error parsing versions: " + e);
             }
             if (latestValue > currentValue) {
                 return true;

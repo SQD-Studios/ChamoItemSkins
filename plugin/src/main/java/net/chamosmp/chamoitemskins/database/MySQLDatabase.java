@@ -7,7 +7,6 @@ import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import org.bukkit.Material;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +16,10 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class MySQLDatabase implements DatabaseManager {
-    private final Plugin plugin;
     private final String host, port, database, username, password;
     private HikariDataSource dataSource;
 
-    public MySQLDatabase(Plugin plugin, String host, String port, String database, String username, String password) {
-        this.plugin = plugin;
+    public MySQLDatabase(String host, String port, String database, String username, String password) {
         this.host = host;
         this.port = port;
         this.database = database;

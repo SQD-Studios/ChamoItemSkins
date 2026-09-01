@@ -42,7 +42,6 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     private String id = "new_skin";
     private String name = "New Skin";
     private String modelId = "model_id";
-    private final Material itemType = Material.DIAMOND_SWORD;
     private List<Category> categories = new ArrayList<>();
     private boolean enabled = true;
 
