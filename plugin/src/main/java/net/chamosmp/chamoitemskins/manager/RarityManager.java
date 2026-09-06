@@ -2,17 +2,13 @@ package net.chamosmp.chamoitemskins.manager;
 
 import net.chamosmp.chamoitemskins.api.objects.Rarity;
 import net.chamosmp.chamoitemskins.api.service.RarityService;
-import net.chamosmp.chamoitemskins.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.LoggerUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Loads and serves user-defined rarity tiers from config.yml.

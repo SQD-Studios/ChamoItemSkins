@@ -6,7 +6,8 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -209,7 +212,8 @@ public final class YamlUtil {
                 try {
                     config.save(tempFile);
                     if (file.exists() && !file.delete()) throw new IOException("Could not delete existing config.yml");
-                    if (!tempFile.renameTo(file)) throw new IOException("Could not rename config.yml.tmp to config.yml");
+                    if (!tempFile.renameTo(file))
+                        throw new IOException("Could not rename config.yml.tmp to config.yml");
                 } catch (IOException e) {
                     LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save category " + category.id() + " to config.yml: " + e.getMessage());
                 }
@@ -230,7 +234,8 @@ public final class YamlUtil {
                 try {
                     config.save(tempFile);
                     if (file.exists() && !file.delete()) throw new IOException("Could not delete existing config.yml");
-                    if (!tempFile.renameTo(file)) throw new IOException("Could not rename config.yml.tmp to config.yml");
+                    if (!tempFile.renameTo(file))
+                        throw new IOException("Could not rename config.yml.tmp to config.yml");
                 } catch (IOException e) {
                     LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save category " + id + " to config.yml: " + e.getMessage());
                 }

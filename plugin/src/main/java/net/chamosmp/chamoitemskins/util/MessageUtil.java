@@ -1,14 +1,13 @@
 package net.chamosmp.chamoitemskins.util;
 
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.chamosmp.sqdlib.util.LanguageUtil;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import net.chamosmp.chamoitemskins.manager.LanguageManager;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +19,10 @@ import java.util.Map;
 public final class MessageUtil {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final boolean PAPI_PRESENT = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
-    private final LanguageManager langManager;
+    private final LanguageUtil langManager;
 
-    public MessageUtil(LanguageManager langManager) {
-        this.langManager = langManager;
+    public MessageUtil(LanguageUtil langUtil) {
+        this.langManager = langUtil;
     }
 
     public void sendLangMessage(Audience player, String key, Map<?, ?> placeholders) {

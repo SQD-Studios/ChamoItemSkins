@@ -6,19 +6,16 @@ import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.util.ConfigUtil;
-import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
+import net.chamosmp.sqdlib.util.LoggerUtil;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +65,7 @@ public final class MigrateManager implements MigrateService {
 
         // Disable the rarities
 
-        YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml");
+        FileConfiguration config = plugin.getConfig();
         config.set("rarities.enabled", false);
         try {
             config.save(new File(plugin.getDataFolder(), "config.yml"));

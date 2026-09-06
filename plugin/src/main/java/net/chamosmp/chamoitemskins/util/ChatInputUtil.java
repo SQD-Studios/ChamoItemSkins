@@ -1,5 +1,6 @@
 package net.chamosmp.chamoitemskins.util;
 
+import net.chamosmp.sqdlib.util.DialogUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -8,7 +9,7 @@ import java.util.function.Consumer;
 
 /**
  * Wrapper class of {@link DialogUtil}
- *
+ * <p>
  * This is kept for backwards combatability in every part of the plugin
  *
  * @apiNote Use {@link DialogUtil} directly instead of this

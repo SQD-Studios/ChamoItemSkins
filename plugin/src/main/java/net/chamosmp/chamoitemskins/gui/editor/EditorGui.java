@@ -9,12 +9,9 @@ import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.title.Title;
-import net.kyori.adventure.title.TitlePart;
+import net.chamosmp.sqdlib.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -97,7 +94,7 @@ public class EditorGui implements GuiListener.ChamoGui {
             new SkinEditorGui(plugin, player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
         if (slot == 15) {
-            new BundleEditorGui(plugin,player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
+            new BundleEditorGui(plugin, player, plugin.getSkinService(), modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }
     }
 

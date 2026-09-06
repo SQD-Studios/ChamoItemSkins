@@ -29,7 +29,10 @@ allprojects {
         }
         maven("https://repo.hibiscusmc.com/releases/")
         maven("https://repo.nexomc.com/releases")
-
+        maven {
+            name = "chamosmpRepoReleases"
+            url = uri("https://maven.chamosmp.net/releases")
+        }
     }
 }
 

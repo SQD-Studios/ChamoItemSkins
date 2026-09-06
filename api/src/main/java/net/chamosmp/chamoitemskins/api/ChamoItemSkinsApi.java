@@ -34,10 +34,6 @@ public interface ChamoItemSkinsApi {
     /// Get the {@link GrantService} class
     @NotNull GrantService getGrantService();
 
-    /// Get the {@link LanguageService} class
-    @ApiStatus.Internal
-    @NotNull LanguageService getLanguageService();
-
     /// Get the {@link LogService} class
     @ApiStatus.Internal
     @NotNull LogService getLogService();

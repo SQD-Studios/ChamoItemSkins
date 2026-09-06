@@ -4,8 +4,8 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.FavoriteService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
-import net.chamosmp.chamoitemskins.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.SchedulerUtil;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class FavoriteManager implements FavoriteService {
 
@@ -78,7 +77,7 @@ public class FavoriteManager implements FavoriteService {
             if (skins.isEmpty() || !skins.contains(skin)) {
                 addFavoriteSkinToPlayer(player, skin);
             } else {
-                    removeFavoriteSkinFromPlayer(player, skin);
+                removeFavoriteSkinFromPlayer(player, skin);
             }
         });
     }

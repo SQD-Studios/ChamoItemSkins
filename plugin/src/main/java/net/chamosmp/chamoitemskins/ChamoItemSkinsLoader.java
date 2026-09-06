@@ -17,6 +17,11 @@ public class ChamoItemSkinsLoader implements PluginLoader {
         resolver.addRepository(new RemoteRepository.Builder("central", "default", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR).build());
         resolver.addDependency(new Dependency(new DefaultArtifact("com.zaxxer:HikariCP:7.1.0"), null));
 
+        MavenLibraryResolver chamoSmpRepo = new MavenLibraryResolver();
+
+        chamoSmpRepo.addRepository(new RemoteRepository.Builder("chamoSmp", "default", "https://maven.chamosmp.net/releases").build());
+        chamoSmpRepo.addDependency(new Dependency(new DefaultArtifact("net.chamosmp.sqdlib:sqd-lib:1.1.0"), null));
+
         classpathBuilder.addLibrary(resolver);
     }
 

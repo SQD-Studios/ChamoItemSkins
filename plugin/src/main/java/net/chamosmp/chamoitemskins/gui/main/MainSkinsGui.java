@@ -4,27 +4,25 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.manager.FavoriteManager;
-import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
 import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.listener.GuiListener;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
+import net.chamosmp.chamoitemskins.manager.FavoriteManager;
+import net.chamosmp.chamoitemskins.manager.RarityManager;
+import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import net.chamosmp.chamoitemskins.manager.RarityManager;
-import net.chamosmp.chamoitemskins.util.ConfigUtil;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.*;
 
@@ -109,7 +107,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
+            YamlConfiguration selectionConfig = net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
             List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");

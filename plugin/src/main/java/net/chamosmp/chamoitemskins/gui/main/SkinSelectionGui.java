@@ -13,11 +13,11 @@ import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.scheduler.SchedulerUtil;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
-import net.chamosmp.chamoitemskins.util.ConfigUtil;
-import net.chamosmp.chamoitemskins.util.LoggerUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.util.ConfigUtil;
+import net.chamosmp.sqdlib.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.SchedulerUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -239,7 +239,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
 
 
-            YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml");
+            YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml", List.of("categories.", "rarities."));
             String character = config.getString("filter.chosen-character");
 
             Map<String, String> placeholders;
@@ -506,7 +506,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 favoriteManager.changeFavoriteSkin(player, s);
                 if (favoritedSkins.contains(s)) {
                     favoritedSkins.remove(s);
-                } else  {
+                } else {
                     favoritedSkins.add(s);
                 }
                 refresh();
@@ -519,7 +519,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 favoriteManager.changeFavoriteSkin(player, s);
                 if (favoritedSkins.contains(s)) {
                     favoritedSkins.remove(s);
-                } else  {
+                } else {
                     favoritedSkins.add(s);
                 }
                 refresh();

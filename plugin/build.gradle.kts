@@ -10,6 +10,8 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
+    implementation("net.chamosmp.sqdlib:sqd-lib:1.1.0")
+
     compileOnly("net.strokkur.commands:annotations-paper:2.3.0")
     annotationProcessor("net.strokkur.commands:processor-paper:2.3.0")
 
