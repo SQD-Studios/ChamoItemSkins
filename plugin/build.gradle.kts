@@ -1,14 +1,11 @@
 plugins {
     id("com.gradleup.shadow") version "9.6.1"
     id("xyz.jpenilla.run-paper") version "3.1.0"
-    id("maven-publish")
-    //id("org.jetbrains.dokka") Breaks with runServer
+    id("shared")
 }
 
 dependencies {
     implementation(project(":api"))
-
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
     implementation("net.chamosmp.sqdlib:sqd-lib:1.1.3")
 
@@ -25,11 +22,7 @@ dependencies {
     compileOnly("com.nexomc:nexo:1.27.0")
     compileOnly("me.clip:placeholderapi:2.12.3")
 
-    // Dokka (Better Javadocs)
-    //dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
 }
-
-
 
 tasks {
     // shadoJar configuration
@@ -75,45 +68,3 @@ tasks {
         options.compilerArgs.add("-Xlint:deprecation")
     }
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
-    }
-    repositories {
-        maven {
-            name = "ChamoSMP-Releases"
-            url = uri("https://maven.chamosmp.net/releases")
-            credentials {
-                username = System.getenv("REPOSILITE_USER")
-                password = System.getenv("REPOSILITE_TOKEN")
-            }
-        }
-        maven {
-            name = "ChamoSMP-Snapshots"
-            url = uri("https://maven.chamosmp.net/snapshots")
-            credentials {
-                username = System.getenv("REPOSILITE_USER")
-                password = System.getenv("REPOSILITE_TOKEN")
-            }
-        }
-    }
-}
-
-/*
-dokka {
-    pluginsConfiguration.html {
-        customAssets.from("../assets/ChamoItemSkins.png", "../assets/logo-icon.svg")
-        customStyleSheets.from(
-            "../assets/dokka/style.css",
-            "../assets/dokka/prism.css",
-            "../assets/dokka/main.css",
-            "../assets/dokka/logo-styles.css"
-        )
-        footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
-    }
-}
-
- */

@@ -1,93 +1,11 @@
 plugins {
-    id("java")
     id("com.gradleup.shadow") version "9.6.1"
-    id("maven-publish")
-    //id("org.jetbrains.dokka") version "2.2.0"
-}
-
-allprojects {
-    apply(plugin = "java")
-
-    group = "net.chamosmp.chamoitemskins"
-    version = "1.1.0"
-
-    repositories {
-        mavenCentral {
-            name = "Maven Central (HikariCP, BetterModel)"
-        }
-        maven {
-            name = "PaperMC"
-            url = uri("https://repo.papermc.io/repository/maven-public/")
-        }
-        maven {
-            name = "Eldonexus"
-            url = uri("https://eldonexus.de/repository/maven-public/")
-        }
-        maven {
-            name = "PlaceholderAPI"
-            url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-        }
-        maven("https://repo.hibiscusmc.com/releases/")
-        maven("https://repo.nexomc.com/releases")
-        maven {
-            name = "chamosmpRepoReleases"
-            url = uri("https://maven.chamosmp.net/releases")
-        }
-    }
-}
-
-
-subprojects {
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
-        }
-
-    }
-
-    tasks {
-        withType<JavaCompile> {
-            options.encoding = "UTF-8"
-            options.release = 25
-        }
-
-        // Display all deprecation warnings
-        compileJava {
-            options.compilerArgs.addAll(listOf("-proc:full", "-Xlint:deprecation"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
-    }
-    repositories {
-        maven {
-            name = "ChamoSMP-Releases"
-            url = uri("https://maven.chamosmp.net/releases")
-            credentials {
-                username = System.getenv("REPOSILITE_USER")
-                password = System.getenv("REPOSILITE_TOKEN")
-            }
-        }
-        maven {
-            name = "ChamoSMP-Snapshots"
-            url = uri("https://maven.chamosmp.net/snapshots")
-            credentials {
-                username = System.getenv("REPOSILITE_USER")
-                password = System.getenv("REPOSILITE_TOKEN")
-            }
-        }
-    }
+    id("shared")
 }
 
 dependencies {
     //dokka(project(":api:"))
     //dokka(project(":plugin:"))
-    //dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:2.2.0")
 
     implementation(project(":plugin"))
     implementation("org.bstats:bstats-bukkit:3.2.1")
@@ -101,14 +19,3 @@ tasks {
         relocate("org.bstats", project.group.toString())
     }
 }
-
-/*
-dokka {
-    pluginsConfiguration.html {
-        customAssets.from("./assets/ChamoItemSkins.png", "./assets/logo-icon.svg")
-        customStyleSheets.from("./assets/dokka/style.css", "./assets/dokka/prism.css", "./assets/dokka/main.css", "./assets/dokka/logo-styles.css")
-        footerMessage.set("© SQD Studios 2026. ChamoItemSkins is licensed under the Polyform Shield 1.0.0")
-    }
-}
-
- */
