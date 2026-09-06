@@ -38,7 +38,7 @@ tasks {
         archiveClassifier.set("")
 
         relocate("org.bstats", project.group.toString())
-        relocate("net.chamosmp.sqdlib", "net.chamosmp.chamoitemskins.libs")
+        relocate("net.chamosmp.sqdlib", "net.chamosmp.chamoitemskins.libs.sqdlib")
     }
 
     // We want all jars to produce shadowed ones
