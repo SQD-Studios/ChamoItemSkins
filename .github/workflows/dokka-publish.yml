@@ -1,8 +1,8 @@
 name: Generate and Deploy Dokka Docs
 
 on:
-  push:
-    branches: [ main, master ]   # adjust to your default branch
+  #push:
+  #  branches: [ main, master ]   # adjust to your default branch
   workflow_dispatch:             # allows manual triggering
 
 env:
