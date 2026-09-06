@@ -10,12 +10,12 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
-    implementation("net.chamosmp.sqdlib:sqd-lib:1.1.0")
+    implementation("net.chamosmp.sqdlib:sqd-lib:1.1.2")
 
     compileOnly("net.strokkur.commands:annotations-paper:2.3.0")
     annotationProcessor("net.strokkur.commands:processor-paper:2.3.0")
 
-    implementation("com.zaxxer:HikariCP:7.1.0")
+    compileOnly("com.zaxxer:HikariCP:7.1.0")
     implementation("org.bstats:bstats-bukkit:3.2.1")
 
     // Convert Options
@@ -38,6 +38,7 @@ tasks {
         archiveClassifier.set("")
 
         relocate("org.bstats", project.group.toString())
+        relocate("net.chamosmp.sqdlib", "net.chamosmp.chamoitemskins.libs")
     }
 
     // We want all jars to produce shadowed ones
