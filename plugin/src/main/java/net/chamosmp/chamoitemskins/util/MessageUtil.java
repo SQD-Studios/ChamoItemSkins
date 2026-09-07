@@ -1,7 +1,7 @@
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.sqdlib.util.ColorUtil;
-import net.chamosmp.sqdlib.util.LanguageUtil;
+import net.chamosmp.sqdlib.paper.util.ColorUtil;
+import net.chamosmp.sqdlib.paper.util.LanguageUtil;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;

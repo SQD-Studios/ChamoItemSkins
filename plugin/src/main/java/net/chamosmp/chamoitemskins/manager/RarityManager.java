@@ -2,7 +2,8 @@ package net.chamosmp.chamoitemskins.manager;
 
 import net.chamosmp.chamoitemskins.api.objects.Rarity;
 import net.chamosmp.chamoitemskins.api.service.RarityService;
-import net.chamosmp.sqdlib.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ public final class RarityManager implements RarityService {
         ConfigurationSection section = config.getConfigurationSection("rarities");
         if (section == null) {
             enabled = false;
-            LoggerUtil.log(LoggerUtil.LogType.WARNING, "No rarities block in config.yml - rarity features disabled.");
+            LoggerUtil.log(LogType.WARNING, "No rarities block in config.yml - rarity features disabled.");
             return;
         }
 
@@ -56,7 +57,7 @@ public final class RarityManager implements RarityService {
 
         if (rarities.isEmpty()) {
             enabled = false;
-            LoggerUtil.log(LoggerUtil.LogType.WARNING, "No rarities defined in config.yml - rarity features disabled.");
+            LoggerUtil.log(LogType.WARNING, "No rarities defined in config.yml - rarity features disabled.");
         }
     }
 
@@ -89,7 +90,7 @@ public final class RarityManager implements RarityService {
             return getDefaultRarity();
         }
         return getRarity(id).orElseGet(() -> {
-            LoggerUtil.log(LoggerUtil.LogType.WARNING, "Unknown rarity '" + id + "' - using default.");
+            LoggerUtil.log(LogType.WARNING, "Unknown rarity '" + id + "' - using default.");
             return getDefaultRarity();
         });
     }

@@ -6,8 +6,9 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -123,7 +124,7 @@ public final class YamlUtil {
                         throw new IOException("Could not rename skins.yml.tmp to skins.yml");
                     }
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save skins to skins.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not save skins to skins.yml: " + e.getMessage());
                 }
             }
         });
@@ -147,7 +148,7 @@ public final class YamlUtil {
                         throw new IOException("Could not rename skins.yml.tmp to skins.yml");
                     }
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not delete skins from skins.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not delete skins from skins.yml: " + e.getMessage());
                 }
             }
         });
@@ -171,7 +172,7 @@ public final class YamlUtil {
                     if (file.exists() && !file.delete()) throw new IOException("Could not delete existing skins.yml");
                     if (!tempFile.renameTo(file)) throw new IOException("Could not rename skins.yml.tmp to skins.yml");
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save bundle to skins.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not save bundle to skins.yml: " + e.getMessage());
                 }
             }
         });
@@ -191,7 +192,7 @@ public final class YamlUtil {
                     if (file.exists() && !file.delete()) throw new IOException("Could not delete existing skins.yml");
                     if (!tempFile.renameTo(file)) throw new IOException("Could not rename skins.yml.tmp to skins.yml");
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not delete bundle" + id + "from skins.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not delete bundle" + id + "from skins.yml: " + e.getMessage());
                 }
             }
         });
@@ -215,7 +216,7 @@ public final class YamlUtil {
                     if (!tempFile.renameTo(file))
                         throw new IOException("Could not rename config.yml.tmp to config.yml");
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save category " + category.id() + " to config.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not save category " + category.id() + " to config.yml: " + e.getMessage());
                 }
             }
         });
@@ -237,7 +238,7 @@ public final class YamlUtil {
                     if (!tempFile.renameTo(file))
                         throw new IOException("Could not rename config.yml.tmp to config.yml");
                 } catch (IOException e) {
-                    LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Could not save category " + id + " to config.yml: " + e.getMessage());
+                    LoggerUtil.log(LogType.SEVERE, "Could not save category " + id + " to config.yml: " + e.getMessage());
                 }
             }
         });

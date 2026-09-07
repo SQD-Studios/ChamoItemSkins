@@ -4,8 +4,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +74,7 @@ public final class MySQLDatabase implements DatabaseManager {
                         skin_id     VARCHAR(64) NOT NULL
                     )""");
         } catch (SQLException e) {
-            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to initialize MySQL: " + e.getMessage());
+            LoggerUtil.log(LogType.SEVERE, "Failed to initialize MySQL: " + e.getMessage());
         }
     }
 
@@ -96,7 +97,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setString(4, source);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to grant skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to grant skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -112,7 +113,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setString(2, skinId);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to revoke skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to revoke skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -136,7 +137,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get grants: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to get grants: " + e.getMessage());
             }
             return grants;
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -153,7 +154,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     if (rs.next()) return Optional.of(rs.getString("skin_id"));
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get active skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to get active skin: " + e.getMessage());
             }
             return Optional.empty();
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -181,7 +182,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to set active skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to set active skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -201,7 +202,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setString(5, metadata);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to log action: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to log action: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -253,7 +254,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setTimestamp(5, expiresAt != null ? Timestamp.valueOf(expiresAt) : null);
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to grant skin with expiry: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to grant skin with expiry: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -278,7 +279,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get expired grants: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to get expired grants: " + e.getMessage());
             }
             return expired;
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -306,7 +307,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to upsert active skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to upsert active skin: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -330,7 +331,7 @@ public final class MySQLDatabase implements DatabaseManager {
                     }
                 }
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get all active skins: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to get all active skins: " + e.getMessage());
             }
             return activeSkins;
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -348,7 +349,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setString(2, skin.id());
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to add favorite skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to add favorite skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -362,7 +363,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 ps.setString(2, skin.id());
                 ps.executeUpdate();
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to remove favorite skin: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to remove favorite skin: " + e.getMessage());
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
     }
@@ -382,7 +383,7 @@ public final class MySQLDatabase implements DatabaseManager {
                 }
                 return skins;
             } catch (SQLException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get favorite skins: " + e.getMessage());
+                LoggerUtil.log(LogType.SEVERE, "Failed to get favorite skins: " + e.getMessage());
                 return Collections.emptyList();
             }
         }, SchedulerUtil.getVirtualThreadExecutor());

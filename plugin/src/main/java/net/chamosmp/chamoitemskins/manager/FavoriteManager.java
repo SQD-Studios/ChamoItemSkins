@@ -4,8 +4,9 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.FavoriteService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +59,7 @@ public class FavoriteManager implements FavoriteService {
                 }
                 return skins;
             } catch (CancellationException | ExecutionException | InterruptedException e) {
-                LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Error getting favorite skins from database." + e);
+                LoggerUtil.log(LogType.SEVERE, "Error getting favorite skins from database." + e);
                 return Collections.emptyList();
             }
         }, SchedulerUtil.getVirtualThreadExecutor());
@@ -91,7 +92,7 @@ public class FavoriteManager implements FavoriteService {
         try {
             return ClickType.valueOf(s);
         } catch (IllegalArgumentException e) {
-            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Invalid click type in the config: " + s);
+            LoggerUtil.log(LogType.SEVERE, "Invalid click type in the config: " + s);
             return null;
         }
     }

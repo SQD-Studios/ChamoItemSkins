@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(project(":api"))
 
-    implementation("net.chamosmp.sqdlib:sqd-lib:1.1.3")
+    implementation("net.chamosmp.sqdlib:sqdlib-paper:2.0.0")
 
     compileOnly("net.strokkur.commands:annotations-paper:2.3.0")
     annotationProcessor("net.strokkur.commands:processor-paper:2.3.0")

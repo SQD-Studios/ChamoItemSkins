@@ -25,10 +25,8 @@ import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.chamosmp.chamoitemskins.util.SelfPackUtil;
 import net.chamosmp.sqdlib.exceptions.CommandRegisterException;
-import net.chamosmp.sqdlib.util.ConfigUtil;
-import net.chamosmp.sqdlib.util.LanguageUtil;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.*;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
@@ -58,9 +56,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private CategoryManager categoryManager;
     private FavoriteManager favoriteManager;
 
-    private net.chamosmp.sqdlib.util.UpdateUtil updateUtil;
+    private UpdateUtil updateUtil;
     private ChatInputUtil chatInputUtil;
-    private net.chamosmp.sqdlib.util.DialogUtil dialogUtil;
+    private DialogUtil dialogUtil;
     private GuiFillerUtil guiFillerUtil;
     private MessageUtil messageUtil;
 
@@ -88,7 +86,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     @Override
     public void onEnable() {
-        new net.chamosmp.sqdlib.util.LoggerUtil("<light_purple>ChamoItemSkins</light_purple>| ");
+        new LoggerUtil("<light_purple>ChamoItemSkins</light_purple>| ");
 
         reloadPlugin();
 
@@ -113,7 +111,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        LoggerUtil.log(LoggerUtil.LogType.INFO, "ChamoItemSkins enabled successfully.");
+        LoggerUtil.log(LogType.INFO, "ChamoItemSkins enabled successfully.");
     }
 
     private void registerCommands() {
@@ -122,8 +120,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
-                YamlConfiguration guiConfig = net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(this, "guis/gui.yml");
-                YamlConfiguration adminGuiConfig = net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
+                YamlConfiguration guiConfig = ConfigUtil.loadDataFile(this, "guis/gui.yml");
+                YamlConfiguration adminGuiConfig = ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
 
                 mainSlots = parseSlots(guiConfig.getConfigurationSection("slots"));
                 skinsTitle = guiConfig.getString("title", "Skins");
@@ -134,7 +132,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminSize = adminGuiConfig.getInt("size", 54);
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
                 AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
-                LoggerUtil.log(LoggerUtil.LogType.INFO, "Commands registered successfully.");
+                LoggerUtil.log(LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
                 throw new CommandRegisterException("Failed to register commands: ", e);
             }
@@ -146,7 +144,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         metrics.addCustomChart(
                 new SingleLineChart("totalskins", () -> getSkinService().getSkins().size())
         );
-        LoggerUtil.log(LoggerUtil.LogType.INFO, "Metrics loaded successfully.");
+        LoggerUtil.log(LogType.INFO, "Metrics loaded successfully.");
     }
 
     private void registerClasses() {
@@ -199,9 +197,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void initElse() {
         this.messageUtil = new MessageUtil(langManager);
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
-        this.dialogUtil = new net.chamosmp.sqdlib.util.DialogUtil(this);
+        this.dialogUtil = new net.chamosmp.sqdlib.paper.util.DialogUtil(this);
         this.chatInputUtil = new ChatInputUtil(dialogUtil);
-        this.updateUtil = new net.chamosmp.sqdlib.util.UpdateUtil(this, "LTLCgsgz", "https://github.com/SQD-Studios/ChamoItemSkins/releases");
+        this.updateUtil = new net.chamosmp.sqdlib.paper.util.UpdateUtil(this, "LTLCgsgz", "https://github.com/SQD-Studios/ChamoItemSkins/releases");
         NoteUtil.init(this);
     }
 
@@ -230,8 +228,8 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     /// 2. Reloads the config<br>
     public void reloadConfiguration() {
         ConfigUtil.loadOrAdapt(this, "config.yml", List.of("categories.", "rarities."));
-        net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(this, "guis/gui.yml");
-        net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
+        net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(this, "guis/gui.yml");
+        net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
         saveDefaultConfig();
         reloadConfig();
     }
@@ -242,7 +240,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public void onDisable() {
         if (databaseManager != null) databaseManager.close();
-        LoggerUtil.log(LoggerUtil.LogType.INFO, "ChamoItemSkins disabled.");
+        LoggerUtil.log(LogType.INFO, "ChamoItemSkins disabled.");
     }
 
     private void setupDatabase(FileConfiguration config) {

@@ -6,7 +6,7 @@ import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -124,7 +124,7 @@ public final class SkinManager implements SkinService {
     public void reloadSkins() {
         skins.clear();
         bundles.clear();
-        var config = net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
+        var config = net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(plugin, "skins.yml");
         YamlUtil.loadSkins(config, rarityManager, new CategoryManager(plugin)).forEach(skin -> skins.put(skin.id(), skin));
         YamlUtil.loadBundles(config).forEach(bundle -> bundles.put(bundle.id(), bundle));
     }

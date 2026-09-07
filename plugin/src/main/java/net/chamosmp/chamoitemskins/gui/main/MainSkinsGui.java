@@ -13,7 +13,7 @@ import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -107,7 +107,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = net.chamosmp.sqdlib.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
+            YamlConfiguration selectionConfig = net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
             List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");

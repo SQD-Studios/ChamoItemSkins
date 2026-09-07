@@ -11,8 +11,9 @@ import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -122,7 +123,7 @@ public final class GrantManager implements GrantService {
                 revokeSkin(entry.playerUuid(), entry.skinId());
             }
         }).exceptionally(ex -> {
-            LoggerUtil.log(LoggerUtil.LogType.WARNING, "Failed to check expired skins: " + ex);
+            LoggerUtil.log(LogType.WARNING, "Failed to check expired skins: " + ex);
             return null;
         });
     }
@@ -240,7 +241,7 @@ public final class GrantManager implements GrantService {
                     modelService.refreshInventory(player, Map.copyOf(activeSkins)), () -> {
             });
         }).exceptionally(ex -> {
-            LoggerUtil.log(LoggerUtil.LogType.WARNING, "Failed to refresh player skins: " + ex.getMessage());
+            LoggerUtil.log(LogType.WARNING, "Failed to refresh player skins: " + ex.getMessage());
             return null;
         });
     }

@@ -15,9 +15,10 @@ import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.util.ConfigUtil;
-import net.chamosmp.sqdlib.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.SchedulerUtil;
+import net.chamosmp.sqdlib.paper.util.ConfigUtil;
+import net.chamosmp.sqdlib.paper.util.LoggerUtil;
+import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.sqdlib.util.LogType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -361,7 +362,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         try {
             loadPlayerData(true);
         } catch (InterruptedException | ExecutionException e) {
-            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to get favorite skins: " + e);
+            LoggerUtil.log(LogType.SEVERE, "Failed to get favorite skins: " + e);
         }
     }
 
@@ -385,7 +386,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 });
             });
         }).exceptionally(ex -> {
-            LoggerUtil.log(LoggerUtil.LogType.SEVERE, "Failed to load player data: " + ex.getMessage());
+            LoggerUtil.log(LogType.SEVERE, "Failed to load player data: " + ex.getMessage());
             return null;
         });
     }
