@@ -1,7 +1,12 @@
+import io.papermc.hangarpublishplugin.model.Platforms
+
 plugins {
     id("com.gradleup.shadow") version "9.6.1"
     id("xyz.jpenilla.run-paper") version "3.1.0"
     id("shared")
+
+    id("io.papermc.hangar-publish-plugin") version "0.1.4"
+    id("com.modrinth.minotaur") version "2.+"
 }
 
 dependencies {
@@ -67,4 +72,61 @@ tasks {
         options.encoding = "UTF-8"
         options.compilerArgs.add("-Xlint:deprecation")
     }
+}
+
+
+hangarPublish {
+    publications.register("plugin") {
+        version.set(project.version as String)
+        channel.set("Release")
+        id.set("MiniLobby")
+        apiKey.set(System.getenv("HANGAR_API_TOKEN"))
+        platforms {
+            register(Platforms.PAPER) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(listOf("1.21-26.2"))
+
+                dependencies {
+                    hangar("PlaceholderAPI") {
+                        required.set(false)
+                    }
+                }
+            }
+        }
+    }
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("hUJyv10y")
+    uploadFile.set(tasks.shadowJar)
+    gameVersions.addAll(
+        "1.21",
+        "1.21.1",
+        "1.21.2",
+        "1.21.3",
+        "1.21.4",
+        "1.21.5",
+        "1.21.6",
+        "1.21.7",
+        "1.21.8",
+        "1.21.9",
+        "1.21.10",
+        "1.21.11",
+        "26.1.2",
+        "26.1",
+        "26.1.1",
+        "26.2"
+    )
+    loaders.addAll("folia", "paper", "purpur")
+    dependencies {
+        optional.project("lKEzGugV") // PlaceholderAPI
+    }
+}
+
+tasks.register("publishToAllPlatforms") {
+    group = "publishing"
+    description = "Publishes all platforms"
+    dependsOn("modrinth")
+    dependsOn("publishAllPublicationsToHangar")
 }
