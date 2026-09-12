@@ -1,7 +1,7 @@
 name: Release packages (Releases)
 on:
   release:
-    types: [ created ]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -23,11 +23,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
       - name: Build
-        run: ./gradlew shadowJar
+        run: ./gradlew plugin:shadowJar
 
       - name: Publish to maven.chamosmp.net
         run: ./gradlew publishMavenPublicationToChamoSMP-ReleasesRepository
