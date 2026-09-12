@@ -79,15 +79,21 @@ hangarPublish {
     publications.register("plugin") {
         version.set(project.version as String)
         channel.set("Release")
-        id.set("MiniLobby")
+        id.set("ChamoItemSkins")
         apiKey.set(System.getenv("HANGAR_API_TOKEN"))
         platforms {
             register(Platforms.PAPER) {
                 jar.set(tasks.shadowJar.flatMap { it.archiveFile })
-                platformVersions.set(listOf("1.21-26.2"))
+                platformVersions.set(listOf("1.21.11-26.2"))
 
                 dependencies {
                     hangar("PlaceholderAPI") {
+                        required.set(false)
+                    }
+                    url("Nexo", "https://nexomc.com/products/nexo") {
+                        required.set(false)
+                    }
+                    url("HMCWarps", "https://github.com/HibiscusMC/HMCWraps") {
                         required.set(false)
                     }
                 }
@@ -98,20 +104,9 @@ hangarPublish {
 
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
-    projectId.set("hUJyv10y")
+    projectId.set("LTLCgsgz")
     uploadFile.set(tasks.shadowJar)
     gameVersions.addAll(
-        "1.21",
-        "1.21.1",
-        "1.21.2",
-        "1.21.3",
-        "1.21.4",
-        "1.21.5",
-        "1.21.6",
-        "1.21.7",
-        "1.21.8",
-        "1.21.9",
-        "1.21.10",
         "1.21.11",
         "26.1.2",
         "26.1",
@@ -122,11 +117,4 @@ modrinth {
     dependencies {
         optional.project("lKEzGugV") // PlaceholderAPI
     }
-}
-
-tasks.register("publishToAllPlatforms") {
-    group = "publishing"
-    description = "Publishes all platforms"
-    dependsOn("modrinth")
-    dependsOn("publishAllPublicationsToHangar")
 }
