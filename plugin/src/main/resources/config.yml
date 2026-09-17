@@ -42,18 +42,18 @@ filler:
   item:
     material: GRAY_STAINED_GLASS_PANE
     name: " "
-    lore: []
+    lore: [ ]
     glow: false
 
 note:
   default-material: PAPER
-  display-name: "{skin_name} <i><dark_gray>[Permanent Skin Note]" # You can still put {time_left} there, and it will default to Permanent :D
-  temporary-name: "{skin_name} <i><dark_gray>[{time_left} Day(s) Skin Note]"
+  display-name: "%skin_name% <i><dark_gray>[Permanent Skin Note]" # You can still put %time_left% there, and it will default to Permanent :D
+  temporary-name: "%skin_name% <i><dark_gray>[%time_left% Day(s) Skin Note]"
   lore:
     - "" # You can put these placeholders here too!
 
 filter:
-  chosen-character: " > {category}"
+  chosen-character: " > %category%"
 
 
 # Believe some messages are inlined and should be configured? You can make an issue on GitHub!
@@ -61,7 +61,7 @@ filter:
 language: en
 
 selfpack: # This is if you want to have self pack hosting for your server. You will need an open port.
-  enable: true # This can and will affect your CPU and RAM
+  enable: false # This can and will affect your CPU and RAM
   port: 32768 # An open port to host the server to
   ip: localhost # IMPORTANT. CHANGE THIS OR IT WILL NOT WORK CORRECTLY
 

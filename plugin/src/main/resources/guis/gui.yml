@@ -110,7 +110,7 @@ slots:
       - <gray>Click to browse skins for pickaxes.
 
 # Selection GUI
-selection-title: Select <white>{material}<gray> Skins
+selection-title: Select <white>%material%<gray> Skins
 selection-size: 54
 selection-slots:
   filter:
@@ -120,9 +120,9 @@ selection-slots:
     name: <dark_red><b>Filter Skins
     lore:
       - " "
-      - "{owned}"
-      - "{all}"
-      - "{favorite}"
+      - "%owned%"
+      - "%all%"
+      - "%favorite%"
   back:
     slot: 45
     type: BackSlot
@@ -137,7 +137,7 @@ selection-slots:
     name: <b><red>Search skins
     lore:
       - ''
-      - <white>Currently searching for:<dark_red> {search}
+      - <white>Currently searching for:<dark_red> %search%
       - ' '
   nextpage:
     slot: 54

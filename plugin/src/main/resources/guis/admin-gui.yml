@@ -7,11 +7,11 @@ slots:
     action: RELOAD
     material: BARRIER
     name: "<red>Reload Plugin"
-    lore: ["<gray>Click to reload all configurations."]
+    lore: [ "<gray>Click to reload all configurations." ]
   editor:
     slot: 15
     type: ActionSlot
     action: EDITOR
     material: WRITABLE_BOOK
     name: "<gold>Editor"
-    lore: ["<gray>Click to open the editor."]
+    lore: [ "<gray>Click to open the editor." ]
