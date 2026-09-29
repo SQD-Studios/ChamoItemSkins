@@ -4,15 +4,15 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Category;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.gui.GuiMultiPageUtil;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiPaginationUtil;
+import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
 import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,7 +44,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
     private final RarityManager rarityManager;
     private final ChatInputUtil chatInputUtil;
 
-    private final GuiMultiPageUtil<Skin> pagination;
+    private final GuiPaginationUtil<Skin> pagination;
 
     private static final int PAGE_PRE = 52;
     private static final int PAGE_NEXT = 53;
@@ -70,7 +70,7 @@ public final class SkinEditorGui implements GuiListener.ChamoGui {
             }
         }
 
-        this.pagination = new GuiMultiPageUtil<>(
+        this.pagination = new GuiPaginationUtil<>(
                 inventory.getSize(),
                 this::isBorderSlot,
                 reserved

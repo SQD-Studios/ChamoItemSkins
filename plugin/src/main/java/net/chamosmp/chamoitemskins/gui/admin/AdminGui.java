@@ -1,16 +1,16 @@
 package net.chamosmp.chamoitemskins.gui.admin;
 
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
-import net.chamosmp.chamoitemskins.gui.config.SlotType;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
+import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
+import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
 import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,7 +31,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final Plugin plugin;
     private final Player player;
     private final Inventory inventory;
-    private final List<GuiSlotDef> slots;
+    private final List<GuiSlot> slots;
     private final MessageUtil messageUtil;
     private final CategoryManager categoryManager;
     private final ModelService modelService;
@@ -39,7 +39,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final ChatInputUtil chatInputUtil;
     private final SkinService skinService;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlotDef> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil, SkinService skinService) {
+    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlot> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil, SkinService skinService) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
@@ -55,7 +55,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
     }
 
     private void setupInventory() {
-        for (GuiSlotDef def : slots) {
+        for (GuiSlot def : slots) {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {

@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.sqdlib.paper.util.DialogUtil;
+import net.chamosmp.sqdlib.paper.dialog.SimpleDialog;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
@@ -8,17 +8,17 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.function.Consumer;
 
 /**
- * Wrapper class of {@link DialogUtil}
+ * Wrapper class of {@link SimpleDialog}
  * <p>
  * This is kept for backwards combatability in every part of the plugin
  *
- * @apiNote Use {@link DialogUtil} directly instead of this
+ * @apiNote Use {@link SimpleDialog} directly instead of this
  */
 @ApiStatus.Obsolete
 public final class ChatInputUtil {
-    private final DialogUtil dialogUtil;
+    private final SimpleDialog dialogUtil;
 
-    public ChatInputUtil(DialogUtil dialogUtil) {
+    public ChatInputUtil(SimpleDialog dialogUtil) {
         this.dialogUtil = dialogUtil;
     }
 

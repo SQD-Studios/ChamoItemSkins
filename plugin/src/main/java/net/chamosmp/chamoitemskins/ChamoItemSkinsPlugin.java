@@ -11,10 +11,7 @@ import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestionsI
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.database.MySQLDatabase;
 import net.chamosmp.chamoitemskins.database.SQLiteDatabase;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
-import net.chamosmp.chamoitemskins.gui.config.SlotType;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.gui.config.CustomSlotTypes;
 import net.chamosmp.chamoitemskins.listener.NoteListener;
 import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
 import net.chamosmp.chamoitemskins.manager.*;
@@ -24,9 +21,14 @@ import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.chamosmp.chamoitemskins.util.SelfPackUtil;
-import net.chamosmp.sqdlib.exceptions.CommandRegisterException;
+import net.chamosmp.sqdlib.exceptions.command.CommandRegisterException;
+import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
+import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
+import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
+import net.chamosmp.sqdlib.paper.dialog.SimpleDialog;
 import net.chamosmp.sqdlib.paper.util.*;
-import net.chamosmp.sqdlib.util.LogType;
+import net.chamosmp.sqdlib.util.log.LogType;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
@@ -58,27 +60,20 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
     private UpdateUtil updateUtil;
     private ChatInputUtil chatInputUtil;
-    private DialogUtil dialogUtil;
+    private SimpleDialog dialogUtil;
     private GuiFillerUtil guiFillerUtil;
     private MessageUtil messageUtil;
+    private NoteUtil noteUtil;
 
     private ModelService modelService;
 
     private String adminTitle;
     private int adminSize;
-    private List<GuiSlotDef> adminSlots;
+    private List<GuiSlot> adminSlots;
 
-    private List<GuiSlotDef> mainSlots;
+    private List<GuiSlot> mainSlots;
     private String skinsTitle;
     private int skinsSize;
-
-    /**
-     * When the plugins load, at the very start of your server
-     */
-    @Override
-    public void onLoad() {
-
-    }
 
     /**
      * Do I need to say a lot? The event when the plugin gets enabled, after the dependencies
@@ -115,8 +110,10 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     private void registerCommands() {
-        SkinIdSuggestionsImpl.init(skinManager);
-        BundleSuggestionsImpl.init(skinManager);
+        // noinspection all
+        new SkinIdSuggestionsImpl(skinManager);
+        // noinspection all
+        new BundleSuggestionsImpl(skinManager);
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS.newHandler(event -> {
             try {
@@ -131,7 +128,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminTitle = adminGuiConfig.getString("title", "Admin");
                 adminSize = adminGuiConfig.getInt("size", 54);
                 SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil, noteUtil);
                 LoggerUtil.log(LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
                 throw new CommandRegisterException("Failed to register commands: ", e);
@@ -164,7 +161,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
     private void registerEvents() throws IOException {
         Bukkit.getPluginManager().registerEvents(new SelfPackUtil(this), this);
-        Bukkit.getPluginManager().registerEvents(new NoteListener(this, skinManager, grantManager, messageUtil), this);
         Bukkit.getPluginManager().registerEvents(new GuiListener(), this);
         Bukkit.getPluginManager().registerEvents(new SkinApplyListener(grantManager), this);
     }
@@ -197,10 +193,10 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void initElse() {
         this.messageUtil = new MessageUtil(langManager);
         this.guiFillerUtil = GuiFillerUtil.load(getConfig());
-        this.dialogUtil = new net.chamosmp.sqdlib.paper.util.DialogUtil(this);
+        this.dialogUtil = new SimpleDialog(this);
         this.chatInputUtil = new ChatInputUtil(dialogUtil);
         this.updateUtil = new net.chamosmp.sqdlib.paper.util.UpdateUtil(this, "LTLCgsgz", "https://github.com/SQD-Studios/ChamoItemSkins/releases");
-        NoteUtil.init(this);
+        this.noteUtil = new NoteUtil(this, new NoteListener(this, skinManager, grantManager, messageUtil));
     }
 
     /// 1. Config<br>
@@ -258,15 +254,15 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         this.databaseManager.init();
     }
 
-    private List<GuiSlotDef> parseSlots(ConfigurationSection section) {
-        List<GuiSlotDef> slots = new ArrayList<>();
+    private List<GuiSlot> parseSlots(ConfigurationSection section) {
+        List<GuiSlot> slots = new ArrayList<>();
         if (section == null) return slots;
         for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
             if (s == null) continue;
 
             SlotType type = parseSlotType(s.getString("type", "Decorative"), s);
-            slots.add(new GuiSlotDef(
+            slots.add(new GuiSlot(
                     type,
                     s.getInt("slot"),
                     Material.matchMaterial(s.getString("material", "STONE")),
@@ -280,9 +276,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
-            case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot();
-            case "BACKSLOT" -> new SlotType.BackSlot();
+            case "SKINSLOT" -> new CustomSlotTypes.SkinSlot(section.getInt("index", 0));
+            case "FILTERSLOT" -> new CustomSlotTypes.FilterSlot();
+            case "BACKSLOT" -> new CustomSlotTypes.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
             default -> new SlotType.Decorative();
         };
@@ -300,7 +296,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         return adminSize;
     }
 
-    public List<GuiSlotDef> adminSlots() {
+    public List<GuiSlot> adminSlots() {
         return adminSlots;
     }
 

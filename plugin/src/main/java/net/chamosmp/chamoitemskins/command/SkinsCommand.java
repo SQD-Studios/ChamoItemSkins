@@ -4,12 +4,12 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.main.MainSkinsGui;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
 import net.strokkur.commands.Aliases;
 import net.strokkur.commands.Command;
 import net.strokkur.commands.Executes;
@@ -30,14 +30,14 @@ public final class SkinsCommand {
     private final GrantService grantService;
     private final String guiTitle;
     private final int guiSize;
-    private final List<GuiSlotDef> guiSlots;
+    private final List<GuiSlot> guiSlots;
     private final ChatInputUtil chatInputUtil;
     private final ModelService modelService;
     private final RarityManager rarityManager;
     private final MessageUtil messageUtil;
     private final FavoriteManager favoriteManager;
 
-    public SkinsCommand(ChamoItemSkinsPlugin plugin, SkinService skinService, GrantService grantService, String guiTitle, int guiSize, List<GuiSlotDef> guiSlots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
+    public SkinsCommand(ChamoItemSkinsPlugin plugin, SkinService skinService, GrantService grantService, String guiTitle, int guiSize, List<GuiSlot> guiSlots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;

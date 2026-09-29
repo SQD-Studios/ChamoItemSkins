@@ -12,10 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public final class BundleSuggestionsImpl {
     private static SkinManager skinManager;
 
-    private BundleSuggestionsImpl() {
-    }
-
-    public static void init(SkinManager manager) {
+    public BundleSuggestionsImpl(SkinManager manager) {
         skinManager = manager;
     }
 

@@ -5,20 +5,21 @@ import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.gui.GuiMultiPageUtil;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
-import net.chamosmp.chamoitemskins.gui.config.SlotType;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.gui.config.CustomSlotTypes;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiPaginationUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
+import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
+import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
 import net.chamosmp.sqdlib.paper.util.ConfigUtil;
 import net.chamosmp.sqdlib.paper.util.LoggerUtil;
 import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.LogType;
+import net.chamosmp.sqdlib.util.log.LogType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -47,7 +48,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final RarityManager rarityManager;
     private final ModelService modelService;
     private final Inventory inventory;
-    private final List<GuiSlotDef> slots;
+    private final List<GuiSlot> slots;
     private final Map<Integer, Skin> skinMap = new HashMap<>();
     private final ChatInputUtil chatInputUtil;
     private final MessageUtil messageUtil;
@@ -56,7 +57,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private int filterSlotCategories;
     private final String baseCategory;
 
-    private final GuiMultiPageUtil<Skin> pagination;
+    private final GuiPaginationUtil<Skin> pagination;
 
     private final FavoriteManager.ClickType favoriteClickType;
 
@@ -92,7 +93,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull ModelService modelService,
             @NotNull String title,
             int size,
-            @NotNull List<GuiSlotDef> slots,
+            @NotNull List<GuiSlot> slots,
             ChatInputUtil chatInputUtil, MessageUtil messageUtil, FavoriteManager favoriteManager
     ) {
         this.plugin = plugin;
@@ -112,16 +113,16 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.favoriteClickType = favoriteManager.getClickType(plugin.getConfig().getString("favorites.favorite-click", "RIGHTCLICK").toUpperCase());
 
         Set<Integer> reserved = new HashSet<>();
-        for (GuiSlotDef def : slots) {
-            if (def.type() instanceof SlotType.FilterSlot) {
+        for (GuiSlot def : slots) {
+            if (def.type() instanceof CustomSlotTypes.FilterSlot) {
                 filterSlotCategories = def.slot();
             }
-            if (!(def.type() instanceof SlotType.SkinSlot)) {
+            if (!(def.type() instanceof CustomSlotTypes.SkinSlot)) {
                 reserved.add(def.slot());
             }
         }
 
-        this.pagination = new GuiMultiPageUtil<>(
+        this.pagination = new GuiPaginationUtil<>(
                 inventory.getSize(),
                 this::isBorderSlot,
                 reserved
@@ -162,14 +163,14 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             index++;
         }
 
-        for (GuiSlotDef def : slots) {
+        for (GuiSlot def : slots) {
             switch (def.type()) {
-                case SlotType.SkinSlot _ -> {
+                case CustomSlotTypes.SkinSlot _ -> {
                 }
-                case SlotType.FilterSlot _ -> {
+                case CustomSlotTypes.FilterSlot _ -> {
                     inventory.setItem(def.slot(), createFilterItem(def));
                 }
-                case SlotType.SearchSlot _ -> {
+                case CustomSlotTypes.SearchSlot _ -> {
                     inventory.setItem(def.slot(), createSearchItem(def));
                 }
                 case SlotType.NextPage _ -> {
@@ -232,7 +233,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return favoritedSkins.contains(skin);
     }
 
-    private @NotNull ItemStack createFilterItem(@NotNull GuiSlotDef def) {
+    private @NotNull ItemStack createFilterItem(@NotNull GuiSlot def) {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
@@ -266,7 +267,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return item;
     }
 
-    private @NotNull ItemStack createNavigationItem(@NotNull GuiSlotDef def) {
+    private @NotNull ItemStack createNavigationItem(@NotNull GuiSlot def) {
         ItemStack item = new ItemStack(def.material());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
@@ -320,7 +321,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return item;
     }
 
-    private @NotNull ItemStack createSearchItem(@NotNull GuiSlotDef def) {
+    private @NotNull ItemStack createSearchItem(@NotNull GuiSlot def) {
         ItemStack item = new ItemStack(def.material());
         var meta = item.getItemMeta();
         if (meta != null) {
@@ -341,7 +342,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         return category.isAllowed(materialName);
     }
 
-    private @NotNull ItemStack createStaticItem(@NotNull GuiSlotDef def) {
+    private @NotNull ItemStack createStaticItem(@NotNull GuiSlot def) {
         if (def.material() != null) {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
@@ -487,7 +488,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             }
 
             slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-                if (Objects.requireNonNull(def.type()) instanceof SlotType.BackSlot) {
+                if (Objects.requireNonNull(def.type()) instanceof CustomSlotTypes.BackSlot) {
                     player.performCommand("skins");
                 }
             });

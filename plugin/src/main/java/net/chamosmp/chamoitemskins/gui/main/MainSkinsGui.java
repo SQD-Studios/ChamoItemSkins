@@ -4,15 +4,16 @@ import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.objects.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.gui.GuiFillerUtil;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
-import net.chamosmp.chamoitemskins.gui.config.SlotType;
-import net.chamosmp.chamoitemskins.listener.GuiListener;
+import net.chamosmp.chamoitemskins.gui.config.CustomSlotTypes;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
+import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
+import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
+import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
 import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -35,7 +36,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final SkinService skinService;
     private final GrantService grantService;
     private final Inventory inventory;
-    private final List<GuiSlotDef> slots;
+    private final List<GuiSlot> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
     private final ChatInputUtil chatInputUtil;
     private final ModelService modelService;
@@ -44,7 +45,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final FavoriteManager favoriteManager;
 
 
-    public MainSkinsGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlotDef> slots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
+    public MainSkinsGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlot> slots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
@@ -61,7 +62,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     }
 
     private void setupInventory() {
-        for (GuiSlotDef def : slots) {
+        for (GuiSlot def : slots) {
             if (Objects.requireNonNull(def.type()) instanceof SlotType.ActionSlot(String action)) {
                 if (action.equals("ADMIN_GUI")) {
                     if (!player.hasPermission("chamoitemskins.admin")) {
@@ -109,7 +110,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             String category = categorySlots.get(slotIdx);
             YamlConfiguration selectionConfig = net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
-            List<GuiSlotDef> selectionSlots = parseSlots(selectionSlotsSection);
+            List<GuiSlot> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");
             int selectionSize = selectionConfig.getInt("selection-size", 54);
 
@@ -129,15 +130,15 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         }
     }
 
-    private List<GuiSlotDef> parseSlots(ConfigurationSection section) {
-        List<GuiSlotDef> slotsList = new ArrayList<>();
+    private List<GuiSlot> parseSlots(ConfigurationSection section) {
+        List<GuiSlot> slotsList = new ArrayList<>();
         if (section == null) return slotsList;
         for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
             if (s == null) continue;
 
             SlotType type = parseSlotType(s.getString("type", "Decorative"), s);
-            slotsList.add(new GuiSlotDef(
+            slotsList.add(new GuiSlot(
                     type,
                     s.getInt("slot"),
                     Material.matchMaterial(s.getString("material", "STONE")),
@@ -151,11 +152,11 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
 
     private SlotType parseSlotType(String typeStr, ConfigurationSection section) {
         return switch (typeStr.toUpperCase()) {
-            case "SKINSLOT" -> new SlotType.SkinSlot(section.getInt("index", 0));
-            case "FILTERSLOT" -> new SlotType.FilterSlot();
-            case "BACKSLOT" -> new SlotType.BackSlot();
+            case "SKINSLOT" -> new CustomSlotTypes.SkinSlot(section.getInt("index", 0));
+            case "FILTERSLOT" -> new CustomSlotTypes.FilterSlot();
+            case "BACKSLOT" -> new CustomSlotTypes.BackSlot();
             case "ACTIONSLOT" -> new SlotType.ActionSlot(section.getString("action", ""));
-            case "SEARCHSLOT" -> new SlotType.SearchSlot();
+            case "SEARCHSLOT" -> new CustomSlotTypes.SearchSlot();
             case "PREVIOUSPAGE" -> new SlotType.PreviousPage();
             case "NEXTPAGE" -> new SlotType.NextPage();
             default -> new SlotType.Decorative();

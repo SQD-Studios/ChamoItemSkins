@@ -6,7 +6,7 @@ import net.chamosmp.chamoitemskins.api.service.FavoriteService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.sqdlib.paper.util.LoggerUtil;
 import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.LogType;
+import net.chamosmp.sqdlib.util.log.LogType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

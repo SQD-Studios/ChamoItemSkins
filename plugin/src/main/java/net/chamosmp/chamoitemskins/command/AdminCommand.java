@@ -5,7 +5,6 @@ import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.command.suggestions.bundles.BundleSuggestions;
 import net.chamosmp.chamoitemskins.command.suggestions.skinId.SkinIdSuggestions;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
-import net.chamosmp.chamoitemskins.gui.config.GuiSlotDef;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.MigrateManager;
@@ -14,6 +13,7 @@ import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
+import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
 import net.strokkur.commands.Aliases;
 import net.strokkur.commands.Command;
 import net.strokkur.commands.Executes;
@@ -41,16 +41,17 @@ public final class AdminCommand {
     private final FileConfiguration config;
     private final String adminGuiTitle;
     private final int adminGuiSize;
-    private final List<GuiSlotDef> adminGuiSlots;
+    private final List<GuiSlot> adminGuiSlots;
     private final MigrateManager migrateManager;
     private final MessageUtil messageUtil;
     private final ModelService modelService;
     private final CategoryManager categoryManager;
     private final RarityManager rarityManager;
     private final ChatInputUtil chatInputUtil;
+    private final NoteUtil noteUtil;
 
     public AdminCommand(Plugin plugin, SkinService skinService, GrantService grantService, FileConfiguration config,
-                        String adminGuiTitle, int adminGuiSize, List<GuiSlotDef> adminGuiSlots, MigrateManager migrateManager, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+                        String adminGuiTitle, int adminGuiSize, List<GuiSlot> adminGuiSlots, MigrateManager migrateManager, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil, NoteUtil noteUtil) {
         this.plugin = plugin;
         this.skinService = skinService;
         this.grantService = grantService;
@@ -64,6 +65,7 @@ public final class AdminCommand {
         this.categoryManager = categoryManager;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
+        this.noteUtil = noteUtil;
     }
 
     @Permission("chamoitemskins.admin.editor")
@@ -153,7 +155,7 @@ public final class AdminCommand {
             List<String> loreTmpl = config.getStringList("note.lore");
             for (int i = 0; i < amount; i++) {
                 if (defMat == null) return;
-                target.getInventory().addItem(NoteUtil.createNote(plugin, skin, defMat, loreTmpl, time));
+                target.getInventory().addItem(noteUtil.createNote(skin, defMat, loreTmpl, time));
             }
             messageUtil.sendLangMessage(sender, "admin-give-note", Map.of("skin_id", skin.id(), "target", target.getName(), "amount", String.valueOf(amount)));
         }, () -> {
