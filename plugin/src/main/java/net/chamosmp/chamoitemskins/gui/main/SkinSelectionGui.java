@@ -1,25 +1,27 @@
 package net.chamosmp.chamoitemskins.gui.main;
 
-import net.chamosmp.chamoitemskins.api.objects.Category;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.GuiPaginationUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.config.GuiSlot;
+import com.sqdstudios.sqdlib.paper.chamogui.config.SlotType;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.ConfigUtil;
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Category;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.config.CustomSlotTypes;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiPaginationUtil;
-import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
-import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.ConfigUtil;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,7 +31,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  * GUI for selecting a skin for a specific item type.
  */
 public final class SkinSelectionGui implements GuiListener.ChamoGui {
-    private final Plugin plugin;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
     private final GrantService grantService;
@@ -50,21 +51,17 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     private final Inventory inventory;
     private final List<GuiSlot> slots;
     private final Map<Integer, Skin> skinMap = new HashMap<>();
-    private final ChatInputUtil chatInputUtil;
+    private final SimpleDialog chatInputUtil;
     private final MessageUtil messageUtil;
     private final FavoriteManager favoriteManager;
-
-    private int filterSlotCategories;
     private final String baseCategory;
-
     private final GuiPaginationUtil<Skin> pagination;
-
     private final FavoriteManager.ClickType favoriteClickType;
-
+    private final Set<String> ownedSkinIds = new HashSet<>();
+    private final List<Skin> favoriteSkins = new ArrayList<>();
+    private int filterSlotCategories;
     private int PAGE_NEXT;
     private int PAGE_PRE;
-
-
     /**
      * I need to Javadoc this because I WON'T REMEMBER IT<br>
      * {@code 1} = Owned<br>
@@ -73,18 +70,13 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
      * {@code Default} = 2<br>
      */
     private int filterLoreCycle = 2;
-
-
     private String search;
     private boolean isSearching = false;
     private int searchSlot = 0;
-
     private Map<Material, String> activeSkins = new HashMap<>();
-    private Set<String> ownedSkinIds = new HashSet<>();
-    private List<Skin> favoritedSkins = new ArrayList<>();
 
     public SkinSelectionGui(
-            @NotNull Plugin plugin,
+            @NotNull ChamoItemSkinsPlugin plugin,
             @NotNull Player player,
             @NotNull String category,
             @NotNull SkinService skinService,
@@ -94,7 +86,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             @NotNull String title,
             int size,
             @NotNull List<GuiSlot> slots,
-            ChatInputUtil chatInputUtil, MessageUtil messageUtil, FavoriteManager favoriteManager
+            SimpleDialog chatInputUtil, MessageUtil messageUtil, FavoriteManager favoriteManager
     ) {
         this.plugin = plugin;
         this.player = player;
@@ -108,7 +100,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         this.messageUtil = messageUtil;
         this.favoriteManager = favoriteManager;
 
-        this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("category", category, "material", category)));
+        this.inventory = Bukkit.createInventory(this, size, ColorUtil.parse(player, title, Map.of("category", category, "material", category)));
 
         this.favoriteClickType = favoriteManager.getClickType(plugin.getConfig().getString("favorites.favorite-click", "RIGHTCLICK").toUpperCase());
 
@@ -230,7 +222,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
     private boolean matchesFavoriteFilter(@NotNull Skin skin) {
         if (filterLoreCycle != 3) return true;
-        return favoritedSkins.contains(skin);
+        return favoriteSkins.contains(skin);
     }
 
     private @NotNull ItemStack createFilterItem(@NotNull GuiSlot def) {
@@ -238,7 +230,7 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         var meta = item.getItemMeta();
         if (meta != null) {
 
-            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
+            meta.customName(ColorUtil.parse(player, def.name(), Map.of()));
 
 
             YamlConfiguration config = ConfigUtil.loadOrAdapt(plugin, "config.yml", List.of("categories.", "rarities."));
@@ -249,15 +241,15 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (character == null) return item;
             placeholders = switch (filterLoreCycle) { // Make the placeholder different based on the filter
                 case 1 ->
-                        Map.of("owned", MessageUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins", "favorite", "Favorite");
+                        Map.of("owned", ColorUtil.placeholder(character, Map.of("category", "Owned")), "all", "All Skins", "favorite", "Favorite");
                 case 3 ->
-                        Map.of("owned", "Owned", "all", "All Skins", "favorite", MessageUtil.placeholder(character, Map.of("category", "Favorite")));
+                        Map.of("owned", "Owned", "all", "All Skins", "favorite", ColorUtil.placeholder(character, Map.of("category", "Favorite")));
                 default -> // case 2
-                        Map.of("owned", "Owned", "all", MessageUtil.placeholder(character, Map.of("category", "All Skins")), "favorite", "Favorite");
+                        Map.of("owned", "Owned", "all", ColorUtil.placeholder(character, Map.of("category", "All Skins")), "favorite", "Favorite");
             };
 
-            List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
-            meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+            List<String> lore = new ArrayList<>(ColorUtil.placeholder(def.lore(), placeholders));
+            meta.lore(lore.stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
 
 
             meta.setEnchantmentGlintOverride(def.glow());
@@ -271,10 +263,10 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(def.material());
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse(def.name()));
+            meta.customName(ColorUtil.parse(def.name()));
             List<Component> loreList = new ArrayList<>();
             for (String lore : def.lore()) {
-                loreList.add(MessageUtil.parse(lore));
+                loreList.add(ColorUtil.parse(lore));
             }
             meta.lore(loreList);
             meta.setEnchantmentGlintOverride(def.glow());
@@ -309,8 +301,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
                 lore.add("<red>Locked");
             }
 
-            meta.customName(MessageUtil.parse(player, customName, Map.of()));
-            meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+            meta.customName(ColorUtil.parse(player, customName, Map.of()));
+            meta.lore(lore.stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
 
             if (active || (skin.displayItem() != null && skin.displayItem().glow())) {
                 meta.setEnchantmentGlintOverride(true);
@@ -328,10 +320,10 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             String safeSearch = search == null ? "Nothing" : search;
             Map<String, String> placeholders = Map.of("search", safeSearch);
 
-            meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
-            List<String> lore = new ArrayList<>(MessageUtil.placeholder(def.lore(), placeholders));
+            meta.customName(ColorUtil.parse(player, def.name(), Map.of()));
+            List<String> lore = new ArrayList<>(ColorUtil.placeholder(def.lore(), placeholders));
 
-            meta.lore(lore.stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+            meta.lore(lore.stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
             item.setItemMeta(meta);
         }
         searchSlot = def.slot();
@@ -347,8 +339,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {
-                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
-                meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+                meta.customName(ColorUtil.parse(player, def.name(), Map.of()));
+                meta.lore(def.lore().stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
                 if (def.glow()) {
                     meta.setEnchantmentGlintOverride(true);
                 }
@@ -368,8 +360,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
     }
 
     private void loadPlayerData(boolean openAfter) throws ExecutionException, InterruptedException {
-        favoritedSkins.clear();
-        favoritedSkins.addAll(favoriteManager.getFavoriteSkinsFromPlayer(player).get().stream().toList());
+        favoriteSkins.clear();
+        favoriteSkins.addAll(favoriteManager.getFavoriteSkinsFromPlayer(player).get().stream().toList());
         grantService.getAllActiveSkins(player.getUniqueId()).thenAccept(loadedActive -> {
             grantService.getGrants(player.getUniqueId()).thenAccept(grants -> {
                 Set<String> loadedOwned = grants.stream()
@@ -378,7 +370,8 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
 
                 SchedulerUtil.runForEntity(plugin, player, () -> {
                     activeSkins = loadedActive;
-                    ownedSkinIds = loadedOwned;
+                    ownedSkinIds.clear();
+                    ownedSkinIds.addAll(loadedOwned);
                     refresh();
                     if (openAfter) {
                         player.openInventory(inventory);
@@ -427,18 +420,18 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             if (searchSlot == slot) {
                 refresh();
                 if (!isSearching) {
-                    chatInputUtil.getInput(player, MessageUtil.parse("Search:"), input -> {
-                        if (input == null) {
-                            isSearching = false;
-                            return;
-                        }
-                        search = input;
+                    chatInputUtil.getInput(ColorUtil.parse("Search for a skin"), player, "selectionsearch", ColorUtil.parse("Search:"), null,
+                            input -> {
+                                if (input == null) {
+                                    isSearching = false;
+                                    return;
+                                }
+                                search = input;
 
-                        isSearching = true;
-                        refresh();
-                        SchedulerUtil.runForEntity(plugin, player, () -> player.openInventory(inventory), () -> {
-                        });
-                    }, "selectionsearch", MessageUtil.parse("Search for a skin"));
+                                isSearching = true;
+                                refresh();
+                                open();
+                            });
                 } else {
                     isSearching = false;
                     search = null;
@@ -506,10 +499,10 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             Skin s = skinMap.get(slot);
             if (s != null) {
                 favoriteManager.changeFavoriteSkin(player, s);
-                if (favoritedSkins.contains(s)) {
-                    favoritedSkins.remove(s);
+                if (favoriteSkins.contains(s)) {
+                    favoriteSkins.remove(s);
                 } else {
-                    favoritedSkins.add(s);
+                    favoriteSkins.add(s);
                 }
                 refresh();
             }
@@ -519,10 +512,10 @@ public final class SkinSelectionGui implements GuiListener.ChamoGui {
             Skin s = skinMap.get(slot);
             if (s != null) {
                 favoriteManager.changeFavoriteSkin(player, s);
-                if (favoritedSkins.contains(s)) {
-                    favoritedSkins.remove(s);
+                if (favoriteSkins.contains(s)) {
+                    favoriteSkins.remove(s);
                 } else {
-                    favoritedSkins.add(s);
+                    favoriteSkins.add(s);
                 }
                 refresh();
             }

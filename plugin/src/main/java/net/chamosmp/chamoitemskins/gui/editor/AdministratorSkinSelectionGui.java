@@ -1,13 +1,13 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class AdministratorSkinSelectionGui implements GuiListener.ChamoGui, List
         this.player = player;
         this.modelService = modelService;
         this.skins = new ArrayList<>(skinService.getSkins());
-        this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<aqua><b>Select as skin"));
+        this.inventory = Bukkit.createInventory(this, 54, ColorUtil.parse("<aqua><b>Select as skin"));
         this.skinSlots = computeSkinSlots(inventory.getSize());
 
         refresh();
@@ -87,7 +87,7 @@ public class AdministratorSkinSelectionGui implements GuiListener.ChamoGui, List
         ItemStack itemStack = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta != null) {
-            itemMeta.customName(MessageUtil.parse("<green><b>Confirm"));
+            itemMeta.customName(ColorUtil.parse("<green><b>Confirm"));
             itemStack.setItemMeta(itemMeta);
         }
         inventory.setItem(53, itemStack);
@@ -138,15 +138,14 @@ public class AdministratorSkinSelectionGui implements GuiListener.ChamoGui, List
         var meta = item.getItemMeta();
         if (meta != null) {
             if (isSelected) {
-                meta.customName(MessageUtil.parse("<dark_gray>[Selected] " + skin.name()));
+                meta.customName(ColorUtil.parse("<dark_gray>[Selected] " + skin.name()));
             } else {
-                meta.customName(MessageUtil.parse(skin.name()));
+                meta.customName(ColorUtil.parse(skin.name()));
             }
             item.setItemMeta(meta);
         }
         return item;
     }
-
 
 
     @EventHandler

@@ -16,7 +16,7 @@ It allows players to unlock and apply skins to their items.
 - **Skin Notes**: Give players "Skin Notes" that they can use to unlock a skin.
 - **PlaceholderAPI**: Placeholders for active skins, ownership status, and totals.
 - **Nexo Items Support** Instead of vanilla textures, use Nexo Items
-- **HMCWarps Migration** Migrate from HMCWarps to us 
+- **HMCWarps Migration** Migrate from HMCWarps to us
 
 ## Requirements
 
@@ -70,40 +70,7 @@ bundles:
       - sky_meteor
 ```
 
-## Commands & Permissions
-
-> [!WARNING]
-> This needs to be documented and is outdated
-
-### Player Commands
-
-| Command  | Description                        | Permission                     |
-|:---------|:-----------------------------------|:-------------------------------|
-| `/skins` | Opens the main skin selection GUI. | `chamoitemskins.use` (default) |
-
-### Admin Commands
-
-| Command                              | Description                                | Permission             |
-|:-------------------------------------|:-------------------------------------------|:-----------------------|
-| `/skinsadmin gui`                    | Opens the administrative management GUI.   | `chamoitemskins.admin` |
-| `/skinsadmin give <player> <skinId>` | Gives a physical Skin Note to a player.    | `chamoitemskins.admin` |
-| `/skinsadmin reload`                 | Reloads all configuration files and skins. | `chamoitemskins.admin` |
-
-## Placeholders
-
-> [!WARNING]
-> This needs to be documented and is outdated
-
-Use these with **PlaceholderAPI**:
-
-- `%chamoitemskins_active_<MATERIAL>%`: Returns the name of the active skin for the specified material.
-- `%chamoitemskins_owns_<skinId>%`: Returns `true` or `false` if the player owns the skin.
-- `%chamoitemskins_total_owned%`: Total number of skins owned by the player.
-- `%chamoitemskins_total_skins%`: Total number of enabled skins available.
-
 ## Developer API
-
-Developers can hook into ChamoItemSkins' `:api` submodule.
 
 ### Repository
 
@@ -113,10 +80,7 @@ The repository for the API can be accessed here:
 <summary>Gradle Kotlin DSL</summary>
 
 ``` kotlin
-maven {
-    name = "chamosmpRepoReleases"
-    url = uri("https://maven.chamosmp.net/releases")
-}
+maven("https://maven.chamosmp.net/releases")
 ```
 
 ``` kotlin
@@ -138,8 +102,8 @@ compileOnly("net.chamosmp.chamoitemskins:api:version")
 
 ``` xml
 <dependency>
-  <groupId>net.chamosmp</groupId>
-  <artifactId>ChamoParty</artifactId>
+  <groupId>net.chamosmp.chamoitemskins</groupId>
+  <artifactId>api</artifactId>
   <version>version</version>
 </dependency>
 ```
@@ -169,15 +133,11 @@ implementation "net.chamosmp.chamoitemskins:api:version"
 - `SkinGrantEvent`: Fired when a player unlocks a skin via a Note or Admin command.
 - `SkinRevokeEvent`: Fired when a skin is removed from a player.
 
-### Javadocs
-
-Don't forget to see our Javadocs for more information
-
 ### Accessing the API
 
 ```java
-ChamoItemSkinsApi api = Bukkit.getServicesManager().load(ChamoItemSkinsApi.class);
-if(api != null){
+ChamoItemSkinsApi api = ChamoItemSkinsApi.get();
+if (api != null) {
     SkinService skinService = api.getSkinService();
     // Your logic here
 }
@@ -186,7 +146,7 @@ if(api != null){
 ---
 
 *Brought to you by SQD Studios*. _Keep in mind this is vibecoded to see how powerful (even though it isn't a valid
-excuse) it is. I've personally checked every file to
+excuse) it is. I've personally checked everything to
 maintain the quality. There aren't a lot of things (except unperformed code) that could go wrong right? If I have time,
 I may
 recode this as some people actually need it_

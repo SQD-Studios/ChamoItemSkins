@@ -1,4 +1,4 @@
-package net.chamosmp.chamoitemskins.api.objects;
+package net.chamosmp.chamoitemskins.api.model;
 
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;

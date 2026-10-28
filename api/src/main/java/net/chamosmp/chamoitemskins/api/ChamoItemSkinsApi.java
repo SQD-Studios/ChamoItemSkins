@@ -1,9 +1,7 @@
 package net.chamosmp.chamoitemskins.api;
 
-import net.chamosmp.chamoitemskins.api.models.Model;
 import net.chamosmp.chamoitemskins.api.service.*;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,19 +22,11 @@ public interface ChamoItemSkinsApi {
         return instance;
     }
 
-    /// Get the {@link CacheService} class
-    @ApiStatus.Internal
-    @NotNull CacheService getCacheService();
-
     /// Get the {@link CategoryService} class
     @NotNull CategoryService getCategoryService();
 
     /// Get the {@link GrantService} class
     @NotNull GrantService getGrantService();
-
-    /// Get the {@link LogService} class
-    @ApiStatus.Internal
-    @NotNull LogService getLogService();
 
     /// Get the {@link MigrateService} class
     @NotNull MigrateService getMigrateService();
@@ -46,9 +36,6 @@ public interface ChamoItemSkinsApi {
 
     /// Get the {@link SkinService} class
     @NotNull SkinService getSkinService();
-
-    /// Get the {@link Model} class
-    @NotNull Model getModelClass();
 
     @NotNull FavoriteService getFavoriteService();
 }

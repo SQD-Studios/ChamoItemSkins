@@ -1,27 +1,26 @@
 package net.chamosmp.chamoitemskins.gui.editor.bundle;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Rarity;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.editor.AdministratorSkinSelectionGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,26 +31,25 @@ import java.util.Optional;
  * GUI for editing an existing skin.
  */
 public final class BundleEditDetailGui implements GuiListener.ChamoGui {
-    private final Plugin plugin;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
     private final RarityManager rarityManager;
-    private SkinBundle bundle;
     private final Inventory inventory;
     private final MessageUtil messageUtil;
     private final CategoryManager categoryManager;
     private final ModelService modelService;
-    private final ChatInputUtil chatInputUtil;
-
+    private final SimpleDialog chatInputUtil;
     private final List<Skin> SKINS;
+    private SkinBundle bundle;
 
-    public BundleEditDetailGui(Plugin plugin, Player player, SkinService skinService, SkinBundle bundle, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public BundleEditDetailGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, SkinBundle bundle, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, SimpleDialog chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.rarityManager = rarityManager;
         this.bundle = bundle;
-        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<yellow><b>Edit Bundle: " + bundle.id()));
+        this.inventory = Bukkit.createInventory(this, 27, ColorUtil.parse("<yellow><b>Edit Bundle: " + bundle.id()));
         this.messageUtil = messageUtil;
         this.categoryManager = categoryManager;
         this.modelService = modelService;
@@ -91,7 +89,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.ARROW);
         var meta = back.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse("<gray>Back to Editor"));
+            meta.customName(ColorUtil.parse("<gray>Back to Editor"));
             back.setItemMeta(meta);
         }
         inventory.setItem(26, back);
@@ -106,24 +104,11 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse(name));
-            meta.lore(lore.stream().map(MessageUtil::parse).toList());
+            meta.customName(ColorUtil.parse(name));
+            meta.lore(lore.stream().map(ColorUtil::parse).toList());
             item.setItemMeta(meta);
         }
         return item;
-    }
-
-    private Rarity nextRarity(Rarity current) {
-        var rarities = rarityManager.getRarities();
-        if (rarities.isEmpty()) return current;
-        int idx = 0;
-        for (int i = 0; i < rarities.size(); i++) {
-            if (rarities.get(i).id().equals(current.id())) {
-                idx = i;
-                break;
-            }
-        }
-        return rarities.get((idx + 1) % rarities.size());
     }
 
     public void open() {
@@ -135,35 +120,37 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter bundle Name:"), input -> {
-                bundle = new SkinBundle(bundle.id(), input, bundle.skinIds());
-                saveAndRefresh();
-                open();
-            }, "editoreditskinnameb", MessageUtil.parse("<light_purple>" + bundle.id()), bundle.name());
+            chatInputUtil.getInput(ColorUtil.parse("<light_purple>" + bundle.id()), player, "editoreditskinnameb", ColorUtil.parse("<yellow>Enter bundle Name:"), bundle.name(),
+                    input -> {
+                        bundle = new SkinBundle(bundle.id(), input, bundle.skinIds());
+                        saveAndRefresh();
+                        open();
+                    });
         } else if (slot == 11) {
-            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter NEW bundle ID:"), input -> {
-                if (input == null) {
-                    return;
-                }
-                String oldId = bundle.id();
-                String newId = input.toLowerCase().replace(" ", "_");
-                if (oldId.equals(newId)) {
-                    open();
-                    return;
-                }
+            chatInputUtil.getInput(ColorUtil.parse("<light_purple>" + bundle.id()), player, "editoreditskinidb", ColorUtil.parse("<yellow>Enter NEW bundle ID:"), bundle.id(),
+                    input -> {
+                        if (input == null) {
+                            return;
+                        }
+                        String oldId = bundle.id();
+                        String newId = input.toLowerCase().replace(" ", "_");
+                        if (oldId.equals(newId)) {
+                            open();
+                            return;
+                        }
 
-                if (skinService.getBundle(newId).isPresent()) {
-                    messageUtil.sendLangMessage(player, "<red>A bundle with ID " + newId + " already exists!");
-                    open();
-                    return;
-                }
-                YamlUtil.deleteBundle(plugin, oldId);
-                SkinBundle skinBundle = new SkinBundle(newId, bundle.name(), bundle.skinIds());
-                YamlUtil.saveBundle(plugin, skinBundle);
-                bundle = skinBundle;
-                saveAndRefresh();
-                open();
-            }, "editoreditskinidb", MessageUtil.parse("<light_purple>" + bundle.id()), bundle.id());
+                        if (skinService.getBundle(newId).isPresent()) {
+                            messageUtil.sendLangMessage(player, "<red>A bundle with ID " + newId + " already exists!");
+                            open();
+                            return;
+                        }
+                        YamlUtil.deleteBundle(plugin, oldId);
+                        SkinBundle skinBundle = new SkinBundle(newId, bundle.name(), bundle.skinIds());
+                        YamlUtil.saveBundle(plugin, skinBundle);
+                        bundle = skinBundle;
+                        saveAndRefresh();
+                        open();
+                    });
         } else if (slot == 12) {
             List<Skin> skins = new ArrayList<>();
             if (bundle.skinIds() != null) {
@@ -172,7 +159,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                     optionalSkin.ifPresent(skins::add);
                 }
             }
-            new AdministratorSkinSelectionGui((ChamoItemSkinsPlugin) plugin, player, skinService, modelService).open(newSkins -> {
+            new AdministratorSkinSelectionGui(plugin, player, skinService, modelService).open(newSkins -> {
                 List<String> skinIds = new ArrayList<>();
                 for (Skin skin : newSkins) {
                     skinIds.add(skin.id());
@@ -182,10 +169,10 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                 open();
             }, skins);
         } else if (slot == 25) {
-            chatInputUtil.getYesNo(player, input -> {
+            chatInputUtil.getYesNo(ColorUtil.parse("Are you sure you want to delete this bundle?"), player, input -> {
                 if (input) {
                     skinService.deleteBundle(bundle.id());
-                    ((ChamoItemSkinsPlugin) plugin).reloadPlugin();
+                    plugin.reloadPlugin();
                     BundleEditorGui editorGui = new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil);
                     editorGui.open(() -> {
                         skinService.reloadSkins();
@@ -193,7 +180,7 @@ public final class BundleEditDetailGui implements GuiListener.ChamoGui {
                         editorGui.open(null);
                     });
                 }
-            }, MessageUtil.parse("Are you sure you want to delete this bundle?"));
+            });
         } else if (slot == 26) {
             new BundleEditorGui(plugin, player, skinService, modelService, categoryManager, messageUtil, rarityManager, chatInputUtil).open(null);
         }

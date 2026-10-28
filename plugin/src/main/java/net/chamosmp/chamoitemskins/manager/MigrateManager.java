@@ -1,15 +1,15 @@
 package net.chamosmp.chamoitemskins.manager;
 
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
 import de.skyslycer.hmcwraps.HMCWraps;
 import de.skyslycer.hmcwraps.serialization.wrap.Wrap;
-import net.chamosmp.chamoitemskins.api.objects.Category;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.model.Category;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.MigrateService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
-import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.YamlUtil;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,11 +36,6 @@ public final class MigrateManager implements MigrateService {
         this.skinService = skinService;
     }
 
-    @Override
-    public void migrateItemSkins() {
-        throw new UnsupportedOperationException("migrateItemSkins() is not implemented yet in MigrateManager.");
-    }
-
     // HMCWarps Section
     @Override
     public void migrateHMC(Audience audience) {
@@ -51,16 +46,16 @@ public final class MigrateManager implements MigrateService {
         } else {
             a = audience;
         }
-        a.sendMessage(MessageUtil.parse("<green>Started migration process"));
+        a.sendMessage(ColorUtil.parse("<green>Started migration process"));
         if (!Bukkit.getPluginManager().isPluginEnabled("HMCWraps")) {
-            a.sendMessage(MessageUtil.parse("<red>HMCWraps not enabled. Migration aborted."));
+            a.sendMessage(ColorUtil.parse("<red>HMCWraps not enabled. Migration aborted."));
             return;
         }
 
         // Get HMCWraps instance
         hmcWraps = Bukkit.getServicesManager().load(HMCWraps.class);
         if (hmcWraps == null) {
-            a.sendMessage(MessageUtil.parse("<red>Failed to load HMCWraps instance."));
+            a.sendMessage(ColorUtil.parse("<red>Failed to load HMCWraps instance."));
             return;
         }
 
@@ -71,17 +66,17 @@ public final class MigrateManager implements MigrateService {
         try {
             config.save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException e) {
-            a.sendMessage(MessageUtil.parse("<dark_red>Could not save config: " + e.getMessage()));
+            a.sendMessage(ColorUtil.parse("<dark_red>Could not save config: " + e.getMessage()));
         }
 
         // Access wraps
         Map<String, Wrap> wraps = hmcWraps.getWrapsLoader().getWraps();
         if (wraps == null || wraps.isEmpty()) {
-            a.sendMessage(MessageUtil.parse("<yellow>No wraps found in HMCWarps to migrate"));
+            a.sendMessage(ColorUtil.parse("<yellow>No wraps found in HMCWarps to migrate"));
             return;
         }
 
-        a.sendMessage(MessageUtil.parse("<green>Starting migration of " + wraps.size() + " wraps from HMCWarps"));
+        a.sendMessage(ColorUtil.parse("<green>Starting migration of " + wraps.size() + " wraps from HMCWarps"));
 
         int migrated = 0;
         int failed = 0;
@@ -95,17 +90,17 @@ public final class MigrateManager implements MigrateService {
                 if (skin != null) {
                     skinService.saveSkin(skin);
                     migrated++;
-                    a.sendMessage(MessageUtil.parse("<green>Successfully migrated wrap: " + wrapId));
+                    a.sendMessage(ColorUtil.parse("<green>Successfully migrated wrap: " + wrapId));
                 } else {
                     failed++;
-                    a.sendMessage(MessageUtil.parse("<red>Failed to convert wrap: " + wrapId));
+                    a.sendMessage(ColorUtil.parse("<red>Failed to convert wrap: " + wrapId));
                 }
             } catch (Exception e) {
                 failed++;
-                a.sendMessage(MessageUtil.parse("<dark_red>Error migrating wrap " + wrapId + ": " + e.getMessage()));
+                a.sendMessage(ColorUtil.parse("<dark_red>Error migrating wrap " + wrapId + ": " + e.getMessage()));
             }
         }
-        a.sendMessage(MessageUtil.parse("<green>Migration completed. Migrated: " + migrated + ", <red>Failed: " + failed));
+        a.sendMessage(ColorUtil.parse("<green>Migration completed. Migrated: " + migrated + ", <red>Failed: " + failed));
     }
 
     /**

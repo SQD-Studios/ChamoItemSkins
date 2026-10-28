@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.api.service;
 
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,18 +14,16 @@ public interface FavoriteService {
      *
      * @param player The player this action takes on
      * @param skin   The skin to add as a favorite
-     * @return The {@link CompletableFuture}
      */
-    CompletableFuture<Void> addFavoriteSkinToPlayer(@NotNull Player player, @NotNull Skin skin);
+    void addFavoriteSkinToPlayer(@NotNull Player player, @NotNull Skin skin);
 
     /**
      * Remove a skin from a player as their favourite
      *
      * @param player The player this action takes on
      * @param skin   The skin to remove
-     * @return The {@link CompletableFuture}
      */
-    CompletableFuture<Void> removeFavoriteSkinFromPlayer(@NotNull Player player, @NotNull Skin skin);
+    void removeFavoriteSkinFromPlayer(@NotNull Player player, @NotNull Skin skin);
 
     /**
      * Get a collection of skins, that a player has favorite

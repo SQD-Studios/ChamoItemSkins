@@ -1,34 +1,34 @@
 package net.chamosmp.chamoitemskins.gui.admin;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.config.GuiSlot;
+import com.sqdstudios.sqdlib.paper.chamogui.config.SlotType;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
-import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Admin control panel GUI.
  */
 public final class AdminGui implements GuiListener.ChamoGui {
-    private final Plugin plugin;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final Inventory inventory;
     private final List<GuiSlot> slots;
@@ -36,10 +36,10 @@ public final class AdminGui implements GuiListener.ChamoGui {
     private final CategoryManager categoryManager;
     private final ModelService modelService;
     private final RarityManager rarityManager;
-    private final ChatInputUtil chatInputUtil;
+    private final SimpleDialog chatInputUtil;
     private final SkinService skinService;
 
-    public AdminGui(Plugin plugin, Player player, String title, int size, List<GuiSlot> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil, SkinService skinService) {
+    public AdminGui(ChamoItemSkinsPlugin plugin, Player player, String title, int size, List<GuiSlot> slots, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, SimpleDialog chatInputUtil, SkinService skinService) {
         this.plugin = plugin;
         this.player = player;
         this.slots = slots;
@@ -49,7 +49,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
         this.skinService = skinService;
-        this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of()));
+        this.inventory = Bukkit.createInventory(this, size, ColorUtil.parse(player, title, Map.of()));
 
         setupInventory();
     }
@@ -59,8 +59,8 @@ public final class AdminGui implements GuiListener.ChamoGui {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {
-                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
-                meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+                meta.customName(ColorUtil.parse(player, def.name(), Map.of()));
+                meta.lore(def.lore().stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
                 item.setItemMeta(meta);
             }
             inventory.setItem(def.slot(), item);
@@ -77,7 +77,7 @@ public final class AdminGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         slots.stream().filter(s -> s.slot() == slot).findFirst().ifPresent(def -> {
-            if (Objects.requireNonNull(def.type()) instanceof SlotType.ActionSlot(String action)) {
+            if (def.type() instanceof SlotType.ActionSlot(String action)) {
                 handleAction(action);
             }
         });
@@ -85,52 +85,13 @@ public final class AdminGui implements GuiListener.ChamoGui {
 
     private void handleAction(String action) {
         switch (action) {
-            case "RELOAD" -> {
-                SchedulerUtil.runSync(plugin, () -> {
-                    if (plugin instanceof net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin chamoPlugin) {
-                        chamoPlugin.reloadPlugin();
-                        skinService.reloadSkins();
-                    }
-                    messageUtil.sendLangMessage(player, "reload-success");
-                });
-            }
-            case "EDITOR" -> {
-                net.chamosmp.chamoitemskins.api.service.SkinService service = Bukkit.getServicesManager().load(net.chamosmp.chamoitemskins.api.service.SkinService.class);
-                if (service == null) {
-                    service = net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi.get().getSkinService();
-                }
-                new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
-            }
-            case "GIVE" -> {
-                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to GIVE note:"), skinId -> {
-                    if (skinId == null) {
-                        open();
-                        return;
-                    }
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin give " + player.getName() + " " + skinId);
-                    open();
-                }, "adminguigiveskinid", MessageUtil.parse("<yellow>Give Note"));
-            }
-            case "GRANT" -> {
-                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to GRANT access:"), skinId -> {
-                    if (skinId == null) {
-                        open();
-                        return;
-                    }
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access give " + player.getName() + " " + skinId);
-                    open();
-                }, "adminguigrant", MessageUtil.parse("<yellow>Grant Access"));
-            }
-            case "REVOKE" -> {
-                chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID to REVOKE access:"), skinId -> {
-                    if (skinId == null) {
-                        open();
-                        return;
-                    }
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skinsadmin access revoke " + player.getName() + " " + skinId);
-                    open();
-                }, "adminguirevokeskinid", MessageUtil.parse("<yellow>Revoke Access"));
-            }
+            case "RELOAD" -> SchedulerUtil.runSync(plugin, () -> {
+                plugin.reloadConfiguration();
+                skinService.reloadSkins();
+                messageUtil.sendLangMessage(player, "reload-success");
+            });
+            case "EDITOR" ->
+                    new EditorGui(plugin, player, messageUtil, categoryManager, modelService, rarityManager, chatInputUtil).open();
             default -> player.sendRichMessage("Action " + action + " not implemented yet.");
         }
     }

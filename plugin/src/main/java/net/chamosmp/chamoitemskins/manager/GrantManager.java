@@ -1,19 +1,18 @@
 package net.chamosmp.chamoitemskins.manager;
 
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
 import net.chamosmp.chamoitemskins.api.event.SkinEquipEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinGrantEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinRevokeEvent;
 import net.chamosmp.chamoitemskins.api.event.SkinUnequipEvent;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
-import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinBundle;
+import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
-import net.chamosmp.chamoitemskins.api.service.LogService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,7 +32,7 @@ public final class GrantManager implements GrantService {
     private final DatabaseManager db;
     private final CacheManager cache;
     private final SkinManager skinManager;
-    private final LogService logService;
+    private final LogManager logService;
     private final ModelService modelService;
 
     /**
@@ -46,7 +45,7 @@ public final class GrantManager implements GrantService {
      * @param logService   The log service.
      * @param modelService The model service.
      */
-    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogService logService, ModelService modelService) {
+    public GrantManager(Plugin plugin, DatabaseManager db, CacheManager cache, SkinManager skinManager, LogManager logService, ModelService modelService) {
         this.plugin = plugin;
         this.db = db;
         this.cache = cache;

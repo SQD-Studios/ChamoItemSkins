@@ -1,20 +1,21 @@
 package net.chamosmp.chamoitemskins.gui.main;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.config.GuiSlot;
+import com.sqdstudios.sqdlib.paper.chamogui.config.SlotType;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.config.CustomSlotTypes;
 import net.chamosmp.chamoitemskins.manager.FavoriteManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
-import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,7 +26,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Main GUI for browsing skin categories.
@@ -38,14 +42,14 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
     private final Inventory inventory;
     private final List<GuiSlot> slots;
     private final Map<Integer, String> categorySlots = new HashMap<>();
-    private final ChatInputUtil chatInputUtil;
+    private final SimpleDialog chatInputUtil;
     private final ModelService modelService;
     private final RarityManager rarityManager;
     private final MessageUtil messageUtil;
     private final FavoriteManager favoriteManager;
 
 
-    public MainSkinsGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlot> slots, ChatInputUtil chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
+    public MainSkinsGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, GrantService grantService, String title, int size, List<GuiSlot> slots, SimpleDialog chatInputUtil, ModelService modelService, RarityManager rarityManager, MessageUtil messageUtil, FavoriteManager favoriteManager) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
@@ -56,18 +60,16 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         this.rarityManager = rarityManager;
         this.messageUtil = messageUtil;
         this.favoriteManager = favoriteManager;
-        this.inventory = Bukkit.createInventory(this, size, MessageUtil.parse(player, title, Map.of("material", "All Skins")));
+        this.inventory = Bukkit.createInventory(this, size, ColorUtil.parse(player, title, Map.of("material", "All Skins")));
 
         setupInventory();
     }
 
     private void setupInventory() {
         for (GuiSlot def : slots) {
-            if (Objects.requireNonNull(def.type()) instanceof SlotType.ActionSlot(String action)) {
-                if (action.equals("ADMIN_GUI")) {
-                    if (!player.hasPermission("chamoitemskins.admin")) {
-                        continue; // Skip Admin Panel if no permission
-                    }
+            if (def.type() instanceof SlotType.ActionSlot(String action)) {
+                if (action.equals("ADMIN_GUI") && !player.hasPermission("chamoitemskins.admin")) {
+                    continue;
                 }
 
                 if (action.startsWith("CATEGORY_")) {
@@ -88,8 +90,8 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
             ItemStack item = new ItemStack(def.material());
             var meta = item.getItemMeta();
             if (meta != null) {
-                meta.customName(MessageUtil.parse(player, def.name(), Map.of()));
-                meta.lore(def.lore().stream().map(l -> MessageUtil.parse(player, l, Map.of())).toList());
+                meta.customName(ColorUtil.parse(player, def.name(), Map.of()));
+                meta.lore(def.lore().stream().map(l -> ColorUtil.parse(player, l, Map.of())).toList());
                 if (def.glow()) meta.setEnchantmentGlintOverride(true);
                 item.setItemMeta(meta);
             }
@@ -108,7 +110,7 @@ public final class MainSkinsGui implements GuiListener.ChamoGui {
         int slotIdx = event.getRawSlot();
         if (categorySlots.containsKey(slotIdx)) {
             String category = categorySlots.get(slotIdx);
-            YamlConfiguration selectionConfig = net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
+            YamlConfiguration selectionConfig = com.sqdstudios.sqdlib.paper.util.ConfigUtil.loadDataFile(plugin, "guis/gui.yml");
             ConfigurationSection selectionSlotsSection = selectionConfig.getConfigurationSection("selection-slots");
             List<GuiSlot> selectionSlots = parseSlots(selectionSlotsSection);
             String selectionTitle = selectionConfig.getString("selection-title", "Select Skin");

@@ -1,24 +1,25 @@
 package net.chamosmp.chamoitemskins.gui.editor.skin;
 
-import net.chamosmp.chamoitemskins.api.objects.Category;
-import net.chamosmp.chamoitemskins.api.objects.Rarity;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
+import net.chamosmp.chamoitemskins.api.model.Category;
+import net.chamosmp.chamoitemskins.api.model.Rarity;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -28,28 +29,25 @@ import java.util.List;
  * GUI for creating a new skin.
  */
 public final class SkinCreationGui implements GuiListener.ChamoGui {
-    private final Plugin plugin;
+    private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
     private final RarityManager rarityManager;
     private final MessageUtil messageUtil;
     private final ModelService modelService;
     private final CategoryManager categoryManager;
-    private final ChatInputUtil chatInputUtil;
-
+    private final SimpleDialog chatInputUtil;
+    private final Inventory inventory;
+    private final List<Category> ALL_CATEGORIES;
     private String id = "new_skin";
     private String name = "New Skin";
     private String modelId = "model_id";
     private List<Category> categories = new ArrayList<>();
     private boolean enabled = true;
-
     private Rarity rarity;
-    private final Inventory inventory;
+    private int categoryCycleIndex = 0;
 
-
-    private final List<Category> ALL_CATEGORIES;
-
-    public SkinCreationGui(Plugin plugin, Player player, SkinService skinService, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public SkinCreationGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, MessageUtil messageUtil, ModelService modelService, CategoryManager categoryManager, RarityManager rarityManager, SimpleDialog chatInputUtil) {
         this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
@@ -60,7 +58,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         this.ALL_CATEGORIES = categoryManager.getCategories();
         this.rarity = rarityManager.getDefaultRarity();
         this.chatInputUtil = chatInputUtil;
-        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<aqua><b>Create New Skin"));
+        this.inventory = Bukkit.createInventory(this, 27, ColorUtil.parse("<aqua><b>Create New Skin"));
 
         refresh();
     }
@@ -98,7 +96,7 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack create = new ItemStack(Material.GREEN_CONCRETE);
         var meta = create.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse("<green><bold>CREATE"));
+            meta.customName(ColorUtil.parse("<green><bold>CREATE"));
             create.setItemMeta(meta);
         }
         inventory.setItem(26, create);
@@ -107,15 +105,12 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.ARROW);
         var backMeta = back.getItemMeta();
         if (backMeta != null) {
-            backMeta.customName(MessageUtil.parse("<gray>Back to Editor"));
+            backMeta.customName(ColorUtil.parse("<gray>Back to Editor"));
             back.setItemMeta(backMeta);
         }
         inventory.setItem(25, back);
         GuiFillerUtil.apply(plugin, inventory, player);
     }
-
-
-    private int categoryCycleIndex = 0;
 
     private Rarity nextRarity(Rarity current) {
         var rarities = rarityManager.getRarities();
@@ -138,8 +133,8 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
         ItemStack item = new ItemStack(mat);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse(name));
-            meta.lore(lore.stream().map(MessageUtil::parse).toList());
+            meta.customName(ColorUtil.parse(name));
+            meta.lore(lore.stream().map(ColorUtil::parse).toList());
             item.setItemMeta(meta);
         }
         return item;
@@ -154,35 +149,38 @@ public final class SkinCreationGui implements GuiListener.ChamoGui {
     public void handleClick(InventoryClickEvent event) {
         int slot = event.getRawSlot();
         if (slot == 10) {
-            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin ID:"), input -> {
-                if (input == null) {
-                    open();
-                    return;
-                }
-                this.id = input.toLowerCase().replace(" ", "_");
-                open();
-                refresh();
-            }, "editorcreateskinid", MessageUtil.parse("<aqua>Create Skin"));
+            chatInputUtil.getInput(ColorUtil.parse("<aqua>Create Skin"), player, "editorcreateskinid", ColorUtil.parse("<yellow>Enter skin ID:"), null,
+                    input -> {
+                        if (input == null) {
+                            open();
+                            return;
+                        }
+                        this.id = input.toLowerCase().replace(" ", "_");
+                        open();
+                        refresh();
+                    });
         } else if (slot == 11) {
-            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter skin Name:"), input -> {
-                if (input == null) {
-                    open();
-                    return;
-                }
-                this.name = input;
-                open();
-                refresh();
-            }, "editorcreateskinname", MessageUtil.parse("<aqua>Create Skin"));
+            chatInputUtil.getInput(ColorUtil.parse("<aqua>Create Skin"), player, "editorcreateskinname", ColorUtil.parse("<yellow>Enter skin Name:"), null,
+                    input -> {
+                        if (input == null) {
+                            open();
+                            return;
+                        }
+                        this.name = input;
+                        open();
+                        refresh();
+                    });
         } else if (slot == 12) {
-            chatInputUtil.getInput(player, MessageUtil.parse("<yellow>Enter Model ID:"), input -> {
-                if (input == null) {
-                    open();
-                    return;
-                }
-                this.modelId = input;
-                open();
-                refresh();
-            }, "editorcreatemodelid", MessageUtil.parse("<aqua>Create Skin"));
+            chatInputUtil.getInput(ColorUtil.parse("<aqua>Create Skin"), player, "editorcreatemodelid", ColorUtil.parse("<yellow>Enter Model ID:"), null,
+                    input -> {
+                        if (input == null) {
+                            open();
+                            return;
+                        }
+                        this.modelId = input;
+                        open();
+                        refresh();
+                    });
         } else if (slot == 13) {
             categoryCycleIndex = (categoryCycleIndex + 1) % ALL_CATEGORIES.size();
             Category cat = ALL_CATEGORIES.get(categoryCycleIndex);

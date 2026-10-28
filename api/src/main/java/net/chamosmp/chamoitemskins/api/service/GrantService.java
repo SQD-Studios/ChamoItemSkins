@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.api.service;
 
-import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
+import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

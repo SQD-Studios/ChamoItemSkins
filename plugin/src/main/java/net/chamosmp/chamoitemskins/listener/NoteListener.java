@@ -1,11 +1,11 @@
 package net.chamosmp.chamoitemskins.listener;
 
+import com.sqdstudios.sqdlib.paper.note.NoteMaker;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.api.service.GrantService;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
-import net.chamosmp.sqdlib.paper.note.NoteMaker;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;

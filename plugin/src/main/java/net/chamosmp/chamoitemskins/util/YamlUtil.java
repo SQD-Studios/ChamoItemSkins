@@ -1,14 +1,14 @@
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.api.objects.Category;
-import net.chamosmp.chamoitemskins.api.objects.Rarity;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
+import net.chamosmp.chamoitemskins.api.model.Category;
+import net.chamosmp.chamoitemskins.api.model.Rarity;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
  * Utility for reading and writing skins.yml.
  */
 public final class YamlUtil {
-
-
     private YamlUtil() {
     }
 

@@ -1,8 +1,9 @@
 package net.chamosmp.chamoitemskins.util;
 
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import com.sqdstudios.sqdlib.paper.note.NoteMaker;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.listener.NoteListener;
-import net.chamosmp.sqdlib.paper.note.NoteMaker;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,7 +13,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -21,11 +21,10 @@ import java.util.Map;
  * Utility for creating and identifying physical skin notes.
  */
 public final class NoteUtil {
-    private final NoteMaker noteMaker;
-    private final Plugin plugin;
-
     public static NamespacedKey SKIN_ID_KEY;
     public static NamespacedKey EXPIRATION_KEY;
+    private final NoteMaker noteMaker;
+    private final Plugin plugin;
 
     public NoteUtil(Plugin plugin, NoteListener noteListener) {
         this.noteMaker = new NoteMaker(plugin);
@@ -63,9 +62,9 @@ public final class NoteUtil {
             placeholders = Map.of("skin_name", skin.name(), "time_left", "Permanent");
         }
 
-        meta.customName(MessageUtil.parse(null, displayNameTemplate, placeholders));
+        meta.customName(ColorUtil.parse(null, displayNameTemplate, placeholders));
         meta.lore(loreTemplate.stream()
-                .map(line -> MessageUtil.parse(null, line, placeholders))
+                .map(line -> ColorUtil.parse(null, line, placeholders))
                 .toList());
 
         item.setItemMeta(meta);

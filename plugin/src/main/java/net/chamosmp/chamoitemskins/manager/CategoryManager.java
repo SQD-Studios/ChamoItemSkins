@@ -1,9 +1,9 @@
 package net.chamosmp.chamoitemskins.manager;
 
-import net.chamosmp.chamoitemskins.api.objects.Category;
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import net.chamosmp.chamoitemskins.api.service.CategoryService;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -18,10 +18,9 @@ import java.util.Map;
  * Loads and serves user-defined rarity tiers from config.yml.
  */
 public final class CategoryManager implements CategoryService {
+    private static final String DISABLE_MESSAGE = "No category entries defined in config.yml - categories disabled! This will break the plugin. Warning";
     private final Plugin plugin;
     private final Map<String, Category> categories = new LinkedHashMap<>();
-
-    private static final String DISABLE_MESSAGE = "No category entries defined in config.yml - categories disabled! This will break the plugin. Warning";
 
     /**
      * Constructs a new CategoryManager.

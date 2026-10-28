@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.api.service;
 
-import net.chamosmp.chamoitemskins.api.objects.Category;
+import net.chamosmp.chamoitemskins.api.model.Category;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

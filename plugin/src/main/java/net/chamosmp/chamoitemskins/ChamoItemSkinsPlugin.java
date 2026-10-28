@@ -1,8 +1,14 @@
 package net.chamosmp.chamoitemskins;
 
+import com.sqdstudios.sqdlib.exceptions.command.CommandRegisterException;
+import com.sqdstudios.sqdlib.paper.chamogui.config.GuiSlot;
+import com.sqdstudios.sqdlib.paper.chamogui.config.SlotType;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.*;
+import com.sqdstudios.sqdlib.util.log.LogType;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.chamosmp.chamoitemskins.api.ChamoItemSkinsApi;
-import net.chamosmp.chamoitemskins.api.models.Model;
 import net.chamosmp.chamoitemskins.api.service.*;
 import net.chamosmp.chamoitemskins.command.AdminCommandBrigadier;
 import net.chamosmp.chamoitemskins.command.SkinsCommandBrigadier;
@@ -17,18 +23,9 @@ import net.chamosmp.chamoitemskins.listener.SkinApplyListener;
 import net.chamosmp.chamoitemskins.manager.*;
 import net.chamosmp.chamoitemskins.models.ModelService;
 import net.chamosmp.chamoitemskins.placeholder.ChamoItemSkinsExpansion;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
 import net.chamosmp.chamoitemskins.util.NoteUtil;
 import net.chamosmp.chamoitemskins.util.SelfPackUtil;
-import net.chamosmp.sqdlib.exceptions.command.CommandRegisterException;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.config.GuiSlot;
-import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.dialog.SimpleDialog;
-import net.chamosmp.sqdlib.paper.util.*;
-import net.chamosmp.sqdlib.util.log.LogType;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
@@ -59,9 +56,7 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private FavoriteManager favoriteManager;
 
     private UpdateUtil updateUtil;
-    private ChatInputUtil chatInputUtil;
     private SimpleDialog dialogUtil;
-    private GuiFillerUtil guiFillerUtil;
     private MessageUtil messageUtil;
     private NoteUtil noteUtil;
 
@@ -82,8 +77,11 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public void onEnable() {
         new LoggerUtil("<light_purple>ChamoItemSkins</light_purple>| ");
+        new DebugLogger(this);
 
         reloadPlugin();
+
+        updateUtil.versionCheck();
 
         registerClasses();
 
@@ -101,11 +99,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
 
         registerMetrics();
 
-        try {
-            updateUtil.versionCheck();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         LoggerUtil.log(LogType.INFO, "ChamoItemSkins enabled successfully.");
     }
 
@@ -127,8 +120,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
                 adminSlots = parseSlots(adminGuiConfig.getConfigurationSection("slots"));
                 adminTitle = adminGuiConfig.getString("title", "Admin");
                 adminSize = adminGuiConfig.getInt("size", 54);
-                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, chatInputUtil, modelService, rarityManager, messageUtil, favoriteManager);
-                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, getConfig(), adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, chatInputUtil, noteUtil);
+
+                SkinsCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, skinsTitle, skinsSize, mainSlots, dialogUtil, modelService, rarityManager, messageUtil, favoriteManager);
+                AdminCommandBrigadier.register(event.registrar(), this, skinManager, grantManager, adminTitle, adminSize, adminSlots, migrateManager, messageUtil, modelService, categoryManager, rarityManager, dialogUtil, noteUtil);
                 LoggerUtil.log(LogType.INFO, "Commands registered successfully.");
             } catch (Exception e) {
                 throw new CommandRegisterException("Failed to register commands: ", e);
@@ -147,16 +141,12 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     private void registerClasses() {
         Bukkit.getServicesManager().register(ChamoItemSkinsApi.class, this, this, ServicePriority.High);
 
-        Bukkit.getServicesManager().register(CacheService.class, getCacheService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(CategoryService.class, getCategoryService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(GrantService.class, getGrantService(), this, ServicePriority.Normal);
-        Bukkit.getServicesManager().register(LogService.class, getLogService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(MigrateService.class, getMigrateService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(RarityService.class, getRarityService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(SkinService.class, getSkinService(), this, ServicePriority.Normal);
         Bukkit.getServicesManager().register(FavoriteService.class, getFavoriteService(), this, ServicePriority.Normal);
-
-        Bukkit.getServicesManager().register(Model.class, getModelClass(), this, ServicePriority.Normal);
     }
 
     private void registerEvents() throws IOException {
@@ -192,10 +182,12 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
      */
     private void initElse() {
         this.messageUtil = new MessageUtil(langManager);
-        this.guiFillerUtil = GuiFillerUtil.load(getConfig());
         this.dialogUtil = new SimpleDialog(this);
-        this.chatInputUtil = new ChatInputUtil(dialogUtil);
-        this.updateUtil = new net.chamosmp.sqdlib.paper.util.UpdateUtil(this, "LTLCgsgz", "https://github.com/SQD-Studios/ChamoItemSkins/releases");
+        this.updateUtil = new UpdateUtil(
+                this, "LTLCgsgz",
+                "https://github.com/SQD-Studios/ChamoItemSkins/releases",
+                "<click:open_url:%url%><light_purple>ChamoItemSkins<white>| A new update is available! You can download it <u>here</u>"
+        );
         this.noteUtil = new NoteUtil(this, new NoteListener(this, skinManager, grantManager, messageUtil));
     }
 
@@ -224,9 +216,9 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     /// 2. Reloads the config<br>
     public void reloadConfiguration() {
         ConfigUtil.loadOrAdapt(this, "config.yml", List.of("categories.", "rarities."));
-        net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(this, "guis/gui.yml");
-        net.chamosmp.sqdlib.paper.util.ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
-        saveDefaultConfig();
+        ConfigUtil.loadDataFile(this, "guis/gui.yml");
+        ConfigUtil.loadDataFile(this, "guis/admin-gui.yml");
+
         reloadConfig();
     }
 
@@ -284,10 +276,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
         };
     }
 
-    public @NotNull GuiFillerUtil getGuiFillerUtil() {
-        return guiFillerUtil != null ? guiFillerUtil : GuiFillerUtil.load(getConfig());
-    }
-
     public String adminGuiTitle() {
         return adminTitle != null ? adminTitle : "Admin";
     }
@@ -301,11 +289,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     }
 
     @Override
-    public @NotNull CacheService getCacheService() {
-        return cacheManager;
-    }
-
-    @Override
     public @NotNull CategoryService getCategoryService() {
         return categoryManager;
     }
@@ -313,11 +296,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public @NotNull GrantService getGrantService() {
         return grantManager;
-    }
-
-    @Override
-    public @NotNull LogService getLogService() {
-        return logManager;
     }
 
     @Override
@@ -333,11 +311,6 @@ public final class ChamoItemSkinsPlugin extends JavaPlugin implements ChamoItemS
     @Override
     public @NotNull SkinService getSkinService() {
         return skinManager;
-    }
-
-    @Override
-    public @NotNull Model getModelClass() {
-        return modelService;
     }
 
     @Override

@@ -9,7 +9,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ChamoItemSkinsLoader implements PluginLoader {
-
     @Override
     public void classloader(PluginClasspathBuilder classpathBuilder) {
         MavenLibraryResolver resolver = new MavenLibraryResolver();
@@ -19,5 +18,4 @@ public class ChamoItemSkinsLoader implements PluginLoader {
 
         classpathBuilder.addLibrary(resolver);
     }
-
 }

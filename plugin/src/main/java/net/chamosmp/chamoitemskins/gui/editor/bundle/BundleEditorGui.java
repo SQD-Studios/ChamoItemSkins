@@ -1,19 +1,20 @@
 package net.chamosmp.chamoitemskins.gui.editor.bundle;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.GuiPaginationUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinBundle;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinBundle;
 import net.chamosmp.chamoitemskins.api.service.SkinService;
 import net.chamosmp.chamoitemskins.gui.editor.EditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiPaginationUtil;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,7 +22,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -32,7 +32,8 @@ import java.util.*;
 public final class BundleEditorGui implements GuiListener.ChamoGui {
     private static final int NEW_SKIN_SLOT = 46;
     private static final int BACK_SLOT = 45;
-
+    private static final int PAGE_PRE = 52;
+    private static final int PAGE_NEXT = 53;
     private final ChamoItemSkinsPlugin plugin;
     private final Player player;
     private final SkinService skinService;
@@ -42,16 +43,12 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
     private final CategoryManager categoryManager;
     private final MessageUtil messageUtil;
     private final RarityManager rarityManager;
-    private final ChatInputUtil chatInputUtil;
-
+    private final SimpleDialog chatInputUtil;
     private final GuiPaginationUtil<SkinBundle> pagination;
 
-    private static final int PAGE_PRE = 52;
-    private static final int PAGE_NEXT = 53;
-
-    public BundleEditorGui(Plugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
+    public BundleEditorGui(ChamoItemSkinsPlugin plugin, Player player, SkinService skinService, ModelService modelService, CategoryManager categoryManager, MessageUtil messageUtil, RarityManager rarityManager, SimpleDialog chatInputUtil) {
         skinService.reloadSkins();
-        this.plugin = (ChamoItemSkinsPlugin) plugin;
+        this.plugin = plugin;
         this.player = player;
         this.skinService = skinService;
         this.modelService = modelService;
@@ -60,7 +57,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         this.messageUtil = messageUtil;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
-        this.inventory = Bukkit.createInventory(this, 54, MessageUtil.parse("<yellow><b>Bundle Editor"));
+        this.inventory = Bukkit.createInventory(this, 54, ColorUtil.parse("<yellow><b>Bundle Editor"));
         List<Integer> skinSlots = computeSlots(inventory.getSize());
 
         Set<Integer> reserved = new HashSet<>();
@@ -118,7 +115,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack newSkin = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         var meta = newSkin.getItemMeta();
         if (meta != null) {
-            meta.customName(MessageUtil.parse("<green><bold>Create a New Bundle"));
+            meta.customName(ColorUtil.parse("<green><bold>Create a New Bundle"));
             newSkin.setItemMeta(meta);
         }
         inventory.setItem(NEW_SKIN_SLOT, newSkin);
@@ -126,7 +123,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaBack = back.getItemMeta();
         if (metaBack != null) {
-            metaBack.customName(MessageUtil.parse("<red><b>Go Back"));
+            metaBack.customName(ColorUtil.parse("<red><b>Go Back"));
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
@@ -134,7 +131,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack next = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta metaNext = next.getItemMeta();
         if (metaNext != null) {
-            metaNext.customName(MessageUtil.parse("<green><b>Next Page"));
+            metaNext.customName(ColorUtil.parse("<green><b>Next Page"));
             next.setItemMeta(metaNext);
         }
         if (pagination.hasNext()) {
@@ -144,7 +141,7 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemStack prev = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaPrev = next.getItemMeta();
         if (metaNext != null) {
-            metaPrev.customName(MessageUtil.parse("<red><b>Previous Page"));
+            metaPrev.customName(ColorUtil.parse("<red><b>Previous Page"));
             prev.setItemMeta(metaPrev);
         }
         if (pagination.hasPrev()) {
@@ -169,11 +166,11 @@ public final class BundleEditorGui implements GuiListener.ChamoGui {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             List<String> skinNames = new ArrayList<>(bundle.skinIds());
-            meta.customName(MessageUtil.parse(bundle.name()));
+            meta.customName(ColorUtil.parse(bundle.name()));
             meta.lore(List.of(
-                    MessageUtil.parse("<gray>ID: <white>" + bundle.id()),
+                    ColorUtil.parse("<gray>ID: <white>" + bundle.id()),
 
-                    MessageUtil.parse("<gray>Skins: <white>" + skinNames)
+                    ColorUtil.parse("<gray>Skins: <white>" + skinNames)
             ));
             item.setItemMeta(meta);
         }

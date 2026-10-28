@@ -1,7 +1,7 @@
 package net.chamosmp.chamoitemskins.database;
 
-import net.chamosmp.chamoitemskins.api.objects.Skin;
-import net.chamosmp.chamoitemskins.api.objects.SkinGrant;
+import net.chamosmp.chamoitemskins.api.model.Skin;
+import net.chamosmp.chamoitemskins.api.model.SkinGrant;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ public sealed interface DatabaseManager permits MySQLDatabase, SQLiteDatabase {
     /**
      * Upserts a skin
      */
-    @NotNull CompletableFuture<Void> upsertActiveSkin(@NotNull UUID playerUuid, @NotNull Material material,  @Nullable String skinId);
+    @NotNull CompletableFuture<Void> upsertActiveSkin(@NotNull UUID playerUuid, @NotNull Material material, @Nullable String skinId);
 
     /**
      * Logs an action to the database.

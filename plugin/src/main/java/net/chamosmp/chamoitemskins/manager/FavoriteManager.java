@@ -1,12 +1,12 @@
 package net.chamosmp.chamoitemskins.manager;
 
+import com.sqdstudios.sqdlib.paper.util.LoggerUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
+import com.sqdstudios.sqdlib.util.log.LogType;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
-import net.chamosmp.chamoitemskins.api.objects.Skin;
+import net.chamosmp.chamoitemskins.api.model.Skin;
 import net.chamosmp.chamoitemskins.api.service.FavoriteService;
 import net.chamosmp.chamoitemskins.database.DatabaseManager;
-import net.chamosmp.sqdlib.paper.util.LoggerUtil;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
-import net.chamosmp.sqdlib.util.log.LogType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,13 +34,13 @@ public class FavoriteManager implements FavoriteService {
     }
 
     @Override
-    public CompletableFuture<Void> addFavoriteSkinToPlayer(@NotNull Player player, @NotNull Skin skin) {
-        return db.addFavoriteSkinToPlayer(player.getUniqueId(), skin);
+    public void addFavoriteSkinToPlayer(@NotNull Player player, @NotNull Skin skin) {
+        db.addFavoriteSkinToPlayer(player.getUniqueId(), skin);
     }
 
     @Override
-    public CompletableFuture<Void> removeFavoriteSkinFromPlayer(@NotNull Player player, @NotNull Skin skin) {
-        return db.removeFavoriteSkinFromPlayer(player.getUniqueId(), skin);
+    public void removeFavoriteSkinFromPlayer(@NotNull Player player, @NotNull Skin skin) {
+        db.removeFavoriteSkinFromPlayer(player.getUniqueId(), skin);
     }
 
     @Override
@@ -83,11 +83,6 @@ public class FavoriteManager implements FavoriteService {
         });
     }
 
-    public enum ClickType {
-        SHIFTCLICK,
-        RIGHTCLICK;
-    }
-
     public @Nullable ClickType getClickType(String s) {
         try {
             return ClickType.valueOf(s);
@@ -95,5 +90,10 @@ public class FavoriteManager implements FavoriteService {
             LoggerUtil.log(LogType.SEVERE, "Invalid click type in the config: " + s);
             return null;
         }
+    }
+
+    public enum ClickType {
+        SHIFTCLICK,
+        RIGHTCLICK;
     }
 }

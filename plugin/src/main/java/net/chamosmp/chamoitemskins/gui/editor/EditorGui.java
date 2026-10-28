@@ -1,5 +1,10 @@
 package net.chamosmp.chamoitemskins.gui.editor;
 
+import com.sqdstudios.sqdlib.paper.chamogui.GuiFillerUtil;
+import com.sqdstudios.sqdlib.paper.chamogui.listener.GuiListener;
+import com.sqdstudios.sqdlib.paper.dialog.SimpleDialog;
+import com.sqdstudios.sqdlib.paper.util.ColorUtil;
+import com.sqdstudios.sqdlib.paper.util.SchedulerUtil;
 import net.chamosmp.chamoitemskins.ChamoItemSkinsPlugin;
 import net.chamosmp.chamoitemskins.gui.admin.AdminGui;
 import net.chamosmp.chamoitemskins.gui.editor.bundle.BundleEditorGui;
@@ -7,11 +12,7 @@ import net.chamosmp.chamoitemskins.gui.editor.skin.SkinEditorGui;
 import net.chamosmp.chamoitemskins.manager.CategoryManager;
 import net.chamosmp.chamoitemskins.manager.RarityManager;
 import net.chamosmp.chamoitemskins.models.ModelService;
-import net.chamosmp.chamoitemskins.util.ChatInputUtil;
 import net.chamosmp.chamoitemskins.util.MessageUtil;
-import net.chamosmp.sqdlib.paper.chamogui.GuiFillerUtil;
-import net.chamosmp.sqdlib.paper.chamogui.listener.GuiListener;
-import net.chamosmp.sqdlib.paper.util.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,7 +20,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public class EditorGui implements GuiListener.ChamoGui {
@@ -34,17 +34,17 @@ public class EditorGui implements GuiListener.ChamoGui {
     private final CategoryManager categoryManager;
     private final ModelService modelService;
     private final RarityManager rarityManager;
-    private final ChatInputUtil chatInputUtil;
+    private final SimpleDialog chatInputUtil;
 
-    public EditorGui(Plugin plugin, Player player, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, ChatInputUtil chatInputUtil) {
-        this.plugin = (ChamoItemSkinsPlugin) plugin;
+    public EditorGui(ChamoItemSkinsPlugin plugin, Player player, MessageUtil messageUtil, CategoryManager categoryManager, ModelService modelService, RarityManager rarityManager, SimpleDialog chatInputUtil) {
+        this.plugin = plugin;
         this.player = player;
         this.messageUtil = messageUtil;
         this.categoryManager = categoryManager;
         this.modelService = modelService;
         this.rarityManager = rarityManager;
         this.chatInputUtil = chatInputUtil;
-        this.inventory = Bukkit.createInventory(this, 27, MessageUtil.parse("<dark_aqua>Editor"));
+        this.inventory = Bukkit.createInventory(this, 27, ColorUtil.parse("<dark_aqua>Editor"));
 
         refresh();
     }
@@ -55,7 +55,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack back = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta metaBack = back.getItemMeta();
         if (metaBack != null) {
-            metaBack.customName(MessageUtil.parse("<red><b>Go Back"));
+            metaBack.customName(ColorUtil.parse("<red><b>Go Back"));
             back.setItemMeta(metaBack);
         }
         inventory.setItem(BACK_SLOT, back);
@@ -63,7 +63,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack skinEditor = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta metaSkinEditor = skinEditor.getItemMeta();
         if (metaSkinEditor != null) {
-            metaSkinEditor.customName(MessageUtil.parse("<aqua><b>Skin Editor"));
+            metaSkinEditor.customName(ColorUtil.parse("<aqua><b>Skin Editor"));
             skinEditor.setItemMeta(metaSkinEditor);
         }
         inventory.setItem(11, skinEditor);
@@ -71,7 +71,7 @@ public class EditorGui implements GuiListener.ChamoGui {
         ItemStack bundleEditor = new ItemStack(Material.BLUE_BUNDLE);
         ItemMeta metaBundleEditor = bundleEditor.getItemMeta();
         if (metaBundleEditor != null) {
-            metaBundleEditor.customName(MessageUtil.parse("<yellow><b>Bundle Editor"));
+            metaBundleEditor.customName(ColorUtil.parse("<yellow><b>Bundle Editor"));
             bundleEditor.setItemMeta(metaBundleEditor);
         }
         inventory.setItem(15, bundleEditor);

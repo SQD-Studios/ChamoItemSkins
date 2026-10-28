@@ -32,6 +32,7 @@ public class SelfPackUtil implements Listener {
     private final String ip;
     private final Path pluginFolder;
     private final File pluginFile;
+    private final boolean isEnabled;
 
     public SelfPackUtil(ChamoItemSkinsPlugin plugin) throws IOException {
         this.plugin = plugin;
@@ -70,9 +71,6 @@ public class SelfPackUtil implements Listener {
             hostFiles(plugin.getDataFolder().toPath().resolve("selfpack"));
         }
     }
-
-    private final boolean isEnabled;
-
 
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {

@@ -1,6 +1,6 @@
 package net.chamosmp.chamoitemskins.gui.config;
 
-import net.chamosmp.sqdlib.paper.chamogui.config.SlotType;
+import com.sqdstudios.sqdlib.paper.chamogui.config.SlotType;
 
 public class CustomSlotTypes {
     public record SkinSlot(int index) implements SlotType {
